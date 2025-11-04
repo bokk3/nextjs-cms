@@ -9,7 +9,7 @@ async function resetAdmin() {
     
     // Delete the existing user
     await prisma.user.delete({
-      where: { email: 'admin@example.com' }
+      where: { email: 'admin@nextjs-cms.com' }
     })
     
     console.log('✅ Existing admin user removed')
@@ -19,14 +19,14 @@ async function resetAdmin() {
     
     const result = await auth.api.signUpEmail({
       body: {
-        email: 'admin@example.com',
+        email: 'admin@nextjs-cms.com',
         password: 'admin123',
         name: 'Admin User'
       }
     })
 
     console.log('✅ Admin account created successfully!')
-    console.log('📧 Email: admin@example.com')
+    console.log('📧 Email: admin@nextjs-cms.com')
     console.log('🔑 Password: admin123')
     
   } catch (error: any) {

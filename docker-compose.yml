@@ -2,9 +2,9 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: nextjs-auth-postgres
+    container_name: nextjs-cms-postgres
     environment:
-      POSTGRES_DB: nextjs_auth_template
+      POSTGRES_DB: nextjs_cms
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -22,14 +22,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: nextjs-auth-app
+    container_name: nextjs-cms-app
     ports:
       - "3000:3000"
     env_file:
       - .env.local
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/nextjs_auth_template
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/nextjs_cms
     depends_on:
       postgres:
         condition: service_healthy
@@ -44,4 +44,4 @@ volumes:
 
 networks:
   default:
-    name: nextjs-auth-network
+    name: nextjs-cms-network

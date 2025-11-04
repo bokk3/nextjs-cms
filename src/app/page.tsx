@@ -6,7 +6,7 @@ export default function Home() {
       <main className="flex min-h-screen w-full max-w-4xl flex-col items-center justify-center py-32 px-16 bg-white dark:bg-black">
         <div className="text-center">
           <h1 className="text-6xl font-bold text-black dark:text-zinc-50 mb-6">
-            Next.js Auth Template
+            nextjs-cms
           </h1>
           <p className="text-xl text-zinc-600 dark:text-zinc-400 mb-8 max-w-2xl">
             A modern web application built with Next.js, Better Auth, and Prisma. 

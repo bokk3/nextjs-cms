@@ -7,14 +7,14 @@ async function createAdmin() {
     // Use Better Auth to create the admin user properly
     const result = await auth.api.signUpEmail({
       body: {
-        email: 'admin@example.com',
+        email: 'admin@nextjs-cms.com',
         password: 'admin123',
         name: 'Admin User'
       }
     })
 
     console.log('✅ Admin account created successfully!')
-    console.log('📧 Email: admin@example.com')
+    console.log('📧 Email: admin@nextjs-cms.com')
     console.log('🔑 Password: admin123')
     
   } catch (error: any) {

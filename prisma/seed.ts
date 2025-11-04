@@ -7,7 +7,7 @@ async function main() {
 
   // Check if admin user already exists
   const existingAdmin = await prisma.user.findUnique({
-    where: { email: 'admin@example.com' }
+    where: { email: 'admin@nextjs-cms.com' }
   })
 
   if (existingAdmin) {
@@ -19,13 +19,13 @@ async function main() {
   const adminUser = await prisma.user.create({
     data: {
       name: 'Admin User',
-      email: 'admin@example.com',
+      email: 'admin@nextjs-cms.com',
       emailVerified: true,
     }
   })
 
   console.log('✅ Admin user created:', adminUser.email)
-  console.log('📧 Email: admin@example.com')
+  console.log('📧 Email: admin@nextjs-cms.com')
   console.log('🔑 Use the signup form to set password: admin123')
   console.log('ℹ️  The user record exists, now sign up with this email to set the password')
 }

@@ -42,7 +42,7 @@ export function AdminDashboard() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link href="/" className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                Next.js Auth Template
+                nextjs-cms
               </Link>
               <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
                 Admin
