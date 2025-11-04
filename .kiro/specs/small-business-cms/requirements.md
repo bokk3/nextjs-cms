@@ -9,13 +9,18 @@ A CMS for a business website that showcases projects, integrates with Instagram,
 - **Portfolio_System**: The complete web application including frontend, backend, and database components
 - **Admin_Panel**: The authenticated administrative interface for content management
 - **Project_Gallery**: The public-facing display of custom work projects
-- **Instagram_Feed**: Integration component that displays Instagram posts
+- **Social_Feed**: Configurable integration component that displays posts from connected social media platforms
 - **Content_Editor**: WYSIWYG editing interface for rich text content
 - **Contact_Messages**: System for managing and displaying received contact form submissions
 - **Cookie_Banner**: GDPR-compliant cookie consent interface
 - **Image_Processor**: Component responsible for generating compressed versions of uploaded images
 - **Visitor**: Any user browsing the public website
 - **Admin_User**: The authenticated business owner managing website content
+- **Editor_User**: A user with permissions to create and edit content but limited administrative access
+- **Viewer_User**: A user with read-only access to admin panel for viewing content and analytics
+- **Content_Type**: Configurable content categories (projects, services, products, etc.) with dynamic field definitions
+- **Theme_System**: Configurable visual styling system including colors, fonts, and layout options
+- **Language_System**: Configurable multilingual support with dynamic language activation and management
 
 ## Requirements
 
@@ -46,15 +51,15 @@ A CMS for a business website that showcases projects, integrates with Instagram,
 
 ### Requirement 3
 
-**User Story:** As an admin user, I want to authenticate securely to access content management features, so that I can maintain control over website content.
+**User Story:** As a user with appropriate permissions, I want to authenticate securely and access content management features based on my role, so that I can perform my assigned tasks while maintaining system security.
 
 #### Acceptance Criteria
 
-1. THE Portfolio_System SHALL provide a secure login interface using Better Auth
+1. THE Portfolio_System SHALL provide a secure login interface using Better Auth with role-based access control
 2. WHEN invalid credentials are provided, THE Portfolio_System SHALL display appropriate error messages
-3. THE Portfolio_System SHALL maintain admin session security with automatic timeout
-4. THE Portfolio_System SHALL restrict admin panel access to authenticated users only
-5. THE Portfolio_System SHALL provide secure logout functionality
+3. THE Portfolio_System SHALL maintain user session security with automatic timeout based on role permissions
+4. THE Portfolio_System SHALL restrict admin panel access to authenticated users with appropriate roles (admin, editor, viewer)
+5. THE Portfolio_System SHALL provide secure logout functionality and enforce role-based feature access
 
 ### Requirement 4
 
@@ -132,12 +137,48 @@ A CMS for a business website that showcases projects, integrates with Instagram,
 
 ### Requirement 10
 
-**User Story:** As a visitor, I want to view the website in Dutch or French, so that I can understand the content in my preferred language.
+**User Story:** As a visitor, I want to view the website in my preferred language from the available options, so that I can understand the content effectively.
 
 #### Acceptance Criteria
 
-1. THE Portfolio_System SHALL display content in Dutch as the default language
-2. THE Portfolio_System SHALL provide a language toggle to switch between Dutch and French
+1. THE Portfolio_System SHALL display content in the configured default language
+2. THE Portfolio_System SHALL provide a language toggle to switch between all active languages configured in the system
 3. THE Portfolio_System SHALL persist the selected language preference across browser sessions
-4. THE Portfolio_System SHALL translate all user interface elements including navigation, forms, and buttons
-5. THE Admin_Panel SHALL allow content creation and editing in both Dutch and French languages
+4. THE Portfolio_System SHALL translate all user interface elements including navigation, forms, and buttons for all active languages
+5. THE Admin_Panel SHALL allow content creation and editing in all configured active languages
+
+### Requirement 11
+
+**User Story:** As an admin user, I want to configure system settings like languages, themes, and content types, so that I can customize the website to match my business needs.
+
+#### Acceptance Criteria
+
+1. THE Admin_Panel SHALL provide a settings interface for managing available languages, themes, and content types
+2. THE Portfolio_System SHALL allow admins to activate/deactivate languages and set a default language
+3. THE Portfolio_System SHALL provide configurable theme options including color schemes, fonts, and layout styles
+4. THE Admin_Panel SHALL allow creation and modification of custom content types with dynamic field definitions
+5. THE Portfolio_System SHALL apply configuration changes immediately across the entire system
+
+### Requirement 12
+
+**User Story:** As an admin user, I want to manage user roles and permissions, so that I can control what different team members can access and modify.
+
+#### Acceptance Criteria
+
+1. THE Admin_Panel SHALL provide user management interface with role assignment capabilities
+2. THE Portfolio_System SHALL support admin, editor, and viewer roles with distinct permission levels
+3. WHEN a user attempts to access restricted functionality, THE Portfolio_System SHALL verify their role permissions
+4. THE Admin_Panel SHALL allow admins to modify user roles and granular permissions
+5. THE Portfolio_System SHALL log all permission-based access attempts for security auditing
+
+### Requirement 13
+
+**User Story:** As an admin user, I want to configure social media integrations, so that I can connect the platforms relevant to my business.
+
+#### Acceptance Criteria
+
+1. THE Admin_Panel SHALL provide social media integration management interface
+2. THE Portfolio_System SHALL support configurable social media platforms (Instagram, Facebook, Twitter, etc.)
+3. THE Portfolio_System SHALL allow admins to activate/deactivate specific social media integrations
+4. WHEN social media content is unavailable, THE Portfolio_System SHALL display graceful fallback messages
+5. THE Portfolio_System SHALL maintain consistent styling between different social media platform posts

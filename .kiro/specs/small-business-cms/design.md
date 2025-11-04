@@ -96,24 +96,29 @@ Building on the existing User, Account, Session, and Verification models:
 ```prisma
 model Project {
   id           String                @id @default(cuid())
+  contentTypeId String
+  contentType  ContentType           @relation(fields: [contentTypeId], references: [id])
   featured     Boolean               @default(false)
   published    Boolean               @default(true)
   images       ProjectImage[]
   translations ProjectTranslation[]
+  createdBy    String
+  creator      User                  @relation(fields: [createdBy], references: [id])
   createdAt    DateTime              @default(now())
   updatedAt    DateTime              @updatedAt
 }
 
 model ProjectTranslation {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   projectId   String
-  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  language    String  // 'nl' or 'fr'
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  languageId  String
+  language    Language @relation(fields: [languageId], references: [id])
   title       String
-  description Json    // TipTap JSON content
+  description Json     // TipTap JSON content
   materials   String[]
   
-  @@unique([projectId, language])
+  @@unique([projectId, languageId])
 }
 
 model ProjectImage {
@@ -139,11 +144,12 @@ model ContentPageTranslation {
   id          String      @id @default(cuid())
   pageId      String
   page        ContentPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  language    String      // 'nl' or 'fr'
+  languageId  String
+  language    Language    @relation(fields: [languageId], references: [id])
   title       String
   content     Json        // TipTap JSON content
   
-  @@unique([pageId, language])
+  @@unique([pageId, languageId])
 }
 
 model ContactMessage {
@@ -180,7 +186,58 @@ model CookieConsent {
 model UserPreferences {
   id          String   @id @default(cuid())
   sessionId   String   @unique
-  language    String   @default("nl") // 'nl' or 'fr'
+  language    String   @default("nl") // Dynamic based on available languages
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserRole {
+  id          String @id @default(cuid())
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String // 'admin', 'editor', 'viewer'
+  permissions Json   // Granular permissions object
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId])
+}
+
+model SiteSettings {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  category    String   // 'languages', 'theme', 'content_types', 'social'
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Language {
+  id          String   @id @default(cuid())
+  code        String   @unique // 'nl', 'fr', 'en', 'de'
+  name        String   // 'Nederlands', 'Français', 'English', 'Deutsch'
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContentType {
+  id          String   @id @default(cuid())
+  name        String   @unique // 'projects', 'services', 'products'
+  displayName String   // 'Projects', 'Services', 'Products'
+  fields      Json     // Dynamic field definitions
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SocialIntegration {
+  id          String   @id @default(cuid())
+  platform    String   @unique // 'instagram', 'facebook', 'twitter'
+  displayName String   // 'Instagram', 'Facebook', 'Twitter'
+  config      Json     // Platform-specific configuration
+  isActive    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -273,7 +330,8 @@ interface Project {
 interface ProjectTranslation {
   id: string
   projectId: string
-  language: string // 'nl' or 'fr'
+  languageId: string
+  language: Language
   title: string
   description: Json // TipTap JSON content
   materials: string[]
@@ -300,9 +358,59 @@ interface ContentPage {
 interface ContentPageTranslation {
   id: string
   pageId: string
-  language: string // 'nl' or 'fr'
+  languageId: string
+  language: Language
   title: string
   content: Json // TipTap JSON content
+}
+
+interface UserRole {
+  id: string
+  userId: string
+  user: User
+  role: string // 'admin', 'editor', 'viewer'
+  permissions: Json
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface SiteSettings {
+  id: string
+  key: string
+  value: Json
+  category: string // 'languages', 'theme', 'content_types', 'social'
+  description?: string
+  updatedAt: Date
+}
+
+interface Language {
+  id: string
+  code: string // 'nl', 'fr', 'en', 'de'
+  name: string // 'Nederlands', 'Français', 'English', 'Deutsch'
+  isDefault: boolean
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface ContentType {
+  id: string
+  name: string // 'projects', 'services', 'products'
+  displayName: string // 'Projects', 'Services', 'Products'
+  fields: Json // Dynamic field definitions
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface SocialIntegration {
+  id: string
+  platform: string // 'instagram', 'facebook', 'twitter'
+  displayName: string // 'Instagram', 'Facebook', 'Twitter'
+  config: Json // Platform-specific configuration
+  isActive: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
 interface ContactMessage {
@@ -457,20 +565,21 @@ interface ErrorLog {
 ## Internationalization
 
 ### Language Support
-- **Default Language**: Dutch (nl)
-- **Secondary Language**: French (fr)
-- **Fallback Strategy**: Dutch content when French translation unavailable
+- **Configurable Languages**: Dynamic language system with admin-configurable active languages
+- **Default Language**: Admin-configurable default language (initially Dutch)
+- **Fallback Strategy**: Intelligent fallback to default language when translations unavailable
 
 ### Implementation Strategy
-- **Static Content**: JSON translation files for UI elements
-- **Dynamic Content**: Database-stored translations for projects and content
-- **URL Structure**: Language prefix routing (/nl/, /fr/)
-- **SEO**: Proper hreflang tags and language-specific meta tags
+- **Static Content**: Dynamic JSON translation files for UI elements based on active languages
+- **Dynamic Content**: Database-stored translations with configurable content types
+- **URL Structure**: Dynamic language prefix routing based on active languages
+- **SEO**: Automatic hreflang tags generation for all active languages
 
 ### Translation Workflow
-- **Admin Interface**: Side-by-side editing for both languages
-- **Content Validation**: Ensure both languages have content before publishing
-- **Language Toggle**: Persistent language preference in localStorage
+- **Admin Interface**: Dynamic side-by-side editing for all active languages
+- **Content Validation**: Ensure all required languages have content before publishing
+- **Language Toggle**: Persistent language preference with dynamic language options
+- **Role-Based Access**: Different translation permissions based on user roles
 
 ## Deployment & Infrastructure
 
