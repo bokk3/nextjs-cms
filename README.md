@@ -1,6 +1,6 @@
 # 🏢 Small Business CMS
 
-A comprehensive content management system built for small businesses, featuring multilingual support, project portfolios, contact management, and GDPR compliance.
+A comprehensive content management system built for small businesses, featuring multilingual support, project portfolios, contact management, GDPR compliance, page builder, analytics, and dark mode support.
 
 ---
 
@@ -43,35 +43,44 @@ Built with modern web technologies:
 - 🗄️ **Database Schema**: Complete multilingual content model
 - 🔐 **Authentication**: Role-based admin system with Better Auth
 - 📁 **Project Management**: Full CRUD with multilingual support
-- 🖼️ **Image Processing**: Upload, resize, and thumbnail generation
+- 🖼️ **Image Processing**: Upload, resize, and thumbnail generation with grayscale filter
 - ✍️ **Content Management**: Rich text editor with TipTap
 - 📬 **Contact System**: Form submission and admin management
 - 📧 **Email Service**: SMTP integration for notifications
+- 🎨 **Page Builder**: Visual drag-and-drop page builder for homepage customization
+- 📊 **Analytics**: Privacy-focused analytics with GDPR compliance
+- 🍪 **Cookie Consent**: Granular cookie consent management (Essential, Analytics, Marketing)
+- 🌓 **Dark Mode**: Full light/dark mode support throughout the application
 
 ### Admin Features
-- 🎛️ **Admin Dashboard**: Overview and navigation
+- 🎛️ **Admin Dashboard**: Enhanced dashboard with real-time stats, charts, system clock, and visits ticker
 - 🛠️ **Project Management**: Create, edit, delete projects with images
 - 📄 **Content Pages**: Manage About, Services, and custom pages
-- 💬 **Contact Messages**: View and manage form submissions
+- 🎨 **Page Builder**: Visual editor for building custom homepage layouts with multiple component types
+- 💬 **Contact Messages**: View and manage form submissions with GDPR compliance
 - ⚙️ **Email Settings**: Configure SMTP settings
+- 🎨 **Theme Settings**: Configure site colors, fonts, and grayscale image filter
+- 📊 **Analytics Dashboard**: View page views, popular pages, and export analytics data
 - 👥 **User Management**: Admin authentication and sessions
 
 ### Public Features
-- 🎨 **Portfolio Gallery**: Responsive project showcase
-- 🔍 **Project Details**: Individual project pages with image carousels
+- 🎨 **Portfolio Gallery**: Responsive 2-column project showcase with larger cards
+- 🔍 **Project Details**: Modal popup with translucent background, project navigation arrows, and image carousel
 - 📖 **Content Pages**: Dynamic About, Services, Contact pages
 - 📝 **Contact Form**: GDPR-compliant contact submission
-- 🌍 **Multilingual**: Dutch/French language support
+- 🌍 **Multilingual**: Dutch/French/German/English language support
 - 🚀 **SEO Optimization**: Meta tags, sitemaps, structured data
+- 🍪 **Cookie Banner**: Granular cookie consent with category selection
+- 🌓 **Theme Toggle**: Light/dark mode switcher in navigation
+- 📊 **Privacy-Focused Analytics**: Respects user consent, excludes admin activity
 
 ## 🚧 In Progress
 
 ### Next Priority Features
-- ⚡ **Gallery Management**: Admin interface for portfolio organization
+- ⚡ **Performance Optimization**: Image lazy loading and caching improvements
 - 📱 **Instagram Integration**: Automated post synchronization
-- 🔒 **GDPR Compliance**: Cookie consent and privacy controls
-- 🏎️ **Performance Optimization**: Image lazy loading and caching
-- 🧪 **Testing Suite**: Comprehensive test coverage
+- 🧪 **Testing Suite**: Expand test coverage
+- 🔄 **Page Builder Enhancements**: Additional component types and customization options
 
 ## 📋 Project Structure
 
@@ -79,15 +88,41 @@ Built with modern web technologies:
 src/
 ├── app/                    # Next.js app router
 │   ├── admin/             # Admin panel pages
+│   │   ├── analytics/      # Analytics dashboard
+│   │   ├── page-builder/  # Page builder management
+│   │   └── settings/       # Theme and email settings
 │   ├── api/               # API endpoints
+│   │   ├── analytics/     # Analytics tracking and stats
+│   │   ├── cookie-consent/# Cookie consent management
+│   │   ├── page-builder/  # Page builder API
+│   │   └── image-settings/# Image settings API
 │   ├── projects/          # Public portfolio pages
 │   └── [slug]/            # Dynamic content pages
 ├── components/
 │   ├── admin/             # Admin interface components
+│   │   ├── analytics-dashboard.tsx
+│   │   ├── page-builder-management.tsx
+│   │   └── theme-settings.tsx
 │   ├── gallery/           # Portfolio gallery components
+│   │   ├── project-card.tsx
+│   │   ├── project-grid.tsx
+│   │   └── project-modal.tsx
 │   ├── layout/            # Site layout components
+│   │   ├── cookie-banner.tsx
+│   │   ├── footer.tsx
+│   │   └── navigation.tsx
+│   ├── page-builder/      # Page builder components
+│   │   ├── component-editor.tsx
+│   │   ├── component-renderer.tsx
+│   │   └── page-builder.tsx
 │   └── ui/                # Reusable UI components
+├── contexts/              # React contexts
+│   ├── cookie-consent-context.tsx
+│   ├── image-settings-context.tsx
+│   ├── language-context.tsx
+│   └── theme-context.tsx
 ├── lib/                   # Utilities and services
+│   ├── analytics-service.ts # Analytics tracking
 │   ├── auth-middleware.ts # Authentication logic
 │   ├── content-service.ts # Content management
 │   ├── project-service.ts # Project operations
@@ -101,14 +136,17 @@ src/
 - 👤 **Users**: Admin authentication and roles
 - 🎨 **Projects**: Portfolio items with multilingual content
 - 📄 **ContentPages**: Dynamic pages (About, Services, etc.)
-- 💌 **ContactMessages**: Form submissions and management
+- 💌 **ContactMessages**: Form submissions with GDPR compliance fields
 - 🌐 **Languages**: Configurable language support
-- ⚙️ **SiteSettings**: System configuration
+- ⚙️ **SiteSettings**: System configuration (includes page builder data)
+- 📊 **AnalyticsEvent**: Page views and visitor tracking (privacy-focused)
 
 ### Multilingual Support
 All content models support multiple languages with fallback handling:
 - 🇳🇱 Dutch (default)
 - 🇫🇷 French
+- 🇩🇪 German
+- 🇬🇧 English
 - 🌍 Extensible for additional languages
 
 ## 🔧 Development Commands
@@ -118,6 +156,7 @@ All content models support multiple languages with fallback handling:
 npm run db:reset          # Reset and seed database
 npm run db:seed           # Seed with sample data
 npx prisma studio         # Database GUI
+npm run fix:prisma        # Regenerate Prisma client (if models missing)
 
 # 🚀 Development
 npm run dev               # Start dev server
@@ -126,13 +165,17 @@ npm run test              # Run test suite
 npm run test:watch        # Watch mode testing
 
 # 👨‍💼 Admin Management
-npx tsx scripts/reset-admin.ts    # Reset admin user
-npx tsx scripts/check-content.ts  # Verify content data
+npx tsx scripts/reset-admin.ts          # Reset admin user
+npx tsx scripts/check-content.ts        # Verify content data
+npx tsx scripts/create-modern-homepage.ts # Create modern homepage with page builder
+
+# 🎨 Page Builder
+npx tsx scripts/create-modern-homepage.ts # Generate modern homepage components
 ```
 
 ## 📊 Progress Status
 
-**Overall Progress: ~75% Complete**
+**Overall Progress: ~90% Complete**
 
 ### Completed Modules (100%)
 - 💎 Database & Models
@@ -143,25 +186,51 @@ npx tsx scripts/check-content.ts  # Verify content data
 - 📞 Contact System
 - 🖼️ Public Portfolio
 - 🎯 Admin Interface
+- 🎨 **Page Builder System**: Visual drag-and-drop homepage builder
+- 🍪 **GDPR Compliance**: Cookie consent banner and privacy controls
+- 📊 **Analytics System**: Privacy-focused analytics with admin dashboard
+- 🌓 **Dark Mode**: Full light/dark theme support
+- 🎨 **Theme Settings**: Customizable site colors and image filters
+- 📊 **Enhanced Dashboard**: Real-time stats, charts, system clock
 
 ### In Development (50-75%)
-- 🎪 Gallery Management Interface
-- 📮 Email Notifications
-- 🔍 SEO Enhancements
+- ⚡ Performance Optimization
+- 🧪 Expanded Test Coverage
 
 ### Planned (0-25%)
 - 📸 Instagram Integration
-- 🍪 GDPR Compliance
-- ⚡ Performance Optimization
-- 📊 Advanced Analytics
+- 🔄 Additional Page Builder Components
 
-## 🎯 Next Steps
+## 🎨 Page Builder
 
-1. 🖼️ **Gallery Management**: Add admin interface for organizing portfolio
-2. 📱 **Instagram Integration**: Automated social media synchronization
-3. 🔒 **GDPR Features**: Cookie consent and privacy controls
-4. ⚡ **Performance**: Optimize loading and caching
-5. 🧪 **Testing**: Expand test coverage
+The CMS includes a powerful visual page builder for creating custom homepage layouts:
+
+### Component Types
+- **Hero**: Large banner with title, subtitle, buttons, and background options (solid, gradient, image)
+- **Features**: Grid of feature cards with icons, titles, and descriptions
+- **Gallery**: Display featured projects or custom images in configurable grid layouts
+- **Text**: Rich text content blocks with alignment options
+- **Image**: Single image display with caption
+- **CTA**: Call-to-action sections with buttons
+- **Testimonials**: Customer testimonials with ratings
+- **Spacer**: Vertical spacing control
+
+### Features
+- ✨ Drag-and-drop component reordering
+- 🎨 Custom background colors and gradients
+- 🌓 Dark mode compatible styling
+- 🌍 Multilingual content support
+- 📱 Responsive design
+- 🔧 Granular styling controls (padding, colors, etc.)
+
+### Usage
+1. Navigate to `/admin/page-builder`
+2. Add components using the toolbar
+3. Edit component properties in the sidebar
+4. Preview changes in real-time
+5. Save to update the homepage
+
+Run `npx tsx scripts/create-modern-homepage.ts` to generate a modern homepage template.
 
 ## 📝 Configuration
 
@@ -175,6 +244,13 @@ SMTP_PORT="587"
 SMTP_USER="your-email"
 SMTP_PASS="your-password"
 ```
+
+### GDPR & Privacy
+- ✅ Cookie consent banner with granular controls
+- ✅ Privacy-focused analytics (respects user consent)
+- ✅ IP address tracking (configurable)
+- ✅ Analytics data export and deletion
+- ✅ Privacy policy page with cookie management instructions
 
 ### Admin Access
 - 📧 **Email**: admin@nextjs-cms.com
