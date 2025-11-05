@@ -22,8 +22,10 @@ export default async function ProjectsPage({ searchParams }: ProjectsPageProps) 
   const resolvedSearchParams = await searchParams
   const languageCode = resolvedSearchParams.lang || 'nl'
   
-  // Fetch published projects with language support
-  const projects = await ProjectService.getPublishedProjects(languageCode)
+  // Fetch all published projects (don't filter by language here, let the client handle it)
+  const projects = await ProjectService.getPublishedProjects()
+  
+
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">

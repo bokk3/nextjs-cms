@@ -1,20 +1,25 @@
 @import "tailwindcss";
+@import "tailwindcss/theme" theme(reference);
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-:root.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #171717;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+@variant dark (.dark &);
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-background: #0a0a0a;
+    --color-foreground: #ededed;
+  }
+}
+
+.dark {
+  --color-background: #0a0a0a;
+  --color-foreground: #ededed;
 }
 
 /* Line clamp utilities */

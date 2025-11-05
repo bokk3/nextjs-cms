@@ -43,15 +43,7 @@ export function HomepageClient({
     return (
       <>
         <div className="min-h-screen bg-white dark:bg-gray-900">
-          {/* Debug Theme Button - Remove this later */}
-          <div className="fixed top-20 right-4 z-50">
-            <Button
-              onClick={toggleTheme}
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              Debug: {theme} → {theme === 'light' ? 'dark' : 'light'}
-            </Button>
-          </div>
+
           
           {pageBuilderComponents
             .sort((a, b) => a.order - b.order)

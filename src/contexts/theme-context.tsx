@@ -28,7 +28,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setThemeState(initial)
         document.documentElement.classList.toggle('dark', initial === 'dark')
         
-        console.log('Theme initialized:', initial)
+        // Set CSS variables on init
+        if (initial === 'dark') {
+          document.documentElement.style.setProperty('--background', '#0a0a0a')
+          document.documentElement.style.setProperty('--foreground', '#ededed')
+        } else {
+          document.documentElement.style.setProperty('--background', '#ffffff')
+          document.documentElement.style.setProperty('--foreground', '#171717')
+        }
+        
+
       } catch (error) {
         console.error('Theme init error:', error)
         setThemeState('light')
@@ -41,12 +50,20 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Apply theme changes
   const setTheme = (newTheme: Theme) => {
-    console.log('Setting theme to:', newTheme)
     setThemeState(newTheme)
     
     try {
       localStorage.setItem('theme', newTheme)
       document.documentElement.classList.toggle('dark', newTheme === 'dark')
+      
+      // Force CSS variable update
+      if (newTheme === 'dark') {
+        document.documentElement.style.setProperty('--background', '#0a0a0a')
+        document.documentElement.style.setProperty('--foreground', '#ededed')
+      } else {
+        document.documentElement.style.setProperty('--background', '#ffffff')
+        document.documentElement.style.setProperty('--foreground', '#171717')
+      }
     } catch (error) {
       console.error('Theme save error:', error)
     }
@@ -54,7 +71,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
-    console.log('Toggling theme from', theme, 'to', newTheme)
     setTheme(newTheme)
   }
 
