@@ -55,3 +55,8 @@ body {
 body[data-admin="true"] nav:not(.admin-nav):not(.main-nav) {
   display: none !important;
 }
+
+/* CTA dark mode override - ensure dark background overrides inline gradient styles */
+.dark [data-cta-gradient] {
+  background: #030712 !important;
+}

@@ -116,7 +116,7 @@ export function ComponentRenderer({
                 <Link href={data.primaryButtonLink || data.heroButtonLink || "/projects"}>
                   <Button 
                     size="lg"
-                    className="w-full sm:w-auto text-lg px-8 py-4 h-auto bg-white text-slate-900 hover:bg-gray-100 border-0"
+                    className="w-full sm:w-auto text-lg px-8 py-4 h-auto bg-white text-slate-900 hover:bg-gray-100 dark:bg-white dark:text-slate-900 dark:hover:bg-gray-100 border-2 border-transparent"
                   >
                     {getText(data.primaryButton || data.heroButtonText)}
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -129,7 +129,7 @@ export function ComponentRenderer({
                   <Button 
                     variant="outline"
                     size="lg"
-                    className="w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 border-white text-white hover:bg-white hover:text-slate-900"
+                    className="w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 border-gray-900 text-gray-900 bg-gray-50/30 hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:bg-white/5 dark:hover:bg-white dark:hover:text-slate-900"
                   >
                     {getText(data.secondaryButton)}
                   </Button>
@@ -428,18 +428,23 @@ export function ComponentRenderer({
       )
 
     case 'cta':
-      // Use Tailwind classes only for specific string values, otherwise use inline style
+      // Use Tailwind classes for dark mode compatibility
+      // Check if backgroundColor is actually set (not empty string, null, or undefined)
+      const hasCustomBg = data.backgroundColor && 
+                         data.backgroundColor.trim() !== '' && 
+                         data.backgroundColor !== 'slate-900' &&
+                         data.backgroundType === 'solid'
+      
+      // Determine background class - always ensure dark mode support
+      // For default gradient, we need to ensure dark mode properly overrides
       const ctaBgClass = data.backgroundColor === 'slate-900' 
         ? 'bg-slate-900 dark:bg-gray-950' 
-        : !data.backgroundColor
-        ? 'bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:bg-gray-950'
-        : ''
+        : hasCustomBg
+        ? 'dark:bg-gray-950' // Only dark mode class, light mode uses inline style
+        : '' // Will use wrapper approach for default gradient
       
       // Build style object - only include properties that are explicitly set
       const ctaStyle: React.CSSProperties = {}
-      if (data.backgroundColor && data.backgroundColor !== 'slate-900') {
-        ctaStyle.backgroundColor = data.backgroundColor
-      }
       if (data.textColor) {
         ctaStyle.color = data.textColor
       } else if (data.backgroundColor === 'slate-900') {
@@ -448,6 +453,135 @@ export function ComponentRenderer({
       }
       if (data.padding) {
         ctaStyle.padding = `${data.padding.top}px ${data.padding.right}px ${data.padding.bottom}px ${data.padding.left}px`
+      }
+      
+      // For default gradient (no backgroundColor), use wrapper to ensure dark mode works
+      const isDefaultGradient = !data.backgroundColor || 
+                                data.backgroundColor.trim() === '' || 
+                                (data.backgroundColor !== 'slate-900' && !hasCustomBg)
+      
+      if (isDefaultGradient) {
+        return (
+          <div 
+            className="py-20 px-4 sm:px-6 lg:px-8 text-center"
+            data-cta-gradient="true"
+            style={{
+              ...(Object.keys(ctaStyle).length > 0 ? ctaStyle : {}),
+              // Use inline gradient for light mode, CSS will override in dark mode
+              background: 'linear-gradient(to bottom right, #f9fafb, #f3f4f6, #e5e7eb)'
+            } as React.CSSProperties}
+          >
+            <div className="max-w-4xl mx-auto">
+              {(data.title || data.heading) && (
+                <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 ${data.backgroundColor === 'slate-900' ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+                  {getText(data.title || data.heading)}
+                </h2>
+              )}
+              
+              {data.description && (
+                <p className={`text-xl mb-10 leading-relaxed ${data.backgroundColor === 'slate-900' ? 'text-gray-300 opacity-90' : 'text-gray-700 dark:text-gray-400 opacity-90'}`}>
+                  {getText(data.description)}
+                </p>
+              )}
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {(data.primaryButton || data.ctaButtonText) && (
+                  <Link href={data.ctaButtonLink || "/contact"}>
+                    <Button 
+                      size="lg"
+                      className={`w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 border-transparent ${
+                        data.backgroundColor === 'slate-900' 
+                          ? 'bg-white text-slate-900 hover:bg-gray-100' 
+                          : 'bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100'
+                      }`}
+                    >
+                      {getText(data.primaryButton || data.ctaButtonText)}
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                )}
+                
+                {data.secondaryButton && (
+                  <Link href={data.secondaryButtonLink || "/projects"}>
+                    <Button 
+                      variant="outline"
+                      size="lg"
+                      className={`w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 ${
+                        data.backgroundColor === 'slate-900'
+                          ? 'border-white text-white bg-white/5 hover:bg-white hover:text-slate-900'
+                          : 'border-gray-900 text-gray-900 bg-gray-50/30 hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:bg-white/5 dark:hover:bg-white dark:hover:text-gray-900'
+                      }`}
+                    >
+                      {getText(data.secondaryButton)}
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      }
+      
+      // Use wrapper div approach for custom solid colors to ensure dark mode works
+      // Use CSS variable so dark mode can override via Tailwind class
+      if (hasCustomBg) {
+        return (
+          <div 
+            className={`py-20 px-4 sm:px-6 lg:px-8 text-center dark:bg-gray-950`} 
+            style={{ 
+              ['--cta-bg' as any]: data.backgroundColor,
+              backgroundColor: 'var(--cta-bg)'
+            } as React.CSSProperties}
+          >
+            <div className="max-w-4xl mx-auto">
+              {(data.title || data.heading) && (
+                <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 ${data.backgroundColor === 'slate-900' ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+                  {getText(data.title || data.heading)}
+                </h2>
+              )}
+              
+              {data.description && (
+                <p className={`text-xl mb-10 leading-relaxed ${data.backgroundColor === 'slate-900' ? 'text-gray-300 opacity-90' : 'text-gray-700 dark:text-gray-400 opacity-90'}`}>
+                  {getText(data.description)}
+                </p>
+              )}
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {(data.primaryButton || data.ctaButtonText) && (
+                  <Link href={data.ctaButtonLink || "/contact"}>
+                    <Button 
+                      size="lg"
+                      className={`w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 border-transparent ${
+                        data.backgroundColor === 'slate-900' 
+                          ? 'bg-white text-slate-900 hover:bg-gray-100' 
+                          : 'bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100'
+                      }`}
+                    >
+                      {getText(data.primaryButton || data.ctaButtonText)}
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                )}
+                
+                {data.secondaryButton && (
+                  <Link href={data.secondaryButtonLink || "/projects"}>
+                    <Button 
+                      variant="outline"
+                      size="lg"
+                      className={`w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 ${
+                        data.backgroundColor === 'slate-900'
+                          ? 'border-white text-white bg-white/5 hover:bg-white hover:text-slate-900'
+                          : 'border-gray-900 text-gray-900 bg-gray-50/30 hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:bg-white/5 dark:hover:bg-white dark:hover:text-gray-900'
+                      }`}
+                    >
+                      {getText(data.secondaryButton)}
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        )
       }
       
       return (
@@ -473,7 +607,7 @@ export function ComponentRenderer({
                 <Link href={data.ctaButtonLink || "/contact"}>
                   <Button 
                     size="lg"
-                    className={`w-full sm:w-auto text-lg px-8 py-4 h-auto ${
+                    className={`w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 border-transparent ${
                       data.backgroundColor === 'slate-900' 
                         ? 'bg-white text-slate-900 hover:bg-gray-100' 
                         : 'bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100'
@@ -492,8 +626,8 @@ export function ComponentRenderer({
                     size="lg"
                     className={`w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 ${
                       data.backgroundColor === 'slate-900'
-                        ? 'border-white text-white hover:bg-white hover:text-slate-900'
-                        : 'border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-gray-900'
+                        ? 'border-white text-white bg-white/5 hover:bg-white hover:text-slate-900'
+                        : 'border-gray-900 text-gray-900 bg-gray-50/30 hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:bg-white/5 dark:hover:bg-white dark:hover:text-gray-900'
                     }`}
                   >
                     {getText(data.secondaryButton)}
