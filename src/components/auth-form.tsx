@@ -38,17 +38,25 @@ export function AuthForm() {
   }
 
   if (isPending) {
-    return <div>Loading...</div>
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
+      </div>
+    )
   }
 
   if (session) {
     return (
-      <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Welcome!</h2>
-        <p className="mb-4">Logged in as: {session.user.email}</p>
+      <div className="space-y-4">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Welcome!</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Logged in as: {session.user.email}
+          </p>
+        </div>
         <button
           onClick={() => signOut()}
-          className="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+          className="w-full bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white font-medium py-2.5 px-4 rounded-md transition-colors"
         >
           Sign Out
         </button>
@@ -57,49 +65,52 @@ export function AuthForm() {
   }
 
   return (
-    <div className="p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">
-        {isSignUp ? "Sign Up" : "Sign In"}
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 text-center">
+        {isSignUp ? "Create Account" : "Sign In"}
       </h2>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {isSignUp && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
               Name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors"
+              placeholder="Enter your name"
               required
             />
           </div>
         )}
         
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Email
           </label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors"
+            placeholder="Enter your email"
             required
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             Password
           </label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+            className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors"
+            placeholder="Enter your password"
             required
           />
         </div>
@@ -107,21 +118,23 @@ export function AuthForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium py-2.5 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 dark:disabled:hover:bg-blue-500"
         >
           {isSubmitting ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
         </button>
       </form>
       
-      <p className="mt-4 text-center">
-        {isSignUp ? "Already have an account?" : "Don't have an account?"}
-        <button
-          onClick={() => setIsSignUp(!isSignUp)}
-          className="ml-1 text-blue-500 hover:underline"
-        >
-          {isSignUp ? "Sign In" : "Sign Up"}
-        </button>
-      </p>
+      <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+          <button
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+          >
+            {isSignUp ? "Sign In" : "Sign Up"}
+          </button>
+        </p>
+      </div>
     </div>
   )
 }

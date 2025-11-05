@@ -3,6 +3,7 @@
 import { ProjectWithRelations } from '@/types/project'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useImageSettings } from '@/contexts/image-settings-context'
 
 interface ProjectCardProps {
   project: ProjectWithRelations
@@ -13,6 +14,7 @@ interface ProjectCardProps {
 export function ProjectCard({ project, onClick, languageId = 'nl' }: ProjectCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const { grayscaleImages } = useImageSettings()
   
   // Get translation for the specified language or fallback to first available
   const translation = project.translations.find(t => t.language.code === languageId) 
@@ -39,7 +41,8 @@ export function ProjectCard({ project, onClick, languageId = 'nl' }: ProjectCard
               fill
               className={`object-cover transition-all duration-300 group-hover:scale-105 ${
                 imageLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
+              } ${grayscaleImages ? 'grayscale' : ''}`}
+              style={grayscaleImages ? { filter: 'grayscale(100%)' } : undefined}
               onLoad={() => setImageLoaded(true)}
               onError={(e) => {
                 console.error('Image failed to load:', thumbnailImage.thumbnailUrl, e)

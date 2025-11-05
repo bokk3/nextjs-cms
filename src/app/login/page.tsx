@@ -5,30 +5,35 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-md flex-col items-center justify-center py-32 px-8 bg-white dark:bg-black">
-        <div className="mb-8 text-center">
-          <Link href="/" className="text-2xl font-bold text-black dark:text-zinc-50 hover:opacity-80">
-            nextjs-cms
-          </Link>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-            Sign in to your account
-          </p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 p-8 sm:p-10">
+          <div className="mb-8 text-center">
+            <Link 
+              href="/" 
+              className="text-3xl font-bold text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            >
+              Portfolio CMS
+            </Link>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+              Sign in to access the admin panel
+            </p>
+          </div>
+          
+          <Suspense fallback={<AuthLoading />}>
+            <AuthForm />
+          </Suspense>
+          
+          <div className="mt-6 text-center">
+            <Link 
+              href="/" 
+              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            >
+              ← Back to home
+            </Link>
+          </div>
         </div>
-        
-        <Suspense fallback={<AuthLoading />}>
-          <AuthForm />
-        </Suspense>
-        
-        <div className="mt-6 text-center">
-          <Link 
-            href="/" 
-            className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
-          >
-            ← Back to home
-          </Link>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

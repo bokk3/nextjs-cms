@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
     const defaultSettings = {
       mode: 'user-choice',
       allowUserToggle: true,
-      defaultTheme: 'light'
+      defaultTheme: 'light',
+      grayscaleImages: false
     }
 
     return NextResponse.json(themeSettings?.value || defaultSettings)

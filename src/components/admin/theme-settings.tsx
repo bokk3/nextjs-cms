@@ -12,6 +12,7 @@ interface ThemeSettingsData {
   mode: ThemeMode
   allowUserToggle: boolean
   defaultTheme: 'light' | 'dark'
+  grayscaleImages: boolean
 }
 
 export function ThemeSettings() {
@@ -19,7 +20,8 @@ export function ThemeSettings() {
   const [settings, setSettings] = useState<ThemeSettingsData>({
     mode: 'user-choice',
     allowUserToggle: true,
-    defaultTheme: 'light'
+    defaultTheme: 'light',
+    grayscaleImages: false
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -58,7 +60,8 @@ export function ThemeSettings() {
       if (response.ok) {
         // Apply the theme settings immediately
         applyThemeSettings()
-        alert('Theme settings saved successfully!')
+        // Reload page to apply image settings changes
+        window.location.reload()
       } else {
         alert('Failed to save theme settings')
       }
@@ -235,6 +238,29 @@ export function ThemeSettings() {
             </div>
           </div>
         )}
+
+        {/* Grayscale Images Toggle */}
+        <div>
+          <Label className="text-base font-medium text-gray-900 dark:text-white mb-3 block">
+            Image Display
+          </Label>
+          <div className="space-y-3">
+            <label className="flex items-center">
+              <input
+                type="checkbox"
+                checked={settings.grayscaleImages}
+                onChange={(e) => setSettings(prev => ({ ...prev, grayscaleImages: e.target.checked }))}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                Display images in grayscale (black & white)
+              </span>
+            </label>
+            <p className="text-xs text-gray-500 dark:text-gray-400 ml-5">
+              Apply a grayscale filter to all project and gallery images for a monochrome aesthetic
+            </p>
+          </div>
+        </div>
 
         {/* Current Theme Preview */}
         <div>

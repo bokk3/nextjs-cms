@@ -73,7 +73,7 @@ export function HomepageClient({
     <>
       <div className="min-h-screen bg-white dark:bg-gray-900">
         {/* Hero Section */}
-        <section className="bg-white dark:bg-gray-900">
+        <section className="bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
             <div className="text-center">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-black dark:text-white mb-6">
@@ -179,16 +179,16 @@ export function HomepageClient({
         </section>
 
         {/* Call to Action Section */}
-        <section className="bg-black dark:bg-gray-950 py-16">
+        <section className="bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:bg-gray-950 py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">
               Ready to Start Your Project?
             </h2>
-            <p className="text-xl text-gray-300 dark:text-gray-400 mb-8">
+            <p className="text-xl text-gray-700 dark:text-gray-400 mb-8">
               Get in touch to discuss your ideas and learn how we can bring your vision to life.
             </p>
             <Link href="/contact">
-              <Button size="lg" className="bg-white text-black hover:bg-gray-100">
+              <Button size="lg" className="bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100">
                 Start a Conversation
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

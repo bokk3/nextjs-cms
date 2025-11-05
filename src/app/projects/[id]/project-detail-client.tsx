@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
 import { useLanguage } from '@/contexts/language-context'
+import { useImageSettings } from '@/contexts/image-settings-context'
 
 interface ProjectDetailClientProps {
   project: ProjectWithRelations
@@ -15,6 +16,7 @@ interface ProjectDetailClientProps {
 export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const { currentLanguage } = useLanguage()
+  const { grayscaleImages } = useImageSettings()
   const languageId = currentLanguage
 
   // Get translation for the specified language or fallback to first available
@@ -113,7 +115,8 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
                     src={currentImage.originalUrl}
                     alt={currentImage.alt}
                     fill
-                    className="object-cover"
+                    className={`object-cover ${grayscaleImages ? 'grayscale' : ''}`}
+                    style={grayscaleImages ? { filter: 'grayscale(100%)' } : undefined}
                     sizes="(max-width: 1024px) 100vw, 50vw"
                     priority
                   />
@@ -164,7 +167,8 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
                         src={image.thumbnailUrl}
                         alt={image.alt}
                         fill
-                        className="object-cover"
+                        className={`object-cover ${grayscaleImages ? 'grayscale' : ''}`}
+                        style={grayscaleImages ? { filter: 'grayscale(100%)' } : undefined}
                         sizes="(max-width: 640px) 25vw, 16vw"
                       />
                     </button>

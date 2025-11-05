@@ -55,10 +55,30 @@ export function ComponentRenderer({
         ? `bg-gradient-to-br ${data.gradient}` 
         : ''
       
+      // Only use default background if no custom backgroundColor is set
+      const defaultHeroBg = !data.backgroundColor && !data.backgroundType && !gradientClass
+        ? 'bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:bg-gray-900' 
+        : ''
+      
+      // Determine if we should use inline style for background (when custom color is set and not gradient)
+      const useInlineBackground = data.backgroundColor && data.backgroundType !== 'gradient' && !gradientClass
+      
+      // Build style object - only include properties that are explicitly set
+      const heroStyle: React.CSSProperties = {}
+      if (useInlineBackground) {
+        heroStyle.backgroundColor = data.backgroundColor || '#ffffff'
+      }
+      if (data.textColor) {
+        heroStyle.color = data.textColor
+      }
+      if (data.padding) {
+        heroStyle.padding = `${data.padding.top}px ${data.padding.right}px ${data.padding.bottom}px ${data.padding.left}px`
+      }
+      
       return (
         <div 
-          className={`relative ${data.height === 'screen' ? 'min-h-screen' : 'py-20'} px-4 sm:px-6 lg:px-8 flex items-center justify-center ${gradientClass} dark:from-gray-900 dark:via-gray-800 dark:to-gray-900`}
-          style={data.backgroundType !== 'gradient' ? containerStyle : { color: data.textColor }}
+          className={`relative ${data.height === 'screen' ? 'min-h-screen' : 'py-20'} px-4 sm:px-6 lg:px-8 flex items-center justify-center ${gradientClass || defaultHeroBg}`}
+          style={Object.keys(heroStyle).length > 0 ? heroStyle : undefined}
         >
           {data.backgroundImage && (
             <div className="absolute inset-0">
@@ -92,20 +112,20 @@ export function ComponentRenderer({
             )}
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {data.primaryButton && (
-                <Link href="/projects">
+              {(data.primaryButton || data.heroButtonText) && (
+                <Link href={data.primaryButtonLink || data.heroButtonLink || "/projects"}>
                   <Button 
                     size="lg"
                     className="w-full sm:w-auto text-lg px-8 py-4 h-auto bg-white text-slate-900 hover:bg-gray-100 border-0"
                   >
-                    {getText(data.primaryButton)}
+                    {getText(data.primaryButton || data.heroButtonText)}
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
               )}
               
               {data.secondaryButton && (
-                <Link href="/contact">
+                <Link href={data.secondaryButtonLink || "/contact"}>
                   <Button 
                     variant="outline"
                     size="lg"
@@ -139,10 +159,29 @@ export function ComponentRenderer({
         return <IconComponent className="w-12 h-12" />
       }
 
+      // Use Tailwind classes only for specific string values, otherwise use inline style
+      const featuresBgClass = data.backgroundColor === 'white' 
+        ? 'bg-white dark:bg-gray-900' 
+        : data.backgroundColor === 'gray-50' 
+        ? 'bg-gray-50 dark:bg-gray-800' 
+        : ''
+      
+      // Build style object - only include properties that are explicitly set
+      const featuresStyle: React.CSSProperties = {}
+      if (data.backgroundColor && data.backgroundColor !== 'white' && data.backgroundColor !== 'gray-50') {
+        featuresStyle.backgroundColor = data.backgroundColor
+      }
+      if (data.textColor) {
+        featuresStyle.color = data.textColor
+      }
+      if (data.padding) {
+        featuresStyle.padding = `${data.padding.top}px ${data.padding.right}px ${data.padding.bottom}px ${data.padding.left}px`
+      }
+
       return (
         <div 
-          className={`py-20 px-4 sm:px-6 lg:px-8 ${data.backgroundColor === 'white' ? 'bg-white dark:bg-gray-900' : data.backgroundColor === 'gray-50' ? 'bg-gray-50 dark:bg-gray-800' : ''}`}
-          style={data.backgroundColor !== 'white' && data.backgroundColor !== 'gray-50' ? containerStyle : { color: data.textColor }}
+          className={`py-20 px-4 sm:px-6 lg:px-8 ${featuresBgClass}`}
+          style={Object.keys(featuresStyle).length > 0 ? featuresStyle : undefined}
         >
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
@@ -242,13 +281,29 @@ export function ComponentRenderer({
         }
       }, [data.showFeatured])
 
+      // Use Tailwind classes only for specific string values, otherwise use inline style
+      const galleryBgClass = data.backgroundColor === 'gray-50' 
+        ? 'bg-gray-50 dark:bg-gray-800' 
+        : data.backgroundColor === 'white' 
+        ? 'bg-white dark:bg-gray-900' 
+        : ''
+      
+      // Build style object - only include properties that are explicitly set
+      const galleryStyle: React.CSSProperties = {}
+      if (data.backgroundColor && data.backgroundColor !== 'white' && data.backgroundColor !== 'gray-50') {
+        galleryStyle.backgroundColor = data.backgroundColor
+      }
+      if (data.textColor) {
+        galleryStyle.color = data.textColor
+      }
+      if (data.padding) {
+        galleryStyle.padding = `${data.padding.top}px ${data.padding.right}px ${data.padding.bottom}px ${data.padding.left}px`
+      }
+
       return (
         <div 
-          className={`py-20 px-4 sm:px-6 lg:px-8 ${
-            data.backgroundColor === 'gray-50' ? 'bg-gray-50 dark:bg-gray-800' : 
-            data.backgroundColor === 'white' ? 'bg-white dark:bg-gray-900' : ''
-          }`}
-          style={data.backgroundColor !== 'white' && data.backgroundColor !== 'gray-50' ? containerStyle : { color: data.textColor }}
+          className={`py-20 px-4 sm:px-6 lg:px-8 ${galleryBgClass}`}
+          style={Object.keys(galleryStyle).length > 0 ? galleryStyle : undefined}
         >
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
@@ -315,13 +370,29 @@ export function ComponentRenderer({
       )
 
     case 'testimonials':
+      // Use Tailwind classes only for specific string values, otherwise use inline style
+      const testimonialsBgClass = data.backgroundColor === 'white' 
+        ? 'bg-white dark:bg-gray-900' 
+        : data.backgroundColor === 'gray-50' 
+        ? 'bg-gray-50 dark:bg-gray-800' 
+        : ''
+      
+      // Build style object - only include properties that are explicitly set
+      const testimonialsStyle: React.CSSProperties = {}
+      if (data.backgroundColor && data.backgroundColor !== 'white' && data.backgroundColor !== 'gray-50') {
+        testimonialsStyle.backgroundColor = data.backgroundColor
+      }
+      if (data.textColor) {
+        testimonialsStyle.color = data.textColor
+      }
+      if (data.padding) {
+        testimonialsStyle.padding = `${data.padding.top}px ${data.padding.right}px ${data.padding.bottom}px ${data.padding.left}px`
+      }
+
       return (
         <div 
-          className={`py-20 px-4 sm:px-6 lg:px-8 ${
-            data.backgroundColor === 'white' ? 'bg-white dark:bg-gray-900' : 
-            data.backgroundColor === 'gray-50' ? 'bg-gray-50 dark:bg-gray-800' : ''
-          }`}
-          style={data.backgroundColor !== 'white' && data.backgroundColor !== 'gray-50' ? containerStyle : { color: data.textColor }}
+          className={`py-20 px-4 sm:px-6 lg:px-8 ${testimonialsBgClass}`}
+          style={Object.keys(testimonialsStyle).length > 0 ? testimonialsStyle : undefined}
         >
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
@@ -357,30 +428,56 @@ export function ComponentRenderer({
       )
 
     case 'cta':
+      // Use Tailwind classes only for specific string values, otherwise use inline style
+      const ctaBgClass = data.backgroundColor === 'slate-900' 
+        ? 'bg-slate-900 dark:bg-gray-950' 
+        : !data.backgroundColor
+        ? 'bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:bg-gray-950'
+        : ''
+      
+      // Build style object - only include properties that are explicitly set
+      const ctaStyle: React.CSSProperties = {}
+      if (data.backgroundColor && data.backgroundColor !== 'slate-900') {
+        ctaStyle.backgroundColor = data.backgroundColor
+      }
+      if (data.textColor) {
+        ctaStyle.color = data.textColor
+      } else if (data.backgroundColor === 'slate-900') {
+        // Default white text for dark background
+        ctaStyle.color = '#ffffff'
+      }
+      if (data.padding) {
+        ctaStyle.padding = `${data.padding.top}px ${data.padding.right}px ${data.padding.bottom}px ${data.padding.left}px`
+      }
+      
       return (
         <div 
-          className={`py-20 px-4 sm:px-6 lg:px-8 text-center ${data.backgroundColor === 'slate-900' ? 'bg-slate-900' : ''}`}
-          style={data.backgroundColor !== 'slate-900' ? containerStyle : { color: data.textColor }}
+          className={`py-20 px-4 sm:px-6 lg:px-8 text-center ${ctaBgClass}`}
+          style={Object.keys(ctaStyle).length > 0 ? ctaStyle : undefined}
         >
           <div className="max-w-4xl mx-auto">
             {(data.title || data.heading) && (
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
+              <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 ${data.backgroundColor === 'slate-900' ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
                 {getText(data.title || data.heading)}
               </h2>
             )}
             
             {data.description && (
-              <p className="text-xl mb-10 opacity-90 leading-relaxed">
+              <p className={`text-xl mb-10 leading-relaxed ${data.backgroundColor === 'slate-900' ? 'text-gray-300 opacity-90' : 'text-gray-700 dark:text-gray-400 opacity-90'}`}>
                 {getText(data.description)}
               </p>
             )}
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {(data.primaryButton || data.ctaButtonText) && (
-                <Link href="/contact">
+                <Link href={data.ctaButtonLink || "/contact"}>
                   <Button 
                     size="lg"
-                    className="w-full sm:w-auto text-lg px-8 py-4 h-auto bg-white text-slate-900 hover:bg-gray-100"
+                    className={`w-full sm:w-auto text-lg px-8 py-4 h-auto ${
+                      data.backgroundColor === 'slate-900' 
+                        ? 'bg-white text-slate-900 hover:bg-gray-100' 
+                        : 'bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100'
+                    }`}
                   >
                     {getText(data.primaryButton || data.ctaButtonText)}
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -389,11 +486,15 @@ export function ComponentRenderer({
               )}
               
               {data.secondaryButton && (
-                <Link href="/projects">
+                <Link href={data.secondaryButtonLink || "/projects"}>
                   <Button 
                     variant="outline"
                     size="lg"
-                    className="w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 border-white text-white hover:bg-white hover:text-slate-900"
+                    className={`w-full sm:w-auto text-lg px-8 py-4 h-auto border-2 ${
+                      data.backgroundColor === 'slate-900'
+                        ? 'border-white text-white hover:bg-white hover:text-slate-900'
+                        : 'border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-gray-900'
+                    }`}
                   >
                     {getText(data.secondaryButton)}
                   </Button>

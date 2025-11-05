@@ -3,6 +3,19 @@ import { prisma } from '../src/lib/db'
 async function createModernHomepage() {
   try {
     console.log('🎨 Creating modern homepage components...')
+    
+    // Check if homepage already exists and warn user
+    const existing = await prisma.siteSettings.findUnique({
+      where: { key: 'homepage_components' }
+    })
+    
+    if (existing) {
+      console.log('⚠️  WARNING: A homepage already exists!')
+      console.log('   This script will OVERWRITE your current homepage components.')
+      console.log('   If you want to keep your current setup, cancel now (Ctrl+C)')
+      console.log('   Waiting 5 seconds before proceeding...\n')
+      await new Promise(resolve => setTimeout(resolve, 5000))
+    }
 
     // Define beautiful, modern homepage components
     const homepageComponents = [
@@ -41,9 +54,9 @@ async function createModernHomepage() {
             fr: 'Commander un Travail',
             de: 'Arbeit Beauftragen'
           },
+          // Use light gradient in light mode, dark in dark mode (via Tailwind classes)
           backgroundType: 'gradient',
-          gradient: 'from-slate-900 via-slate-800 to-slate-900',
-          textColor: 'white',
+          gradient: 'from-white via-gray-50 to-gray-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900',
           height: 'screen'
         }
       },
@@ -111,8 +124,7 @@ async function createModernHomepage() {
               }
             }
           ],
-          backgroundColor: 'white',
-          textColor: 'dark'
+          backgroundColor: 'white'
         }
       },
       {
@@ -136,8 +148,7 @@ async function createModernHomepage() {
           maxItems: 8,
           layout: 'grid',
           columns: 4,
-          backgroundColor: 'gray-50',
-          textColor: 'dark'
+          backgroundColor: 'gray-50'
         }
       },
       {
@@ -201,8 +212,7 @@ async function createModernHomepage() {
               rating: 5
             }
           ],
-          backgroundColor: 'white',
-          textColor: 'dark'
+          backgroundColor: 'white'
         }
       },
       {
@@ -234,9 +244,8 @@ async function createModernHomepage() {
             fr: 'Voir le Portfolio',
             de: 'Portfolio Ansehen'
           },
-          backgroundColor: 'slate-900',
-          textColor: 'white',
-          backgroundType: 'solid'
+          ctaButtonLink: '/contact',
+          // No backgroundColor - will use default: light gradient in light mode, dark in dark mode
         }
       }
     ]

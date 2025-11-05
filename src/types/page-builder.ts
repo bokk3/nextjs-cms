@@ -17,7 +17,9 @@ export interface ComponentData {
   heroButtonText?: MultilingualText
   heroButtonLink?: string
   primaryButton?: MultilingualText
+  primaryButtonLink?: string
   secondaryButton?: MultilingualText
+  secondaryButtonLink?: string
   backgroundImage?: string
   backgroundType?: 'solid' | 'gradient' | 'image'
   gradient?: string

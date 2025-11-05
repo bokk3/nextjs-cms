@@ -8,6 +8,7 @@ import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { CookieConsentProvider } from "@/contexts/cookie-consent-context";
+import { ImageSettingsProvider } from "@/contexts/image-settings-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,11 +51,13 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <CookieConsentProvider>
-              <AnalyticsTracker />
-              <Navigation />
-              <main>{children}</main>
-              <Footer />
-              <CookieBanner />
+              <ImageSettingsProvider>
+                <AnalyticsTracker />
+                <Navigation />
+                <main>{children}</main>
+                <Footer />
+                <CookieBanner />
+              </ImageSettingsProvider>
             </CookieConsentProvider>
           </LanguageProvider>
         </ThemeProvider>
