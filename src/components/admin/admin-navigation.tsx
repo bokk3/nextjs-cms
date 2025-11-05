@@ -13,7 +13,9 @@ import {
   MessageSquare, 
   Settings,
   LogOut,
-  ArrowLeft
+  ArrowLeft,
+  Layout,
+  Image
 } from 'lucide-react'
 import { useSession, signOut } from '../../lib/auth-client'
 
@@ -26,7 +28,9 @@ export function AdminNavigation() {
 
   const adminNavLinks = [
     { href: '/admin', label: 'Dashboard', icon: Home },
+    { href: '/admin/page-builder', label: 'Page Builder', icon: Layout },
     { href: '/admin/projects', label: 'Projects', icon: FolderOpen },
+    { href: '/admin/gallery', label: 'Gallery', icon: Image },
     { href: '/admin/content', label: 'Content', icon: FileText },
     { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
     { href: '/admin/settings', label: 'Settings', icon: Settings },

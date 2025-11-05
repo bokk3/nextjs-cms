@@ -4,9 +4,9 @@ import { ContentValidator } from '@/lib/content-validation'
 import { authMiddleware } from '@/lib/auth-middleware'
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 /**
@@ -16,6 +16,7 @@ export async function POST(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const authResult = await authMiddleware(request)
@@ -30,7 +31,7 @@ export async function POST(
     const { languageCode = 'nl' } = body
 
     // Get the content page
-    const page = await ContentService.getPageById(params.id, true)
+    const page = await ContentService.getPageById(id, true)
     if (!page) {
       return NextResponse.json(
         { error: 'Content page not found' },
@@ -84,6 +85,7 @@ export async function PUT(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const authResult = await authMiddleware(request)
@@ -130,7 +132,7 @@ export async function PUT(
 
     // Generate preview data
     const preview = {
-      id: params.id,
+      id: id,
       slug: body.slug || 'preview',
       published: body.published || false,
       translation: {

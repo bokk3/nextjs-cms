@@ -7,14 +7,24 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useState } from 'react'
 import { ArrowRight } from 'lucide-react'
+import { useLanguage } from '@/contexts/language-context'
+import { PageComponent } from '@/types/page-builder'
+import { ComponentRenderer } from '@/components/page-builder/component-renderer'
 
 interface HomepageClientProps {
   featuredProjects: ProjectWithRelations[]
+  pageBuilderComponents?: PageComponent[] | null
+  currentLanguage: string
 }
 
-export function HomepageClient({ featuredProjects }: HomepageClientProps) {
+export function HomepageClient({ 
+  featuredProjects, 
+  pageBuilderComponents, 
+  currentLanguage: initialLanguage 
+}: HomepageClientProps) {
   const [selectedProject, setSelectedProject] = useState<ProjectWithRelations | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { currentLanguage } = useLanguage()
 
   const handleProjectClick = (project: ProjectWithRelations) => {
     setSelectedProject(project)
@@ -26,17 +36,46 @@ export function HomepageClient({ featuredProjects }: HomepageClientProps) {
     setSelectedProject(null)
   }
 
+  // If page builder components exist, use them; otherwise show default homepage
+  if (pageBuilderComponents && pageBuilderComponents.length > 0) {
+    return (
+      <>
+        <div className="min-h-screen bg-white">
+          {pageBuilderComponents
+            .sort((a, b) => a.order - b.order)
+            .map((component) => (
+              <ComponentRenderer
+                key={component.id}
+                component={component}
+                isPreview={true}
+                currentLanguage={currentLanguage}
+              />
+            ))}
+        </div>
+
+        {/* Project Modal */}
+        <ProjectModal
+          project={selectedProject}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          languageId={currentLanguage}
+        />
+      </>
+    )
+  }
+
+  // Default homepage content
   return (
     <>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
         {/* Hero Section */}
-        <section className="bg-white">
+        <section className="bg-white dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
             <div className="text-center">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-black mb-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-black dark:text-white mb-6">
                 Custom Artisan Work
               </h1>
-              <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
                 Discover unique handcrafted pieces made with quality materials and attention to detail. 
                 Each project is a testament to traditional craftsmanship and modern design.
               </p>
@@ -60,13 +99,13 @@ export function HomepageClient({ featuredProjects }: HomepageClientProps) {
 
         {/* Featured Projects Section */}
         {featuredProjects.length > 0 && (
-          <section className="bg-gray-50 py-16">
+          <section className="bg-gray-50 dark:bg-gray-800 py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold text-black mb-4">
+                <h2 className="text-3xl sm:text-4xl font-bold text-black dark:text-white mb-4">
                   Featured Work
                 </h2>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                   A selection of our most notable projects showcasing the range and quality of our craftsmanship.
                 </p>
               </div>
@@ -77,7 +116,7 @@ export function HomepageClient({ featuredProjects }: HomepageClientProps) {
                     key={project.id}
                     project={project}
                     onClick={() => handleProjectClick(project)}
-                    languageId="nl" // TODO: Get from user preferences/context
+                    languageId={currentLanguage}
                   />
                 ))}
               </div>
@@ -97,19 +136,19 @@ export function HomepageClient({ featuredProjects }: HomepageClientProps) {
         )}
 
         {/* About Section */}
-        <section className="bg-white py-16">
+        <section className="bg-white dark:bg-gray-900 py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl sm:text-4xl font-bold text-black mb-6">
+                <h2 className="text-3xl sm:text-4xl font-bold text-black dark:text-white mb-6">
                   Craftsmanship Meets Design
                 </h2>
-                <p className="text-lg text-gray-600 mb-6">
+                <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
                   Every piece we create is a unique blend of traditional techniques and contemporary aesthetics. 
                   We work closely with our clients to bring their vision to life, using only the finest materials 
                   and time-honored methods.
                 </p>
-                <p className="text-lg text-gray-600 mb-8">
+                <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
                   From concept to completion, we ensure each project reflects the highest standards of quality 
                   and attention to detail that our clients have come to expect.
                 </p>
@@ -123,12 +162,12 @@ export function HomepageClient({ featuredProjects }: HomepageClientProps) {
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-4">
-                  <div className="bg-gray-100 aspect-square rounded-lg"></div>
-                  <div className="bg-gray-100 aspect-4/3 rounded-lg"></div>
+                  <div className="bg-gray-100 dark:bg-gray-700 aspect-square rounded-lg"></div>
+                  <div className="bg-gray-100 dark:bg-gray-700 aspect-4/3 rounded-lg"></div>
                 </div>
                 <div className="space-y-4 pt-8">
-                  <div className="bg-gray-100 aspect-4/3 rounded-lg"></div>
-                  <div className="bg-gray-100 aspect-square rounded-lg"></div>
+                  <div className="bg-gray-100 dark:bg-gray-700 aspect-4/3 rounded-lg"></div>
+                  <div className="bg-gray-100 dark:bg-gray-700 aspect-square rounded-lg"></div>
                 </div>
               </div>
             </div>
@@ -136,12 +175,12 @@ export function HomepageClient({ featuredProjects }: HomepageClientProps) {
         </section>
 
         {/* Call to Action Section */}
-        <section className="bg-black py-16">
+        <section className="bg-black dark:bg-gray-950 py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
               Ready to Start Your Project?
             </h2>
-            <p className="text-xl text-gray-300 mb-8">
+            <p className="text-xl text-gray-300 dark:text-gray-400 mb-8">
               Get in touch to discuss your ideas and learn how we can bring your vision to life.
             </p>
             <Link href="/contact">
@@ -159,7 +198,7 @@ export function HomepageClient({ featuredProjects }: HomepageClientProps) {
         project={selectedProject}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        languageId="nl" // TODO: Get from user preferences/context
+        languageId={currentLanguage}
       />
     </>
   )

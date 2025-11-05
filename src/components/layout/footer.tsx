@@ -4,38 +4,38 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-white border-t border-gray-200">
+    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <h3 className="text-lg font-bold text-black mb-4">Portfolio</h3>
-            <p className="text-gray-600">
+            <h3 className="text-lg font-bold text-black dark:text-white mb-4">Portfolio</h3>
+            <p className="text-gray-600 dark:text-gray-300">
               Custom artisan work crafted with quality materials and attention to detail.
             </p>
           </div>
 
           {/* Navigation */}
           <div>
-            <h4 className="font-semibold text-black mb-4">Navigation</h4>
+            <h4 className="font-semibold text-black dark:text-white mb-4">Navigation</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-gray-600 hover:text-black transition-colors">
+                <Link href="/" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/projects" className="text-gray-600 hover:text-black transition-colors">
+                <Link href="/projects" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
                   Projects
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-600 hover:text-black transition-colors">
+                <Link href="/about" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-600 hover:text-black transition-colors">
+                <Link href="/contact" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
                   Contact
                 </Link>
               </li>
@@ -44,15 +44,15 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-semibold text-black mb-4">Legal</h4>
+            <h4 className="font-semibold text-black dark:text-white mb-4">Legal</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/privacy" className="text-gray-600 hover:text-black transition-colors">
+                <Link href="/privacy" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-gray-600 hover:text-black transition-colors">
+                <Link href="/terms" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
                   Terms of Service
                 </Link>
               </li>
@@ -60,8 +60,8 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-gray-200 text-center">
-          <p className="text-gray-600">
+        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 text-center">
+          <p className="text-gray-600 dark:text-gray-300">
             © {currentYear} Portfolio. All rights reserved.
           </p>
         </div>

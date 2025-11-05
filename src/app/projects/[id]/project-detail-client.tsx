@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
+import { useLanguage } from '@/contexts/language-context'
 
 interface ProjectDetailClientProps {
   project: ProjectWithRelations
@@ -13,7 +14,8 @@ interface ProjectDetailClientProps {
 
 export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const languageId = 'nl' // TODO: Get from user preferences/context
+  const { currentLanguage } = useLanguage()
+  const languageId = currentLanguage
 
   // Get translation for the specified language or fallback to first available
   const translation = project.translations.find(t => t.language.code === languageId) 

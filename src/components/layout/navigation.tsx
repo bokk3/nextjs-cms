@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X, Globe, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/contexts/language-context'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -22,12 +23,12 @@ export function Navigation() {
   ]
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-xl font-bold text-black">Portfolio</span>
+            <span className="text-xl font-bold text-black dark:text-white">Portfolio</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -36,57 +37,62 @@ export function Navigation() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-gray-700 hover:text-black transition-colors font-medium"
+                className="text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors font-medium"
               >
                 {link.label}
               </Link>
             ))}
             
-            {/* Language Dropdown */}
-            {!isLoading && languages.length > 1 && (
-              <div className="relative">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleLanguageMenu}
-                  className="flex items-center gap-2 text-gray-700 hover:text-black"
-                >
-                  <Globe className="h-4 w-4" />
-                  <span className="uppercase font-medium">
-                    {currentLanguage}
-                  </span>
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-                
-                {isLanguageMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                    <div className="py-1">
-                      {languages.map((language) => (
-                        <button
-                          key={language.code}
-                          onClick={() => {
-                            setLanguage(language.code)
-                            setIsLanguageMenuOpen(false)
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                            currentLanguage === language.code
-                              ? 'bg-blue-50 text-blue-700 font-medium'
-                              : 'text-gray-700'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span>{language.name}</span>
-                            <span className="text-xs uppercase text-gray-500">
-                              {language.code}
-                            </span>
-                          </div>
-                        </button>
-                      ))}
+            <div className="flex items-center gap-2">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+              
+              {/* Language Dropdown */}
+              {!isLoading && languages.length > 1 && (
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleLanguageMenu}
+                    className="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white"
+                  >
+                    <Globe className="h-4 w-4" />
+                    <span className="uppercase font-medium">
+                      {currentLanguage}
+                    </span>
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                  
+                  {isLanguageMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
+                      <div className="py-1">
+                        {languages.map((language) => (
+                          <button
+                            key={language.code}
+                            onClick={() => {
+                              setLanguage(language.code)
+                              setIsLanguageMenuOpen(false)
+                            }}
+                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                              currentLanguage === language.code
+                                ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium'
+                                : 'text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <span>{language.name}</span>
+                              <span className="text-xs uppercase text-gray-500 dark:text-gray-400">
+                                {language.code}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -108,23 +114,31 @@ export function Navigation() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200">
+          <div className="md:hidden border-t border-gray-200 dark:border-gray-700">
             <div className="py-4 space-y-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block px-4 py-2 text-gray-700 hover:text-black hover:bg-gray-50 transition-colors font-medium"
+                  className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.label}
                 </Link>
               ))}
               
+              {/* Mobile Theme Toggle */}
+              <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 mt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Theme</span>
+                  <ThemeToggle />
+                </div>
+              </div>
+              
               {/* Mobile Language Selector */}
               {!isLoading && languages.length > 1 && (
-                <div className="px-4 py-2 border-t border-gray-100 mt-2">
-                  <div className="text-sm font-medium text-gray-500 mb-2">Language</div>
+                <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 mt-2">
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Language</div>
                   <div className="space-y-1">
                     {languages.map((language) => (
                       <button
@@ -135,13 +149,13 @@ export function Navigation() {
                         }}
                         className={`w-full text-left px-2 py-1 text-sm rounded transition-colors ${
                           currentLanguage === language.code
-                            ? 'bg-blue-50 text-blue-700 font-medium'
-                            : 'text-gray-700 hover:bg-gray-50'
+                            ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <span>{language.name}</span>
-                          <span className="text-xs uppercase text-gray-500">
+                          <span className="text-xs uppercase text-gray-500 dark:text-gray-400">
                             {language.code}
                           </span>
                         </div>

@@ -4,6 +4,7 @@ import { ProjectWithRelations } from '@/types/project'
 import { ProjectGrid } from '@/components/gallery/project-grid'
 import { ProjectModal } from '@/components/gallery/project-modal'
 import { useState } from 'react'
+import { useLanguage } from '@/contexts/language-context'
 
 interface ProjectGalleryClientProps {
   projects: ProjectWithRelations[]
@@ -12,6 +13,7 @@ interface ProjectGalleryClientProps {
 export function ProjectGalleryClient({ projects }: ProjectGalleryClientProps) {
   const [selectedProject, setSelectedProject] = useState<ProjectWithRelations | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const { currentLanguage } = useLanguage()
 
   const handleProjectClick = (project: ProjectWithRelations) => {
     setSelectedProject(project)
@@ -28,14 +30,14 @@ export function ProjectGalleryClient({ projects }: ProjectGalleryClientProps) {
       <ProjectGrid
         projects={projects}
         onProjectClick={handleProjectClick}
-        languageId="nl" // TODO: Get from user preferences/context
+        languageId={currentLanguage}
       />
       
       <ProjectModal
         project={selectedProject}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        languageId="nl" // TODO: Get from user preferences/context
+        languageId={currentLanguage}
       />
     </>
   )

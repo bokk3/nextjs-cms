@@ -4,9 +4,9 @@ import { ContentUtils } from '@/lib/content-utils'
 import { authMiddleware } from '@/lib/auth-middleware'
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 /**
@@ -16,6 +16,7 @@ export async function POST(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const authResult = await authMiddleware(request)
@@ -27,7 +28,7 @@ export async function POST(
     }
 
     // Get the content page
-    const page = await ContentService.getPageById(params.id, true)
+    const page = await ContentService.getPageById(id, true)
     if (!page) {
       return NextResponse.json(
         { error: 'Content page not found' },
@@ -61,7 +62,7 @@ export async function POST(
     }
 
     // Publish the page
-    const publishedPage = await ContentService.updatePage(params.id, {
+    const publishedPage = await ContentService.updatePage(id, {
       published: true
     })
 
@@ -86,6 +87,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const authResult = await authMiddleware(request)
@@ -97,7 +99,7 @@ export async function DELETE(
     }
 
     // Get the content page
-    const page = await ContentService.getPageById(params.id, true)
+    const page = await ContentService.getPageById(id, true)
     if (!page) {
       return NextResponse.json(
         { error: 'Content page not found' },
@@ -114,7 +116,7 @@ export async function DELETE(
     }
 
     // Unpublish the page
-    const unpublishedPage = await ContentService.updatePage(params.id, {
+    const unpublishedPage = await ContentService.updatePage(id, {
       published: false
     })
 

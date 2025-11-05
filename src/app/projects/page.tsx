@@ -12,9 +12,18 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function ProjectsPage() {
-  // Fetch published projects
-  const projects = await ProjectService.getPublishedProjects()
+interface ProjectsPageProps {
+  searchParams: Promise<{
+    lang?: string
+  }>
+}
+
+export default async function ProjectsPage({ searchParams }: ProjectsPageProps) {
+  const resolvedSearchParams = await searchParams
+  const languageCode = resolvedSearchParams.lang || 'nl'
+  
+  // Fetch published projects with language support
+  const projects = await ProjectService.getPublishedProjects(languageCode)
 
   return (
     <div className="min-h-screen bg-white">

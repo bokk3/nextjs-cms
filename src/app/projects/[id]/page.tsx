@@ -4,13 +4,14 @@ import { Metadata } from 'next'
 import { ProjectDetailClient } from './project-detail-client'
 
 interface ProjectPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
-  const project = await ProjectService.getProjectById(params.id)
+  const resolvedParams = await params
+  const project = await ProjectService.getProjectById(resolvedParams.id)
   
   if (!project || !project.published) {
     return {
@@ -56,7 +57,8 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
-  const project = await ProjectService.getProjectById(params.id)
+  const resolvedParams = await params
+  const project = await ProjectService.getProjectById(resolvedParams.id)
   
   if (!project || !project.published) {
     notFound()

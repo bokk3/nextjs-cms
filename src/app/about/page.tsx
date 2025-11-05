@@ -10,14 +10,15 @@ type TranslationWithLanguage = ContentPageTranslation & {
 }
 
 interface AboutPageProps {
-  searchParams: {
+  searchParams: Promise<{
     lang?: string
-  }
+  }>
 }
 
 // Generate metadata for SEO
 export async function generateMetadata({ searchParams }: AboutPageProps): Promise<Metadata> {
-  const languageCode = searchParams.lang || 'nl'
+  const resolvedSearchParams = await searchParams
+  const languageCode = resolvedSearchParams.lang || 'nl'
   
   try {
     const { page, translation } = await ContentService.getPageWithFallback('about', languageCode)
@@ -139,7 +140,8 @@ function renderTipTapContent(content: JSONContent): string {
 }
 
 export default async function AboutPage({ searchParams }: AboutPageProps) {
-  const languageCode = searchParams.lang || 'nl'
+  const resolvedSearchParams = await searchParams
+  const languageCode = resolvedSearchParams.lang || 'nl'
   
   try {
     // Try to find an "about" content page
@@ -159,30 +161,6 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
 
       return (
         <div className="min-h-screen bg-white">
-          {/* Language switcher */}
-          {availableLanguages.length > 1 && (
-            <div className="bg-gray-50 border-b">
-              <div className="container mx-auto px-4 py-2">
-                <div className="flex items-center justify-end gap-2 text-sm">
-                  <span className="text-gray-600">Language:</span>
-                  {availableLanguages.map(lang => (
-                    <a
-                      key={lang.code}
-                      href={lang.url}
-                      className={`px-2 py-1 rounded ${
-                        lang.code === usedLanguage
-                          ? 'bg-blue-100 text-blue-800 font-medium'
-                          : 'text-gray-600 hover:text-gray-900'
-                      }`}
-                    >
-                      {lang.name}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Main content */}
           <main className="container mx-auto px-4 py-8 max-w-4xl">
             {/* Breadcrumbs */}

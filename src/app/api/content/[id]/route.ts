@@ -4,9 +4,9 @@ import { ContentValidator } from '@/lib/content-validation'
 import { authMiddleware } from '@/lib/auth-middleware'
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 /**
@@ -16,6 +16,7 @@ export async function GET(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const { id } = await params
   try {
     const { searchParams } = new URL(request.url)
     const includeUnpublished = searchParams.get('includeUnpublished') === 'true'
@@ -32,7 +33,7 @@ export async function GET(
       }
     }
 
-    const page = await ContentService.getPageById(params.id, includeUnpublished)
+    const page = await ContentService.getPageById(id, includeUnpublished)
 
     if (!page) {
       return NextResponse.json(
@@ -72,6 +73,7 @@ export async function PUT(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const authResult = await authMiddleware(request)
@@ -94,7 +96,7 @@ export async function PUT(
     }
 
     // Check if page exists
-    const existingPage = await ContentService.getPageById(params.id, true)
+    const existingPage = await ContentService.getPageById(id, true)
     if (!existingPage) {
       return NextResponse.json(
         { error: 'Content page not found' },
@@ -104,7 +106,7 @@ export async function PUT(
 
     // Check if slug is available (excluding current page)
     if (body.slug && body.slug !== existingPage.slug) {
-      const isSlugAvailable = await ContentService.isSlugAvailable(body.slug, params.id)
+      const isSlugAvailable = await ContentService.isSlugAvailable(body.slug, id)
       if (!isSlugAvailable) {
         return NextResponse.json(
           { error: 'Slug already exists' },
@@ -120,7 +122,7 @@ export async function PUT(
     }))
 
     // Update the page
-    const updatedPage = await ContentService.updatePage(params.id, {
+    const updatedPage = await ContentService.updatePage(id, {
       ...body,
       ...(sanitizedTranslations && { translations: sanitizedTranslations })
     })
@@ -142,6 +144,7 @@ export async function DELETE(
   request: NextRequest,
   { params }: RouteParams
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const authResult = await authMiddleware(request)
@@ -153,7 +156,7 @@ export async function DELETE(
     }
 
     // Check if page exists
-    const existingPage = await ContentService.getPageById(params.id, true)
+    const existingPage = await ContentService.getPageById(id, true)
     if (!existingPage) {
       return NextResponse.json(
         { error: 'Content page not found' },
@@ -162,7 +165,7 @@ export async function DELETE(
     }
 
     // Delete the page
-    await ContentService.deletePage(params.id)
+    await ContentService.deletePage(id)
 
     return NextResponse.json({ success: true })
   } catch (error) {
