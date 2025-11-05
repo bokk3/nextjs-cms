@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import Image from 'next/image'
 
 interface ProjectImage {
   id?: string
@@ -167,11 +168,15 @@ export function ImageUploader({ images, onImagesChange }: ImageUploaderProps) {
             {images.map((image, index) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex gap-4">
-                  <img
-                    src={image.thumbnailUrl}
-                    alt={image.alt}
-                    className="w-20 h-20 object-cover rounded"
-                  />
+                  <div className="relative w-20 h-20">
+                    <Image
+                      src={image.thumbnailUrl}
+                      alt={image.alt}
+                      fill
+                      className="object-cover rounded"
+                      unoptimized={false}
+                    />
+                  </div>
                   <div className="flex-1 space-y-2">
                     <Input
                       value={image.alt}

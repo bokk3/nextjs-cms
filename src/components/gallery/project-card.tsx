@@ -12,6 +12,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, onClick, languageId = 'nl' }: ProjectCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false)
   
   // Get translation for the specified language or fallback to first available
   const translation = project.translations.find(t => t.language.code === languageId) 
@@ -30,7 +31,7 @@ export function ProjectCard({ project, onClick, languageId = 'nl' }: ProjectCard
       onClick={onClick}
     >
       <div className="relative aspect-square overflow-hidden">
-        {thumbnailImage ? (
+        {thumbnailImage && !imageError ? (
           <>
             <Image
               src={thumbnailImage.thumbnailUrl}
@@ -40,10 +41,16 @@ export function ProjectCard({ project, onClick, languageId = 'nl' }: ProjectCard
                 imageLoaded ? 'opacity-100' : 'opacity-0'
               }`}
               onLoad={() => setImageLoaded(true)}
+              onError={(e) => {
+                console.error('Image failed to load:', thumbnailImage.thumbnailUrl, e)
+                setImageError(true)
+              }}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority={false}
+              unoptimized={false}
             />
             {!imageLoaded && (
-              <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+              <div className="absolute inset-0 bg-gray-100 dark:bg-gray-700 animate-pulse" />
             )}
           </>
         ) : (
@@ -61,7 +68,7 @@ export function ProjectCard({ project, onClick, languageId = 'nl' }: ProjectCard
         )}
         
         {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
         
         {/* Featured badge */}
         {project.featured && (
