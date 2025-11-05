@@ -359,6 +359,63 @@ async function main() {
   console.log('📧 Email: admin@nextjs-cms.com')
   console.log('🔑 Use the signup form to set password: admin123')
   console.log('ℹ️  The user record exists, now sign up with this email to set the password')
+
+  // Create sample contact messages for testing
+  console.log('📧 Creating sample contact messages...')
+  const sampleMessages = [
+    {
+      name: 'Marie Dubois',
+      email: 'marie.dubois@example.com',
+      projectType: 'Custom Jewelry',
+      message: 'Bonjour, je suis intéressée par une bague personnalisée pour mon mariage. Pourriez-vous me donner plus d\'informations sur vos créations et les prix?',
+      read: false,
+      replied: false,
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
+    },
+    {
+      name: 'Jan Janssen',
+      email: 'jan.janssen@example.be',
+      projectType: 'Home Decoration',
+      message: 'Hallo, ik zou graag een offerte willen voor een handgemaakte wanddecoratie voor mijn woonkamer. De afmetingen zijn ongeveer 80x60cm.',
+      read: true,
+      replied: false,
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) // 5 days ago
+    },
+    {
+      name: 'Sophie Laurent',
+      email: 'sophie.laurent@example.fr',
+      projectType: 'Gift Item',
+      message: 'Hello, I saw your beautiful work on Instagram. I would like to commission a special gift for my mother\'s birthday. Could we discuss the possibilities?',
+      read: true,
+      replied: true,
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 1 week ago
+    },
+    {
+      name: 'Pieter Van Der Berg',
+      email: 'pieter.vandenberg@example.nl',
+      projectType: 'Repair Service',
+      message: 'Goedemiddag, ik heb een oude sieraad die gerepareerd moet worden. Is dit iets wat u doet? Het gaat om een antieke broche van mijn grootmoeder.',
+      read: false,
+      replied: false,
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
+    },
+    {
+      name: 'Emma Thompson',
+      email: 'emma.thompson@example.co.uk',
+      projectType: 'Workshop Inquiry',
+      message: 'Hi there! I\'m visiting Belgium next month and I\'m wondering if you offer any workshops or classes? I\'d love to learn some of your techniques.',
+      read: false,
+      replied: false,
+      createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000) // 3 hours ago
+    }
+  ]
+
+  for (const message of sampleMessages) {
+    await prisma.contactMessage.create({
+      data: message
+    })
+  }
+  console.log('✅ Sample contact messages created')
 }
 
 main()

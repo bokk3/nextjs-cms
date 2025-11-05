@@ -114,3 +114,27 @@ export async function requirePermission(request: NextRequest, permission: string
 
   return user
 }
+
+/**
+ * Simple auth middleware that returns success/failure result
+ */
+export async function authMiddleware(request: NextRequest): Promise<{
+  success: boolean
+  user?: AuthenticatedUser
+  error?: string
+}> {
+  try {
+    const user = await getAuthenticatedUser(request)
+    
+    if (!user) {
+      return { success: false, error: 'Authentication required' }
+    }
+
+    return { success: true, user }
+  } catch (error) {
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Authentication failed' 
+    }
+  }
+}

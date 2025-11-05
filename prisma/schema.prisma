@@ -170,14 +170,16 @@ model ContentPageTranslation {
 }
 
 model ContactMessage {
-  id          String   @id @default(cuid())
-  name        String
-  email       String
-  projectType String
-  message     String
-  read        Boolean  @default(false)
-  replied     Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id              String   @id @default(cuid())
+  name            String
+  email           String
+  projectType     String
+  message         String
+  privacyAccepted Boolean  @default(true)
+  marketingConsent Boolean @default(false)
+  read            Boolean  @default(false)
+  replied         Boolean  @default(false)
+  createdAt       DateTime @default(now())
 
   @@map("contact_messages")
 }
