@@ -160,19 +160,19 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
       })
 
       return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white dark:bg-gray-900">
           {/* Main content */}
           <main className="container mx-auto px-4 py-8 max-w-4xl">
             {/* Breadcrumbs */}
-            <nav className="mb-8 text-sm text-gray-600">
-              <a href="/" className="hover:text-gray-900">Home</a>
+            <nav className="mb-8 text-sm text-gray-600 dark:text-gray-400">
+              <a href="/" className="hover:text-gray-900 dark:hover:text-gray-100">Home</a>
               <span className="mx-2">/</span>
-              <span className="text-gray-900">{translation.title}</span>
+              <span className="text-gray-900 dark:text-gray-100">{translation.title}</span>
             </nav>
 
             {/* Page header */}
             <header className="mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                 {translation.title}
               </h1>
               
@@ -194,10 +194,10 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
             />
 
             {/* Back to home */}
-            <div className="mt-12 pt-8 border-t border-gray-200">
+            <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
               <a 
                 href="/"
-                className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
               >
                 ← Back to Home
               </a>
@@ -209,18 +209,18 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
     
     // If no content page exists, show a default about page
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
         <main className="container mx-auto px-4 py-8 max-w-4xl">
           {/* Breadcrumbs */}
-          <nav className="mb-8 text-sm text-gray-600">
-            <a href="/" className="hover:text-gray-900">Home</a>
+          <nav className="mb-8 text-sm text-gray-600 dark:text-gray-400">
+            <a href="/" className="hover:text-gray-900 dark:hover:text-gray-100">Home</a>
             <span className="mx-2">/</span>
-            <span className="text-gray-900">About</span>
+            <span className="text-gray-900 dark:text-gray-100">About</span>
           </nav>
 
           {/* Page header */}
           <header className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               About Us
             </h1>
           </header>
@@ -243,10 +243,10 @@ export default async function AboutPage({ searchParams }: AboutPageProps) {
           </article>
 
           {/* Back to home */}
-          <div className="mt-12 pt-8 border-t border-gray-200">
+          <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
             <a 
               href="/"
-              className="inline-flex items-center text-blue-600 hover:text-blue-800"
+              className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
             >
               ← Back to Home
             </a>

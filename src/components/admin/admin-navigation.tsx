@@ -18,6 +18,7 @@ import {
   Image
 } from 'lucide-react'
 import { useSession, signOut } from '../../lib/auth-client'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export function AdminNavigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -44,18 +45,18 @@ export function AdminNavigation() {
   }
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+    <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Back to Site */}
           <div className="flex items-center space-x-4">
-            <Link href="/" className="flex items-center text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/" className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
               <ArrowLeft className="h-4 w-4 mr-2" />
               <span className="text-sm font-medium">Back to Site</span>
             </Link>
-            <div className="h-6 w-px bg-gray-300"></div>
+            <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
             <Link href="/admin" className="flex items-center">
-              <span className="text-xl font-bold text-black">Admin Panel</span>
+              <span className="text-xl font-bold text-black dark:text-white">Admin Panel</span>
             </Link>
           </div>
 
@@ -69,8 +70,8 @@ export function AdminNavigation() {
                   href={link.href}
                   className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive(link.href)
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                      : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <Icon className="h-4 w-4 mr-2" />
@@ -82,9 +83,10 @@ export function AdminNavigation() {
 
           {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
             {session?.user && (
               <>
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-gray-700 dark:text-gray-300">
                   {session.user.email}
                 </span>
                 <Button
@@ -119,19 +121,19 @@ export function AdminNavigation() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200">
+          <div className="md:hidden border-t border-gray-200 dark:border-gray-700">
             <div className="py-4 space-y-1">
               {/* Back to Site - Mobile */}
               <Link
                 href="/"
-                className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <ArrowLeft className="h-4 w-4 mr-3" />
                 <span className="font-medium">Back to Site</span>
               </Link>
               
-              <div className="border-t border-gray-200 my-2"></div>
+              <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
               
               {/* Admin Links - Mobile */}
               {adminNavLinks.map((link) => {
@@ -142,8 +144,8 @@ export function AdminNavigation() {
                     href={link.href}
                     className={`flex items-center px-4 py-2 text-sm font-medium transition-colors ${
                       isActive(link.href)
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+                        : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -153,11 +155,20 @@ export function AdminNavigation() {
                 )
               })}
               
+              {/* Theme Toggle - Mobile */}
+              <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+              <div className="px-4 py-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Theme</span>
+                  <ThemeToggle />
+                </div>
+              </div>
+              
               {/* User Menu - Mobile */}
               {session?.user && (
                 <>
-                  <div className="border-t border-gray-200 my-2"></div>
-                  <div className="px-4 py-2 text-sm text-gray-600">
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                  <div className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
                     {session.user.email}
                   </div>
                   <button
@@ -165,7 +176,7 @@ export function AdminNavigation() {
                       signOut()
                       setIsMenuOpen(false)
                     }}
-                    className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                    className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <LogOut className="h-4 w-4 mr-3" />
                     Sign Out

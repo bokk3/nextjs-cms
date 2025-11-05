@@ -159,7 +159,7 @@ export function ContentList({
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg border space-y-4">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
         <div className="flex flex-wrap gap-4">
           {/* Search */}
           <div className="flex-1 min-w-64">
@@ -225,7 +225,7 @@ export function ContentList({
       </div>
 
       {/* Content List */}
-      <div className="bg-white rounded-lg border overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         {filteredPages.length === 0 ? (
           <div className="p-8 text-center">
             <div className="text-gray-400 mb-4">
@@ -267,7 +267,7 @@ export function ContentList({
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredPages.map((page) => {
                   const defaultTranslation = page.translations[0]
                   

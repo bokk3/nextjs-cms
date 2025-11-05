@@ -106,7 +106,7 @@ export function ContactMessageList({ onMessageSelect }: ContactMessageListProps)
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Input
             placeholder="Search messages..."
@@ -142,7 +142,7 @@ export function ContactMessageList({ onMessageSelect }: ContactMessageListProps)
       </div>
 
       {/* Messages List */}
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         {data?.messages.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             No contact messages found.
@@ -172,7 +172,7 @@ export function ContactMessageList({ onMessageSelect }: ContactMessageListProps)
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {data?.messages.map((message) => (
                   <tr
                     key={message.id}

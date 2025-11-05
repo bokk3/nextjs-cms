@@ -25,8 +25,8 @@ export function ContactMessageManagement() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Contact Messages</h1>
-        <div className="text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Contact Messages</h1>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
           Click on a message to view details
         </div>
       </div>
