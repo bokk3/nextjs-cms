@@ -29,7 +29,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Track the event (service will check consent)
+    // Extract IP address from request headers
+    // Check various headers (for proxies, load balancers, etc.)
+    const ipAddress =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      request.headers.get('cf-connecting-ip') || // Cloudflare
+      null
+
+    // Track the event (service will check consent and exclude admin pages)
     await trackEvent({
       sessionId,
       pagePath,
@@ -40,6 +48,7 @@ export async function POST(request: NextRequest) {
       country,
       eventType: eventType || 'pageview',
       metadata,
+      ipAddress,
     })
 
     console.log('[Analytics API] Track request completed')

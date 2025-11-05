@@ -217,6 +217,7 @@ model AnalyticsEvent {
   userAgent   String?
   language    String?
   country     String?
+  ipAddress   String?  // IP address (stored for security/analytics, can be anonymized)
   eventType   String   @default("pageview") // 'pageview', 'click', 'download', etc.
   metadata    Json?    // Additional event data
   createdAt   DateTime @default(now())
