@@ -51,8 +51,8 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Hide regular navigation and footer in admin pages */
-body[data-admin="true"] nav:not(.admin-nav),
+/* Hide regular navigation and footer in admin pages, but allow main-nav */
+body[data-admin="true"] nav:not(.admin-nav):not(.main-nav),
 body[data-admin="true"] footer {
   display: none !important;
 }
