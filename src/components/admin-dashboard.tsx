@@ -144,6 +144,12 @@ export function AdminDashboard() {
                   Quick Actions
                 </h3>
                 <div className="mt-5 flex flex-wrap gap-3">
+                  <Link
+                    href="/admin/projects"
+                    className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+                  >
+                    Manage Projects
+                  </Link>
                   <button className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
                     View Users
                   </button>
