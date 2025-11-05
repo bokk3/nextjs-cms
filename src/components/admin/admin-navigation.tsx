@@ -29,6 +29,7 @@ export function AdminNavigation() {
     { href: '/admin/projects', label: 'Projects', icon: FolderOpen },
     { href: '/admin/content', label: 'Content', icon: FileText },
     { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/admin/settings', label: 'Settings', icon: Settings },
   ]
 
   const isActive = (href: string) => {

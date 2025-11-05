@@ -29,14 +29,7 @@ export function ContentForm({
   const [formData, setFormData] = useState<ContentPageFormData>(() => ({
     slug: initialData?.slug || '',
     published: initialData?.published || false,
-    translations: initialData?.translations || languages.map(lang => ({
-      languageId: lang.id,
-      title: '',
-      content: {
-        type: 'doc',
-        content: [{ type: 'paragraph', content: [] }]
-      }
-    }))
+    translations: initialData?.translations || []
   }))
 
   const [activeLanguage, setActiveLanguage] = useState(
@@ -51,11 +44,30 @@ export function ContentForm({
   } | null>(null)
   const [isValidatingSlug, setIsValidatingSlug] = useState(false)
 
+  // Initialize translations when languages are loaded
+  useEffect(() => {
+    if (languages.length > 0 && formData.translations.length === 0 && !initialData) {
+      setFormData(prev => ({
+        ...prev,
+        translations: languages.map(lang => ({
+          languageId: lang.id,
+          title: '',
+          content: {
+            type: 'doc',
+            content: [{ type: 'paragraph', content: [] }]
+          }
+        }))
+      }))
+    }
+  }, [languages, formData.translations.length, initialData])
+
   // Get current translation
   const currentTranslation = formData.translations.find(t => {
     const lang = languages.find(l => l.id === t.languageId)
     return lang?.code === activeLanguage
   })
+
+
 
   // Validate slug when it changes
   useEffect(() => {

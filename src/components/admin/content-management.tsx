@@ -29,13 +29,26 @@ export function ContentManagement() {
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        // For now, use hardcoded languages. In a real app, this would come from an API
+        // Fetch languages from the database
+        const response = await fetch('/api/languages')
+        if (response.ok) {
+          const languagesData = await response.json()
+          setLanguages(languagesData)
+        } else {
+          // Fallback to hardcoded languages if API fails
+          console.warn('Failed to fetch languages, using fallback')
+          setLanguages([
+            { id: '1', code: 'nl', name: 'Nederlands', isDefault: true, isActive: true },
+            { id: '2', code: 'fr', name: 'Français', isDefault: false, isActive: true }
+          ])
+        }
+      } catch (error) {
+        console.error('Error fetching languages:', error)
+        // Fallback to hardcoded languages
         setLanguages([
           { id: '1', code: 'nl', name: 'Nederlands', isDefault: true, isActive: true },
           { id: '2', code: 'fr', name: 'Français', isDefault: false, isActive: true }
         ])
-      } catch (error) {
-        console.error('Error fetching languages:', error)
       }
     }
 

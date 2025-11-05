@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '../../../lib/db';
+import { emailService } from '../../../lib/email-service';
 
 // Simple in-memory rate limiting (in production, use Redis or similar)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -42,18 +43,26 @@ interface ContactFormData {
 }
 
 export async function POST(request: NextRequest) {
-  // Rate limiting check
-  const rateLimitKey = getRateLimitKey(request);
-  if (isRateLimited(rateLimitKey)) {
-    return NextResponse.json(
-      { error: 'Too many requests. Please try again in 15 minutes.' },
-      { status: 429 }
-    );
+  // Rate limiting check (skip in test environment)
+  if (process.env.NODE_ENV !== 'test') {
+    const rateLimitKey = getRateLimitKey(request);
+    if (isRateLimited(rateLimitKey)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again in 15 minutes.' },
+        { status: 429 }
+      );
+    }
   }
 
   try {
     const body: ContactFormData = await request.json();
-    const { name, email, projectType, message, privacyAccepted, marketingConsent } = body;
+    let { name, email, projectType, message, privacyAccepted, marketingConsent } = body;
+
+    // Trim input data first
+    name = name?.trim() || '';
+    email = email?.trim() || '';
+    projectType = projectType?.trim() || '';
+    message = message?.trim() || '';
 
     // Validate required fields
     if (!name || !email || !projectType || !message) {
@@ -72,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Enhanced validation
-    if (name.trim().length < 2 || name.trim().length > 100) {
+    if (name.length < 2 || name.length > 100) {
       return NextResponse.json(
         { error: 'Name must be between 2 and 100 characters' },
         { status: 400 }
@@ -96,14 +105,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate message length
-    if (message.trim().length < 10) {
+    if (message.length < 10) {
       return NextResponse.json(
         { error: 'Message must be at least 10 characters long' },
         { status: 400 }
       );
     }
 
-    if (message.trim().length > 2000) {
+    if (message.length > 2000) {
       return NextResponse.json(
         { error: 'Message must be less than 2000 characters' },
         { status: 400 }
@@ -129,10 +138,10 @@ export async function POST(request: NextRequest) {
     // Create contact message in database
     const contactMessage = await prisma.contactMessage.create({
       data: {
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        projectType: projectType.trim(),
-        message: message.trim(),
+        name,
+        email: email.toLowerCase(),
+        projectType,
+        message,
         privacyAccepted,
         marketingConsent,
         read: false,
@@ -140,8 +149,30 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // TODO: Send email notification (task 7.3)
-    // This would be implemented in task 7.3 "Implement email notification system"
+    // Send email notifications
+    try {
+      const emailData = {
+        name: contactMessage.name,
+        email: contactMessage.email,
+        projectType: contactMessage.projectType,
+        message: contactMessage.message,
+        marketingConsent: contactMessage.marketingConsent,
+        submittedAt: contactMessage.createdAt,
+      };
+
+      // Send notification to admin (fire and forget - don't block response)
+      emailService.sendContactNotification(emailData).catch(error => {
+        console.error('Failed to send admin notification:', error);
+      });
+
+      // Send auto-reply to customer (fire and forget)
+      emailService.sendAutoReply(emailData).catch(error => {
+        console.error('Failed to send auto-reply:', error);
+      });
+    } catch (error) {
+      // Log email errors but don't fail the request
+      console.error('Email service error:', error);
+    }
 
     return NextResponse.json(
       { 

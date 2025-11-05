@@ -44,6 +44,7 @@ export function RichTextEditor({
   className = ''
 }: RichTextEditorProps) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         bulletList: {
@@ -90,8 +91,14 @@ export function RichTextEditor({
   })
 
   useEffect(() => {
-    if (editor && content && JSON.stringify(editor.getJSON()) !== JSON.stringify(content)) {
-      editor.commands.setContent(content)
+    if (editor && content) {
+      const currentContent = editor.getJSON()
+      const contentString = JSON.stringify(content)
+      const currentString = JSON.stringify(currentContent)
+      
+      if (contentString !== currentString) {
+        editor.commands.setContent(content)
+      }
     }
   }, [editor, content])
 
