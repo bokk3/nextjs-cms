@@ -1,6 +1,17 @@
+'use client'
+
 import Link from 'next/link'
+import { useCookieConsent } from '@/contexts/cookie-consent-context'
 
 export function Footer() {
+  let setShowBanner: ((show: boolean) => void) | null = null
+  try {
+    const cookieConsent = useCookieConsent()
+    setShowBanner = cookieConsent.setShowBanner
+  } catch {
+    // Footer used outside CookieConsentProvider - cookie preferences won't be available
+  }
+  
   const currentYear = new Date().getFullYear()
 
   return (
@@ -56,6 +67,16 @@ export function Footer() {
                   Terms of Service
                 </Link>
               </li>
+              {setShowBanner && (
+                <li>
+                  <button
+                    onClick={() => setShowBanner(true)}
+                    className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors text-left"
+                  >
+                    Cookie Preferences
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
         </div>

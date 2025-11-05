@@ -103,8 +103,84 @@ export default function PrivacyPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Cookies and Tracking</h2>
             <p className="text-gray-700 mb-4">
-              Our website uses essential cookies for functionality. We do not use tracking cookies or third-party analytics 
-              without your explicit consent. You can manage your cookie preferences through our cookie banner.
+              We use cookies to enhance your browsing experience and analyze website traffic. You can control cookie 
+              preferences through our cookie consent banner, which appears on your first visit. We respect your choices 
+              and only use cookies that you have consented to.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Cookie Categories</h3>
+
+            <div className="mb-4">
+              <h4 className="text-lg font-medium text-gray-900 mb-2">Essential Cookies</h4>
+              <p className="text-gray-700 mb-2">
+                These cookies are strictly necessary for the website to function properly. They cannot be disabled 
+                as they are essential for basic site functionality, including:
+              </p>
+              <ul className="list-disc pl-6 text-gray-700 mb-4">
+                <li>Authentication and session management</li>
+                <li>Security features and fraud prevention</li>
+                <li>Cookie consent preference storage</li>
+                <li>Language preference storage</li>
+              </ul>
+              <p className="text-sm text-gray-600 italic">
+                These cookies are always active and do not require your consent under GDPR.
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <h4 className="text-lg font-medium text-gray-900 mb-2">Analytics Cookies</h4>
+              <p className="text-gray-700 mb-2">
+                These cookies help us understand how visitors interact with our website by collecting and reporting 
+                information anonymously. They enable us to:
+              </p>
+              <ul className="list-disc pl-6 text-gray-700 mb-4">
+                <li>Analyze website usage and visitor behavior</li>
+                <li>Identify popular content and pages</li>
+                <li>Improve website performance and user experience</li>
+                <li>Measure the effectiveness of our content</li>
+              </ul>
+              <p className="text-sm text-gray-600 italic">
+                These cookies are optional and require your explicit consent. We use privacy-focused analytics that 
+                do not share data with third parties.
+              </p>
+            </div>
+
+            <div className="mb-4">
+              <h4 className="text-lg font-medium text-gray-900 mb-2">Marketing Cookies</h4>
+              <p className="text-gray-700 mb-2">
+                These cookies are used to deliver personalized advertisements and track campaign performance. They enable us to:
+              </p>
+              <ul className="list-disc pl-6 text-gray-700 mb-4">
+                <li>Show you relevant advertisements based on your interests</li>
+                <li>Measure the effectiveness of our marketing campaigns</li>
+                <li>Limit the number of times you see an advertisement</li>
+              </ul>
+              <p className="text-sm text-gray-600 italic">
+                These cookies are optional and require your explicit consent. Currently, we do not use marketing cookies, 
+                but this option is available for future use.
+              </p>
+            </div>
+
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Managing Your Cookie Preferences</h3>
+            <p className="text-gray-700 mb-4">
+              You can manage your cookie preferences at any time:
+            </p>
+            <ul className="list-disc pl-6 text-gray-700 mb-4">
+              <li>Click on the cookie banner that appears when you first visit our website</li>
+              <li>Use the "Customize" option to select which cookie categories you accept</li>
+              <li>Change your preferences later by clicking the cookie settings link (if available)</li>
+              <li>Clear your browser cookies to reset your preferences (you will be asked again on your next visit)</li>
+            </ul>
+
+            <p className="text-gray-700 mb-4">
+              Your cookie preferences are stored in your browser session and will be remembered across page visits. 
+              If you clear your browser cookies, you will need to set your preferences again.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-900 mb-3 mt-6">Third-Party Cookies</h3>
+            <p className="text-gray-700 mb-4">
+              We do not currently use third-party cookies. If we implement third-party services in the future that 
+              require cookies, we will update this policy and ensure they comply with GDPR requirements.
             </p>
           </section>
 

@@ -17,7 +17,8 @@ import {
   Layout,
   Image,
   ChevronDown,
-  Edit3
+  Edit3,
+  BarChart3
 } from 'lucide-react'
 import { useSession, signOut } from '../../lib/auth-client'
 
@@ -61,6 +62,7 @@ export function AdminNavigation() {
   // Secondary navigation items
   const secondaryNavLinks = [
     { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
+    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/settings', label: 'Settings', icon: Settings },
   ]
 
@@ -76,7 +78,7 @@ export function AdminNavigation() {
   }
 
   return (
-    <nav className="admin-nav bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-40 shadow-sm">
+    <nav className="admin-nav bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Back to Site */}
@@ -108,7 +110,7 @@ export function AdminNavigation() {
                   title={link.label}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60]">
                     {link.label}
                   </span>
                 </Link>
@@ -134,7 +136,7 @@ export function AdminNavigation() {
               </button>
               
               {isContentDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50 animate-in fade-in-0 zoom-in-95 duration-100">
+                <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[60] animate-in fade-in-0 zoom-in-95 duration-100">
                   <div className="py-1">
                     {contentNavLinks.map((link) => {
                       const Icon = link.icon
@@ -174,7 +176,7 @@ export function AdminNavigation() {
                   title={link.label}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60]">
                     {link.label}
                   </span>
                 </Link>

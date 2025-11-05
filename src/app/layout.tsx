@@ -3,8 +3,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navigation } from "@/components/layout/navigation";
 import { Footer } from "@/components/layout/footer";
+import { CookieBanner } from "@/components/layout/cookie-banner";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider } from "@/contexts/theme-context";
+import { CookieConsentProvider } from "@/contexts/cookie-consent-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,9 +49,13 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <LanguageProvider>
-            <Navigation />
-            <main>{children}</main>
-            <Footer />
+            <CookieConsentProvider>
+              <AnalyticsTracker />
+              <Navigation />
+              <main>{children}</main>
+              <Footer />
+              <CookieBanner />
+            </CookieConsentProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

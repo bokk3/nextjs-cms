@@ -208,6 +208,26 @@ model CookieConsent {
   @@map("cookie_consents")
 }
 
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  sessionId   String   // Not unique - one session can have multiple events
+  pagePath    String
+  pageTitle   String?
+  referrer    String?
+  userAgent   String?
+  language    String?
+  country     String?
+  eventType   String   @default("pageview") // 'pageview', 'click', 'download', etc.
+  metadata    Json?    // Additional event data
+  createdAt   DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([pagePath])
+  @@index([createdAt])
+  @@index([eventType])
+  @@map("analytics_events")
+}
+
 model UserPreferences {
   id        String   @id @default(cuid())
   sessionId String   @unique

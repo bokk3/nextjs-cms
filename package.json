@@ -12,7 +12,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "create-admin": "tsx scripts/create-admin.ts",
     "reset-admin": "tsx scripts/reset-admin.ts",
-    "clear-and-seed": "tsx scripts/clear-and-seed.ts"
+    "clear-and-seed": "tsx scripts/clear-and-seed.ts",
+    "fix:prisma": "bash scripts/fix-prisma-client.sh"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
