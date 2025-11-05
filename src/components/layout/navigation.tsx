@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X, Globe, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/contexts/language-context'
@@ -10,7 +10,26 @@ import { ThemeToggle } from '@/components/ui/theme-toggle'
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false)
+  const [showThemeToggle, setShowThemeToggle] = useState(true)
   const { currentLanguage, languages, setLanguage, isLoading } = useLanguage()
+
+  // Check if theme toggle should be shown
+  useEffect(() => {
+    const checkThemeSettings = async () => {
+      try {
+        const response = await fetch('/api/admin/theme-settings')
+        if (response.ok) {
+          const settings = await response.json()
+          setShowThemeToggle(settings.mode === 'user-choice' && settings.allowUserToggle)
+        }
+      } catch (error) {
+        // Default to showing theme toggle if settings can't be loaded
+        setShowThemeToggle(true)
+      }
+    }
+    
+    checkThemeSettings()
+  }, [])
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const toggleLanguageMenu = () => setIsLanguageMenuOpen(!isLanguageMenuOpen)
@@ -44,8 +63,8 @@ export function Navigation() {
             ))}
             
             <div className="flex items-center gap-2">
-              {/* Theme Toggle */}
-              <ThemeToggle />
+              {/* Theme Toggle - only show if enabled in settings */}
+              {showThemeToggle && <ThemeToggle />}
               
               {/* Language Dropdown */}
               {!isLoading && languages.length > 1 && (
@@ -127,13 +146,15 @@ export function Navigation() {
                 </Link>
               ))}
               
-              {/* Mobile Theme Toggle */}
-              <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 mt-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Theme</span>
-                  <ThemeToggle />
+              {/* Mobile Theme Toggle - only show if enabled in settings */}
+              {showThemeToggle && (
+                <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 mt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Theme</span>
+                    <ThemeToggle />
+                  </div>
                 </div>
-              </div>
+              )}
               
               {/* Mobile Language Selector */}
               {!isLoading && languages.length > 1 && (

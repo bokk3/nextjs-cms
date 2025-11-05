@@ -8,75 +8,66 @@ interface ThemeContextType {
   theme: Theme
   toggleTheme: () => void
   setTheme: (theme: Theme) => void
+  mounted: boolean
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light')
+  const [theme, setThemeState] = useState<Theme>('light')
   const [mounted, setMounted] = useState(false)
 
-  // Load theme from localStorage on mount
+  // Initialize theme on mount
   useEffect(() => {
-    setMounted(true)
-    
-    try {
-      const savedTheme = localStorage.getItem('theme') as Theme
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      
-      const initialTheme = savedTheme || systemTheme
-      setTheme(initialTheme)
-      
-      // Apply theme immediately
-      const root = document.documentElement
-      if (initialTheme === 'dark') {
-        root.classList.add('dark')
-      } else {
-        root.classList.remove('dark')
+    const initTheme = () => {
+      try {
+        const saved = localStorage.getItem('theme')
+        const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        const initial = (saved as Theme) || system
+        
+        setThemeState(initial)
+        document.documentElement.classList.toggle('dark', initial === 'dark')
+        
+        console.log('Theme initialized:', initial)
+      } catch (error) {
+        console.error('Theme init error:', error)
+        setThemeState('light')
       }
-    } catch (error) {
-      // Fallback if localStorage is not available
-      setTheme('light')
+      setMounted(true)
     }
+
+    initTheme()
   }, [])
 
-  // Apply theme to document when theme changes
-  useEffect(() => {
-    if (mounted) {
-      const root = document.documentElement
-      
-      if (theme === 'dark') {
-        root.classList.add('dark')
-      } else {
-        root.classList.remove('dark')
-      }
-      
-      try {
-        localStorage.setItem('theme', theme)
-      } catch (error) {
-        // Ignore localStorage errors
-      }
+  // Apply theme changes
+  const setTheme = (newTheme: Theme) => {
+    console.log('Setting theme to:', newTheme)
+    setThemeState(newTheme)
+    
+    try {
+      localStorage.setItem('theme', newTheme)
+      document.documentElement.classList.toggle('dark', newTheme === 'dark')
+    } catch (error) {
+      console.error('Theme save error:', error)
     }
-  }, [theme, mounted])
+  }
 
   const toggleTheme = () => {
-    setTheme(prev => {
-      const newTheme = prev === 'light' ? 'dark' : 'light'
-      console.log('Theme toggled from', prev, 'to', newTheme)
-      return newTheme
-    })
+    const newTheme = theme === 'light' ? 'dark' : 'light'
+    console.log('Toggling theme from', theme, 'to', newTheme)
+    setTheme(newTheme)
   }
 
-  const contextValue = {
+  const value = {
     theme,
     toggleTheme,
-    setTheme
+    setTheme,
+    mounted
   }
 
-  // Always render the provider, but prevent hydration mismatch
   return (
-    <ThemeContext.Provider value={contextValue}>
-      {mounted ? children : <div className="opacity-0">{children}</div>}
+    <ThemeContext.Provider value={value}>
+      {children}
     </ThemeContext.Provider>
   )
 }

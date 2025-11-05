@@ -72,7 +72,7 @@ export function ProjectGrid({ projects, onProjectClick, languageId = 'nl' }: Pro
   if (projects.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600 text-lg">No projects available yet.</p>
+        <p className="text-gray-600 dark:text-gray-400 text-lg">No projects available yet.</p>
       </div>
     )
   }
@@ -117,14 +117,14 @@ export function ProjectGrid({ projects, onProjectClick, languageId = 'nl' }: Pro
       </div>
 
       {/* Results count */}
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-gray-600 dark:text-gray-400">
         Showing {visibleProjects.length} of {filteredAndSortedProjects.length} projects
       </div>
 
       {/* Project Grid */}
       {filteredAndSortedProjects.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-600">No projects match your search criteria.</p>
+          <p className="text-gray-600 dark:text-gray-400">No projects match your search criteria.</p>
         </div>
       ) : (
         <>

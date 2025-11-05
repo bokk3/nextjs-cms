@@ -10,6 +10,7 @@ import { ArrowRight } from 'lucide-react'
 import { useLanguage } from '@/contexts/language-context'
 import { PageComponent } from '@/types/page-builder'
 import { ComponentRenderer } from '@/components/page-builder/component-renderer'
+import { useTheme } from '@/contexts/theme-context'
 
 interface HomepageClientProps {
   featuredProjects: ProjectWithRelations[]
@@ -25,6 +26,7 @@ export function HomepageClient({
   const [selectedProject, setSelectedProject] = useState<ProjectWithRelations | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { currentLanguage } = useLanguage()
+  const { theme, toggleTheme } = useTheme()
 
   const handleProjectClick = (project: ProjectWithRelations) => {
     setSelectedProject(project)
@@ -40,7 +42,17 @@ export function HomepageClient({
   if (pageBuilderComponents && pageBuilderComponents.length > 0) {
     return (
       <>
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white dark:bg-gray-900">
+          {/* Debug Theme Button - Remove this later */}
+          <div className="fixed top-20 right-4 z-50">
+            <Button
+              onClick={toggleTheme}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              Debug: {theme} → {theme === 'light' ? 'dark' : 'light'}
+            </Button>
+          </div>
+          
           {pageBuilderComponents
             .sort((a, b) => a.order - b.order)
             .map((component) => (
