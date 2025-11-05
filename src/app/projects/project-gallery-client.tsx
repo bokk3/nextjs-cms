@@ -25,6 +25,10 @@ export function ProjectGalleryClient({ projects }: ProjectGalleryClientProps) {
     setSelectedProject(null)
   }
 
+  const handleProjectChange = (project: ProjectWithRelations) => {
+    setSelectedProject(project)
+  }
+
   return (
     <>
       <ProjectGrid
@@ -38,6 +42,8 @@ export function ProjectGalleryClient({ projects }: ProjectGalleryClientProps) {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         languageId={currentLanguage}
+        allProjects={projects}
+        onProjectChange={handleProjectChange}
       />
     </>
   )

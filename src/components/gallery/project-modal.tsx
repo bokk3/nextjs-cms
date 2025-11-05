@@ -11,9 +11,11 @@ interface ProjectModalProps {
   isOpen: boolean
   onClose: () => void
   languageId?: string
+  allProjects?: ProjectWithRelations[]
+  onProjectChange?: (project: ProjectWithRelations) => void
 }
 
-export function ProjectModal({ project, isOpen, onClose, languageId = 'nl' }: ProjectModalProps) {
+export function ProjectModal({ project, isOpen, onClose, languageId = 'nl', allProjects = [], onProjectChange }: ProjectModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   // Reset image index when project changes
@@ -23,21 +25,36 @@ export function ProjectModal({ project, isOpen, onClose, languageId = 'nl' }: Pr
 
   // Handle keyboard navigation
   useEffect(() => {
-    if (!isOpen) return
+    if (!isOpen || !project) return
+
+    const images = project.images
+    const currentProjectIndex = allProjects.findIndex(p => p.id === project.id)
+    const hasPreviousProject = currentProjectIndex > 0
+    const hasNextProject = currentProjectIndex < allProjects.length - 1 && currentProjectIndex >= 0
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose()
       } else if (e.key === 'ArrowLeft') {
-        previousImage()
+        // If at first image and has previous project, go to previous project
+        if (currentImageIndex === 0 && hasPreviousProject && onProjectChange) {
+          onProjectChange(allProjects[currentProjectIndex - 1])
+        } else if (currentImageIndex > 0) {
+          setCurrentImageIndex((prev) => prev - 1)
+        }
       } else if (e.key === 'ArrowRight') {
-        nextImage()
+        // If at last image and has next project, go to next project
+        if (currentImageIndex === images.length - 1 && hasNextProject && onProjectChange) {
+          onProjectChange(allProjects[currentProjectIndex + 1])
+        } else if (currentImageIndex < images.length - 1) {
+          setCurrentImageIndex((prev) => prev + 1)
+        }
       }
     }
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, project, currentImageIndex, allProjects, onProjectChange])
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -62,12 +79,29 @@ export function ProjectModal({ project, isOpen, onClose, languageId = 'nl' }: Pr
   const images = project.images
   const currentImage = images[currentImageIndex]
 
+  // Find current project index
+  const currentProjectIndex = allProjects.findIndex(p => p.id === project.id)
+  const hasPreviousProject = currentProjectIndex > 0
+  const hasNextProject = currentProjectIndex < allProjects.length - 1 && currentProjectIndex >= 0
+
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length)
   }
 
   const previousImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)
+  }
+
+  const nextProject = () => {
+    if (hasNextProject && onProjectChange) {
+      onProjectChange(allProjects[currentProjectIndex + 1])
+    }
+  }
+
+  const previousProject = () => {
+    if (hasPreviousProject && onProjectChange) {
+      onProjectChange(allProjects[currentProjectIndex - 1])
+    }
   }
 
   // Parse TipTap JSON content to plain text for display
@@ -90,17 +124,49 @@ export function ProjectModal({ project, isOpen, onClose, languageId = 'nl' }: Pr
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-75 transition-opacity"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
       
+      {/* Project Navigation - Previous */}
+      {hasPreviousProject && onProjectChange && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white/100 backdrop-blur-sm shadow-lg"
+          onClick={(e) => {
+            e.stopPropagation()
+            previousProject()
+          }}
+          aria-label="Previous project"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </Button>
+      )}
+
+      {/* Project Navigation - Next */}
+      {hasNextProject && onProjectChange && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white/100 backdrop-blur-sm shadow-lg"
+          onClick={(e) => {
+            e.stopPropagation()
+            nextProject()
+          }}
+          aria-label="Next project"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </Button>
+      )}
+
       {/* Modal Content */}
-      <div className="relative bg-white rounded-lg shadow-xl max-w-4xl max-h-[90vh] w-full mx-4 overflow-hidden">
+      <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl max-h-[90vh] w-full mx-4 overflow-hidden">
         {/* Close Button */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-4 right-4 z-10 bg-white bg-opacity-90 hover:bg-opacity-100"
+          className="absolute top-4 right-4 z-10 bg-white dark:bg-gray-800 bg-opacity-90 dark:bg-opacity-90 hover:bg-opacity-100 dark:hover:bg-opacity-100"
           onClick={onClose}
         >
           <X className="h-4 w-4" />

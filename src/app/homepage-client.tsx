@@ -5,7 +5,7 @@ import { ProjectCard } from '@/components/gallery/project-card'
 import { ProjectModal } from '@/components/gallery/project-modal'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { useLanguage } from '@/contexts/language-context'
 import { PageComponent } from '@/types/page-builder'
@@ -25,8 +25,17 @@ export function HomepageClient({
 }: HomepageClientProps) {
   const [selectedProject, setSelectedProject] = useState<ProjectWithRelations | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [allFeaturedProjects, setAllFeaturedProjects] = useState<ProjectWithRelations[]>(featuredProjects)
   const { currentLanguage } = useLanguage()
   const { theme, toggleTheme } = useTheme()
+
+  // Fetch all featured projects for modal navigation
+  useEffect(() => {
+    fetch('/api/projects?featured=true')
+      .then(res => res.json())
+      .then(data => setAllFeaturedProjects(data.projects || featuredProjects))
+      .catch(() => setAllFeaturedProjects(featuredProjects))
+  }, [featuredProjects])
 
   const handleProjectClick = (project: ProjectWithRelations) => {
     setSelectedProject(project)
@@ -36,6 +45,10 @@ export function HomepageClient({
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setSelectedProject(null)
+  }
+
+  const handleProjectChange = (project: ProjectWithRelations) => {
+    setSelectedProject(project)
   }
 
   // If page builder components exist, use them; otherwise show default homepage
@@ -53,6 +66,7 @@ export function HomepageClient({
                 component={component}
                 isPreview={true}
                 currentLanguage={currentLanguage}
+                onProjectClick={handleProjectClick}
               />
             ))}
         </div>
@@ -63,6 +77,8 @@ export function HomepageClient({
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           languageId={currentLanguage}
+          allProjects={allFeaturedProjects}
+          onProjectChange={handleProjectChange}
         />
       </>
     )

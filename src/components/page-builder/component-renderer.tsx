@@ -25,12 +25,14 @@ interface ComponentRendererProps {
   component: PageComponent
   isPreview?: boolean
   currentLanguage?: string
+  onProjectClick?: (project: any) => void
 }
 
 export function ComponentRenderer({ 
   component, 
   isPreview = false, 
-  currentLanguage = 'nl' 
+  currentLanguage = 'nl',
+  onProjectClick
 }: ComponentRendererProps) {
   const { type, data } = component
 
@@ -330,7 +332,7 @@ export function ComponentRenderer({
                     <ProjectCard
                       key={project.id}
                       project={project}
-                      onClick={() => {}}
+                      onClick={() => onProjectClick?.(project)}
                       languageId={currentLanguage}
                     />
                   ))}
