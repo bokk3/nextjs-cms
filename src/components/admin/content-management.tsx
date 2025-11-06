@@ -218,7 +218,7 @@ export function ContentManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Navigation */}
       {viewMode !== 'list' && (
         <div className="flex items-center gap-4 mb-6">

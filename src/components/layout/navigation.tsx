@@ -86,7 +86,7 @@ export function Navigation() {
                   </Button>
                   
                   {isLanguageMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 glass border border-white/20 dark:border-gray-700/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-scale-in">
+                    <div className="absolute right-0 mt-2 w-48 glass border border-white/20 dark:border-gray-700/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-fade-in">
                       <div className="py-2">
                         {languages.map((language) => (
                           <button

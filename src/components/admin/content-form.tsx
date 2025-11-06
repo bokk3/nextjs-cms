@@ -194,7 +194,7 @@ export function ContentForm({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Page Settings */}
       <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl p-6">
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Page Settings</h3>

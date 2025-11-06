@@ -71,7 +71,7 @@ export function ProjectManagement() {
   }
 
   return (
-    <>
+    <div className="animate-fade-in">
       {currentView === 'list' && (
         <ProjectList
           onCreateProject={handleCreateProject}
@@ -96,6 +96,6 @@ export function ProjectManagement() {
         onCancel={cancelDelete}
         loading={deleteLoading}
       />
-    </>
+    </div>
   )
 }

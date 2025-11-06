@@ -80,18 +80,18 @@ export function GalleryManagement() {
   ]
 
   return (
-    <div className="bg-white rounded-lg border">
+    <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl overflow-hidden animate-fade-in">
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200">
-        <nav className="flex space-x-8 px-6">
+      <div className="border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-800/50">
+        <nav className="flex space-x-2 px-6">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`flex items-center gap-2 py-4 px-4 border-b-2 font-semibold text-sm transition-all duration-200 rounded-t-xl ${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-blue-500 dark:border-blue-400 text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100/50 dark:hover:bg-gray-700/50'
               }`}
             >
               {tab.icon}
@@ -107,7 +107,8 @@ export function GalleryManagement() {
           <MediaLibrary
             selectionMode="multiple"
             allowUpload={true}
-            className="border-0"
+            className="border-0 shadow-none"
+            showTitle={false}
           />
         )}
 

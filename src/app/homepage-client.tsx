@@ -55,9 +55,7 @@ export function HomepageClient({
   if (pageBuilderComponents && pageBuilderComponents.length > 0) {
     return (
       <>
-        <div className="min-h-screen bg-white dark:bg-gray-900">
-
-          
+        <div className="min-h-screen bg-white dark:bg-gray-900 relative overflow-x-hidden">
           {pageBuilderComponents
             .sort((a, b) => a.order - b.order)
             .map((component) => (

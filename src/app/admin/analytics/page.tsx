@@ -3,7 +3,7 @@ import { Breadcrumb } from '../../../components/admin/breadcrumb'
 
 export default function AdminAnalyticsPage() {
   return (
-    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <Breadcrumb items={[{ label: 'Analytics' }]} />
       <AnalyticsDashboard />
     </div>

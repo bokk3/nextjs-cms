@@ -8,12 +8,11 @@ export const metadata: Metadata = {
 
 export default function GalleryPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Gallery Management</h1>
-        <p className="text-gray-600">
-          Manage your media library, organize images, and configure optimization settings.
-        </p>
+    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
+          Gallery Management
+        </h1>
       </div>
 
       <GalleryManagement />

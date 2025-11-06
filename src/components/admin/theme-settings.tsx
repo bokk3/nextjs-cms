@@ -113,7 +113,7 @@ export function ThemeSettings() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border p-6">
+    <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl p-6 animate-fade-in">
       <div className="flex items-center gap-2 mb-6">
         <Settings className="h-5 w-5 text-gray-600 dark:text-gray-400" />
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Theme Settings</h3>

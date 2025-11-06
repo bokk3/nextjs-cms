@@ -145,12 +145,12 @@ export function ContentList({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Content Pages</h2>
-          <p className="text-gray-600">Manage your website content pages</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Content Pages</h2>
+          <p className="text-gray-600 dark:text-gray-400">Manage your website content pages</p>
         </div>
         <Button onClick={onCreateNew}>
           <Plus className="h-4 w-4 mr-2" />
@@ -159,7 +159,7 @@ export function ContentList({
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 space-y-4">
+      <div className="glass border border-white/20 dark:border-gray-700/30 p-4 rounded-xl shadow-lg space-y-4">
         <div className="flex flex-wrap gap-4">
           {/* Search */}
           <div className="flex-1 min-w-64">

@@ -121,7 +121,7 @@ export function ProjectModal({ project, isOpen, onClose, languageId = 'nl', allP
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-scale-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       {/* Beautiful backdrop with blur */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300"
@@ -161,7 +161,7 @@ export function ProjectModal({ project, isOpen, onClose, languageId = 'nl', allP
       )}
 
       {/* Modal Content - Beautiful glassmorphism */}
-      <div className="relative glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-2xl max-w-5xl max-h-[95vh] w-full overflow-hidden animate-scale-in">
+      <div className="relative glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-2xl max-w-5xl max-h-[95vh] w-full overflow-hidden animate-fade-in">
         {/* Close Button */}
         <Button
           variant="ghost"

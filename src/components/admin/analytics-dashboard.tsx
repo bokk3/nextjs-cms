@@ -168,7 +168,7 @@ export function AnalyticsDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -281,10 +281,13 @@ export function AnalyticsDashboard() {
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <FileText className="h-5 w-5" />
           Recent Page Views
+          <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+            (Showing last 10)
+          </span>
         </h2>
         {stats.recentEvents.length > 0 ? (
           <div className="space-y-2">
-            {stats.recentEvents.map((event) => (
+            {stats.recentEvents.slice(0, 10).map((event) => (
               <div
                 key={event.id}
                 className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"

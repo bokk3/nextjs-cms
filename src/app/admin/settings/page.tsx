@@ -4,7 +4,7 @@ import { Breadcrumb } from '@/components/admin/breadcrumb';
 
 export default function AdminSettingsPage() {
   return (
-    <div className="max-w-4xl mx-auto space-y-8 p-6">
+    <div className="max-w-4xl mx-auto space-y-8 p-6 animate-fade-in">
       <Breadcrumb 
         items={[
           { label: 'Admin', href: '/admin' },

@@ -43,12 +43,12 @@ export function ContactMessageDetail({ message, onClose, onUpdate }: ContactMess
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
+      <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in bg-white dark:bg-gray-900">
         <div className="p-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Contact Message Details</h2>
+          <div className="flex items-center justify-between mb-6 border-b border-gray-200 dark:border-gray-700 pb-4">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Contact Message Details</h2>
             <Button
               onClick={onClose}
               variant="outline"
@@ -77,48 +77,48 @@ export function ContactMessageDetail({ message, onClose, onUpdate }: ContactMess
           </div>
 
           {/* Contact Information */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Contact Information</h3>
+          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 mb-6 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Contact Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Name
                 </label>
-                <p className="text-sm text-gray-900">{message.name}</p>
+                <p className="text-sm text-gray-900 dark:text-white">{message.name}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Email
                 </label>
-                <p className="text-sm text-gray-900">
+                <p className="text-sm text-gray-900 dark:text-white">
                   <button
                     onClick={handleEmailClick}
-                    className="text-blue-600 hover:text-blue-800 underline"
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
                   >
                     {message.email}
                   </button>
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Project Type
                 </label>
-                <p className="text-sm text-gray-900">{message.projectType}</p>
+                <p className="text-sm text-gray-900 dark:text-white">{message.projectType}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Received
                 </label>
-                <p className="text-sm text-gray-900">{formatDate(message.createdAt)}</p>
+                <p className="text-sm text-gray-900 dark:text-white">{formatDate(message.createdAt)}</p>
               </div>
             </div>
           </div>
 
           {/* Message Content */}
           <div className="mb-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">Message</h3>
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
-              <p className="text-gray-900 whitespace-pre-wrap">{message.message}</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Message</h3>
+            <div className="bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+              <p className="text-gray-900 dark:text-gray-100 whitespace-pre-wrap">{message.message}</p>
             </div>
           </div>
 

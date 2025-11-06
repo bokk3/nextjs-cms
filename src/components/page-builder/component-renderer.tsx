@@ -465,7 +465,7 @@ export function ComponentRenderer({
       if (isDefaultGradient) {
         return (
           <div 
-            className="py-20 px-4 sm:px-6 lg:px-8 text-center"
+            className="py-20 px-4 sm:px-6 lg:px-8 text-center relative"
             data-cta-gradient="true"
             style={{
               ...(Object.keys(ctaStyle).length > 0 ? ctaStyle : {}),
@@ -529,7 +529,7 @@ export function ComponentRenderer({
       if (hasCustomBg) {
         return (
           <div 
-            className={`py-20 px-4 sm:px-6 lg:px-8 text-center dark:bg-gray-950`} 
+            className={`py-20 px-4 sm:px-6 lg:px-8 text-center dark:bg-gray-950 relative`} 
             style={{ 
               ['--cta-bg' as any]: data.backgroundColor,
               backgroundColor: 'var(--cta-bg)'
@@ -588,7 +588,7 @@ export function ComponentRenderer({
       
       return (
         <div 
-          className={`py-20 px-4 sm:px-6 lg:px-8 text-center ${ctaBgClass}`}
+          className={`py-20 px-4 sm:px-6 lg:px-8 text-center relative ${ctaBgClass}`}
           style={Object.keys(ctaStyle).length > 0 ? ctaStyle : undefined}
         >
           <div className="max-w-4xl mx-auto">

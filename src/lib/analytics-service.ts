@@ -179,10 +179,10 @@ export async function getAnalyticsStats(
       .sort((a, b) => b.views - a.views)
       .slice(0, 10)
 
-    // Recent events (excluding admin)
+    // Recent events (excluding admin) - limit to 10 for performance
     const recentEvents = nonAdminEvents
       .sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime())
-      .slice(0, 20)
+      .slice(0, 10)
       .map((event: any) => ({
         id: event.id,
         pagePath: event.pagePath,

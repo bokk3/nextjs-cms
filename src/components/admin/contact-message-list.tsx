@@ -104,9 +104,9 @@ export function ContactMessageList({ onMessageSelect }: ContactMessageListProps)
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="glass border border-white/20 dark:border-gray-700/30 p-4 rounded-xl shadow-lg">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Input
             placeholder="Search messages..."
@@ -142,32 +142,32 @@ export function ContactMessageList({ onMessageSelect }: ContactMessageListProps)
       </div>
 
       {/* Messages List */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="glass border border-white/20 dark:border-gray-700/30 rounded-xl shadow-lg overflow-hidden">
         {data?.messages.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             No contact messages found.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-700/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Contact
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Project Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Message Preview
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -176,8 +176,8 @@ export function ContactMessageList({ onMessageSelect }: ContactMessageListProps)
                 {data?.messages.map((message) => (
                   <tr
                     key={message.id}
-                    className={`hover:bg-gray-50 cursor-pointer ${
-                      !message.read ? 'bg-blue-50' : ''
+                    className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors ${
+                      !message.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                     }`}
                     onClick={() => onMessageSelect?.(message)}
                   >
@@ -201,23 +201,23 @@ export function ContactMessageList({ onMessageSelect }: ContactMessageListProps)
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
                           {message.name}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
                           {message.email}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {message.projectType}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate">
+                      <div className="text-sm text-gray-900 dark:text-gray-100 max-w-xs truncate">
                         {message.message}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {formatDate(message.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
@@ -266,7 +266,7 @@ export function ContactMessageList({ onMessageSelect }: ContactMessageListProps)
 
         {/* Pagination */}
         {data && data.pagination.pages > 1 && (
-          <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+          <div className="bg-white dark:bg-gray-800/50 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6">
             <div className="flex items-center justify-between">
               <div className="flex-1 flex justify-between sm:hidden">
                 <Button
@@ -286,7 +286,7 @@ export function ContactMessageList({ onMessageSelect }: ContactMessageListProps)
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
                     Showing{' '}
                     <span className="font-medium">
                       {(currentPage - 1) * 10 + 1}

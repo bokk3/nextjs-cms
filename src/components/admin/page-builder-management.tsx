@@ -73,9 +73,9 @@ export function PageBuilderManagement() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
@@ -86,7 +86,7 @@ export function PageBuilderManagement() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Admin
             </Button>
-            <h1 className="text-xl font-semibold">Homepage Builder</h1>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Homepage Builder</h1>
           </div>
           
           <div className="flex items-center gap-2">

@@ -136,7 +136,7 @@ export function AdminNavigation() {
               </button>
               
               {isContentDropdownOpen && (
-                <div className="absolute top-full left-0 mt-2 w-56 glass border border-white/20 dark:border-gray-700/30 rounded-xl shadow-2xl z-[60] overflow-hidden animate-scale-in">
+                <div className="absolute top-full left-0 mt-2 w-56 glass border border-white/20 dark:border-gray-700/30 rounded-xl shadow-2xl z-[60] overflow-hidden animate-fade-in">
                   <div className="py-2">
                     {contentNavLinks.map((link) => {
                       const Icon = link.icon

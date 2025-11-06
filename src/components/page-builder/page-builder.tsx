@@ -109,42 +109,44 @@ export function PageBuilder({
         </div>
 
         {/* Canvas */}
-        <div className="flex-1 overflow-auto p-6">
-          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm min-h-full">
-            {components.length === 0 ? (
-              <div className="flex items-center justify-center h-96 text-center">
-                <div>
-                  <div className="text-gray-400 mb-4">
-                    <Plus className="h-12 w-12 mx-auto" />
+        <div className="flex-1 overflow-auto pb-20">
+          <div className="p-6 pt-6">
+            <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm">
+              {components.length === 0 ? (
+                <div className="flex items-center justify-center h-96 text-center">
+                  <div>
+                    <div className="text-gray-400 mb-4">
+                      <Plus className="h-12 w-12 mx-auto" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      Start Building Your Page
+                    </h3>
+                    <p className="text-gray-500 mb-4">
+                      Add components from the toolbar above to get started.
+                    </p>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Start Building Your Page
-                  </h3>
-                  <p className="text-gray-500 mb-4">
-                    Add components from the toolbar above to get started.
-                  </p>
                 </div>
-              </div>
-            ) : (
-              <div>
-                {components.map((component, index) => (
-                  <SortableComponent
-                    key={component.id}
-                    component={component}
-                    index={index}
-                    isSelected={selectedComponent?.id === component.id}
-                    onSelect={() => {
-                      setSelectedComponent(component)
-                      setIsEditing(true)
-                    }}
-                    onDelete={() => deleteComponent(component.id)}
-                    onDuplicate={() => duplicateComponent(component)}
-                    onMoveUp={index > 0 ? () => moveComponent(index, index - 1) : undefined}
-                    onMoveDown={index < components.length - 1 ? () => moveComponent(index, index + 1) : undefined}
-                  />
-                ))}
-              </div>
-            )}
+              ) : (
+                <div>
+                  {components.map((component, index) => (
+                    <SortableComponent
+                      key={component.id}
+                      component={component}
+                      index={index}
+                      isSelected={selectedComponent?.id === component.id}
+                      onSelect={() => {
+                        setSelectedComponent(component)
+                        setIsEditing(true)
+                      }}
+                      onDelete={() => deleteComponent(component.id)}
+                      onDuplicate={() => duplicateComponent(component)}
+                      onMoveUp={index > 0 ? () => moveComponent(index, index - 1) : undefined}
+                      onMoveDown={index < components.length - 1 ? () => moveComponent(index, index + 1) : undefined}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

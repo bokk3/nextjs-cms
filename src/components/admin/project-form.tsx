@@ -186,9 +186,9 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           {project ? 'Edit Project' : 'Create Project'}
         </h1>
       </div>
