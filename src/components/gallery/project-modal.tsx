@@ -1,7 +1,7 @@
 'use client'
 
 import { ProjectWithRelations } from '@/types/project'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -69,12 +69,16 @@ export function ProjectModal({ project, isOpen, onClose, languageId = 'nl', allP
     }
   }, [isOpen])
 
-  if (!isOpen || !project) return null
+  // Get translation for the specified language or fallback to first available
+  // Use useMemo to make it reactive to languageId changes
+  // Must be called before any early returns to follow Rules of Hooks
+  const translation = useMemo(() => {
+    if (!project) return null
+    return project.translations.find(t => t.language.code === languageId) 
+      || project.translations[0]
+  }, [project, project?.translations, languageId])
 
-  const translation = project.translations.find(t => t.language.code === languageId) 
-    || project.translations[0]
-
-  if (!translation) return null
+  if (!isOpen || !project || !translation) return null
 
   const images = project.images
   const currentImage = images[currentImageIndex]

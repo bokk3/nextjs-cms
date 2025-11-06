@@ -69,42 +69,48 @@ export async function POST(req: NextRequest) {
           materials: string[]
         }> = []
 
-        // Translate title
+        // Translate title to each target language
         let titleTranslations: Record<string, string> = {}
         if (defaultTranslation.title) {
-          try {
-            const titleResponse = await TranslationAPIService.translateText(
-              defaultTranslation.title,
-              defaultLang.code,
-              targetLangs
-            )
-            titleTranslations = titleResponse
-            // Add delay to respect rate limits
-            await new Promise(resolve => setTimeout(resolve, 250))
-          } catch (error) {
-            console.error(`Error translating title for project ${projectId}:`, error)
+          const translationAPI = new TranslationAPIService()
+          for (const targetLangCode of targetLangs) {
+            try {
+              const translated = await translationAPI.translateText(
+                defaultTranslation.title,
+                defaultLang.code,
+                targetLangCode
+              )
+              if (translated && translated.trim()) {
+                titleTranslations[targetLangCode] = translated
+              }
+              // Add delay to respect rate limits
+              await new Promise(resolve => setTimeout(resolve, 250))
+            } catch (error) {
+              console.error(`Error translating title to ${targetLangCode} for project ${projectId}:`, error)
+            }
           }
         }
 
         // Translate description (extract plain text, translate, reconstruct)
         let descriptionTranslations: Record<string, any> = {}
         if (defaultTranslation.description) {
-          try {
-            const plainText = ContentValidator.extractPlainText(defaultTranslation.description as any)
-            if (plainText.trim()) {
-              const descResponse = await TranslationAPIService.translateText(
-                plainText,
-                defaultLang.code,
-                targetLangs
-              )
+          const plainText = ContentValidator.extractPlainText(defaultTranslation.description as any)
+          if (plainText.trim()) {
+            const translationAPI = new TranslationAPIService()
+            for (const targetLangCode of targetLangs) {
+              try {
+                const translatedText = await translationAPI.translateText(
+                  plainText,
+                  defaultLang.code,
+                  targetLangCode
+                )
 
-              // Reconstruct rich text for each translation
-              for (const [langCode, translatedText] of Object.entries(descResponse)) {
+                // Reconstruct rich text for translation
                 if (translatedText && typeof translatedText === 'string' && translatedText.trim()) {
                   // Create a simple paragraph structure with translated text
                   const lines = translatedText.split('\n').filter(line => line.trim())
                   if (lines.length > 0) {
-                    descriptionTranslations[langCode] = {
+                    descriptionTranslations[targetLangCode] = {
                       type: 'doc',
                       content: lines.map((line: string) => ({
                         type: 'paragraph',
@@ -113,38 +119,19 @@ export async function POST(req: NextRequest) {
                     }
                   }
                 }
+                // Add delay to respect rate limits
+                await new Promise(resolve => setTimeout(resolve, 250))
+              } catch (error) {
+                console.error(`Error translating description to ${targetLangCode} for project ${projectId}:`, error)
               }
-              await new Promise(resolve => setTimeout(resolve, 250))
             }
-          } catch (error) {
-            console.error(`Error translating description for project ${projectId}:`, error)
           }
         }
 
-        // Translate materials (join, translate, split)
+        // Translate materials (join, translate, split) - skip this as user said tags don't need translation
+        // Keeping the code but not using it in the updates
         let materialsTranslations: Record<string, string[]> = {}
-        if (defaultTranslation.materials && defaultTranslation.materials.length > 0) {
-          try {
-            const materialsText = defaultTranslation.materials.join(', ')
-            const materialsResponse = await TranslationAPIService.translateText(
-              materialsText,
-              defaultLang.code,
-              targetLangs
-            )
-
-            for (const [langCode, translatedText] of Object.entries(materialsResponse)) {
-              if (translatedText && typeof translatedText === 'string') {
-                materialsTranslations[langCode] = translatedText
-                  .split(',')
-                  .map(m => m.trim())
-                  .filter(m => m)
-              }
-            }
-            await new Promise(resolve => setTimeout(resolve, 250))
-          } catch (error) {
-            console.error(`Error translating materials for project ${projectId}:`, error)
-          }
-        }
+        // Materials will use the default language version (not translated)
 
         // Build updates for each target language
         for (const targetLang of languages.filter(l => targetLangs.includes(l.code))) {
@@ -152,11 +139,18 @@ export async function POST(req: NextRequest) {
             t => t.languageId === targetLang.id
           )
 
+          // Only use translated values if they exist, otherwise keep existing or use default
+          const translatedTitle = titleTranslations[targetLang.code]
+          const translatedDescription = descriptionTranslations[targetLang.code]
+          
           updates.push({
             languageId: targetLang.id,
-            title: titleTranslations[targetLang.code] || existingTranslation?.title || defaultTranslation.title,
-            description: descriptionTranslations[targetLang.code] || existingTranslation?.description || defaultTranslation.description,
-            materials: materialsTranslations[targetLang.code] || existingTranslation?.materials || defaultTranslation.materials
+            // Use translated title if available, otherwise keep existing, otherwise use default
+            title: translatedTitle || existingTranslation?.title || defaultTranslation.title,
+            // Use translated description if available, otherwise keep existing, otherwise use default
+            description: translatedDescription || existingTranslation?.description || defaultTranslation.description,
+            // Materials stay in default language (not translated)
+            materials: existingTranslation?.materials || defaultTranslation.materials
           })
         }
 

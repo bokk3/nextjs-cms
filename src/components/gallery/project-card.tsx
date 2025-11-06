@@ -2,7 +2,7 @@
 
 import { ProjectWithRelations } from '@/types/project'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useImageSettings } from '@/contexts/image-settings-context'
 
 interface ProjectCardProps {
@@ -17,8 +17,11 @@ export function ProjectCard({ project, onClick, languageId = 'nl' }: ProjectCard
   const { grayscaleImages } = useImageSettings()
   
   // Get translation for the specified language or fallback to first available
-  const translation = project.translations.find(t => t.language.code === languageId) 
-    || project.translations[0]
+  // Use useMemo to make it reactive to languageId changes
+  const translation = useMemo(() => {
+    return project.translations.find(t => t.language.code === languageId) 
+      || project.translations[0]
+  }, [project.translations, languageId])
   
   // Get the first image as the card thumbnail
   const thumbnailImage = project.images[0]

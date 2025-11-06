@@ -1,7 +1,7 @@
 'use client'
 
 import { ProjectWithRelations } from '@/types/project'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -19,7 +19,6 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const { currentLanguage, languages } = useLanguage()
   const { grayscaleImages } = useImageSettings()
   const { t } = useT()
-  const languageId = currentLanguage
 
   // Helper function to add language parameter to URLs
   const getLocalizedHref = (href: string) => {
@@ -32,8 +31,11 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   }
 
   // Get translation for the specified language or fallback to first available
-  const translation = project.translations.find(t => t.language.code === languageId) 
-    || project.translations[0]
+  // Use useMemo to make it reactive to currentLanguage changes
+  const translation = useMemo(() => {
+    return project.translations.find(t => t.language.code === currentLanguage) 
+      || project.translations[0]
+  }, [project.translations, currentLanguage])
 
   if (!translation) {
     return (

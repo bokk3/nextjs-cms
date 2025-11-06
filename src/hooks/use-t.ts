@@ -31,6 +31,7 @@ export function useT(options: UseTOptions = {}) {
   const [translations, setTranslations] = useState<Record<string, string>>({})
   const [loadingKeys, setLoadingKeys] = useState<Set<string>>(new Set())
   const pendingKeysRef = useRef<Set<string>>(new Set())
+  const previousLanguageRef = useRef<string>(currentLanguage)
 
   // Batch fetch translations for multiple keys
   const batchFetchTranslations = useCallback(
@@ -130,17 +131,18 @@ export function useT(options: UseTOptions = {}) {
 
   // Clear translations when language changes
   useEffect(() => {
-    setTranslations({})
-    pendingKeysRef.current.clear()
-    setLoadingKeys(new Set())
-    // Clear cache entries for old language
-    const keysToDelete: string[] = []
-    translationCache.forEach((_, cacheKey) => {
-      if (!cacheKey.endsWith(`:${currentLanguage}`)) {
-        keysToDelete.push(cacheKey)
-      }
-    })
-    keysToDelete.forEach(key => translationCache.delete(key))
+    const previousLanguage = previousLanguageRef.current
+    
+    // Only clear if language actually changed
+    if (previousLanguage !== currentLanguage) {
+      setTranslations({})
+      pendingKeysRef.current.clear()
+      setLoadingKeys(new Set())
+      
+      // Don't delete cache entries immediately - keep them as fallback
+      // They'll be cleaned up by TTL naturally
+      previousLanguageRef.current = currentLanguage
+    }
 
     // Pre-fetch common translations for the new language
     if (!languageLoading && currentLanguage) {
@@ -148,7 +150,8 @@ export function useT(options: UseTOptions = {}) {
         'nav.home', 'nav.projects', 'nav.about', 'nav.contact',
         'footer.brand', 'footer.navigation', 'footer.legal',
         'button.submit', 'button.cancel', 'button.save',
-        'admin.dashboard', 'admin.projects', 'admin.content'
+        'admin.dashboard', 'admin.projects', 'admin.content',
+        'projects.backToProjects', 'projects.title', 'projects.subtitle'
       ]
       
       // Filter out keys that are already cached
@@ -192,17 +195,33 @@ export function useT(options: UseTOptions = {}) {
         return translations[key]
       }
 
-      // Try to get from default language cache as fallback (prevents flash)
-      if (currentLanguage !== 'nl') {
-        const defaultCacheKey = `${key}:nl`
-        const defaultCached = translationCache.get(defaultCacheKey)
-        if (defaultCached && Date.now() - defaultCached.timestamp < CACHE_TTL) {
-          // Use default language translation as temporary fallback
+      // Try to get from any available language cache as fallback (prevents flash)
+      // First try default language, then previous language, then any cached version
+      const fallbackLanguages = ['nl', previousLanguageRef.current].filter(
+        (lang, index, arr) => lang && arr.indexOf(lang) === index && lang !== currentLanguage
+      )
+      
+      for (const fallbackLang of fallbackLanguages) {
+        const fallbackCacheKey = `${key}:${fallbackLang}`
+        const fallbackCached = translationCache.get(fallbackCacheKey)
+        if (fallbackCached && Date.now() - fallbackCached.timestamp < CACHE_TTL) {
+          // Use fallback language translation as temporary fallback
           // Still fetch the correct translation in background
           if (!loadingKeys.has(key) && !pendingKeysRef.current.has(key) && !languageLoading) {
             fetchTranslation(key)
           }
-          return defaultCached.value
+          return fallbackCached.value
+        }
+      }
+      
+      // Also try any cached version of this key (from any language) as last resort
+      for (const [cacheKey, cached] of translationCache.entries()) {
+        if (cacheKey.startsWith(`${key}:`) && Date.now() - cached.timestamp < CACHE_TTL) {
+          // Use any available translation as temporary fallback
+          if (!loadingKeys.has(key) && !pendingKeysRef.current.has(key) && !languageLoading) {
+            fetchTranslation(key)
+          }
+          return cached.value
         }
       }
 
