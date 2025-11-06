@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { ProjectWithRelations, CreateProjectRequest, UpdateProjectRequest } from '@/types/project'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
 import { ImageUploader } from './image-uploader'
+import { RichTextEditor } from './rich-text-editor'
+import { JSONContent } from '@/types/content'
+import { ContentValidator } from '@/lib/content-validation'
 import { useT } from '@/hooks/use-t'
 
 interface ProjectFormProps {
@@ -32,7 +34,7 @@ interface Language {
 interface Translation {
   languageId: string
   title: string
-  description: string
+  description: JSONContent | string // Can be JSONContent or string (for backwards compatibility)
   materials: string[]
 }
 
@@ -68,7 +70,17 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
         project.translations.map(t => ({
           languageId: t.languageId,
           title: t.title,
-          description: typeof t.description === 'string' ? t.description : JSON.stringify(t.description),
+          // Keep description as JSONContent if it's already an object, otherwise parse it
+          description: typeof t.description === 'string' 
+            ? (t.description.trim() ? (() => {
+                try {
+                  return JSON.parse(t.description)
+                } catch {
+                  // If parsing fails, create a simple paragraph with the text
+                  return { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: t.description }] }] }
+                }
+              })() : { type: 'doc', content: [] })
+            : (t.description || { type: 'doc', content: [] }),
           materials: t.materials
         }))
       )
@@ -88,25 +100,47 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // For now, we'll create mock data since we haven't implemented these endpoints yet
+        // For now, we'll create mock data for content types since we haven't implemented these endpoints yet
         setContentTypes([
           { id: '1', name: 'projects', displayName: 'Projects' }
         ])
-        setLanguages([
-          { id: '1', code: 'nl', name: 'Nederlands', isDefault: true, isActive: true },
-          { id: '2', code: 'fr', name: 'Français', isDefault: false, isActive: true }
-        ])
 
-        // Initialize translations for active languages if creating new project
-        if (!project) {
-          setTranslations([
-            { languageId: '1', title: '', description: '', materials: [] },
-            { languageId: '2', title: '', description: '', materials: [] }
+        // Fetch languages from API
+        const languagesResponse = await fetch('/api/languages')
+        if (languagesResponse.ok) {
+          const langs = await languagesResponse.json()
+          setLanguages(langs)
+
+          // Initialize translations for active languages if creating new project
+          if (!project) {
+            const activeLangs = langs.filter((l: Language) => l.isActive !== false)
+            setTranslations(
+              activeLangs.map((lang: Language) => ({
+                languageId: lang.id,
+                title: '',
+                description: { type: 'doc', content: [] },
+                materials: []
+              }))
+            )
+            setContentTypeId('1')
+          }
+        } else {
+          // Fallback to default languages if API fails
+          setLanguages([
+            { id: '1', code: 'nl', name: 'Nederlands', isDefault: true, isActive: true },
+            { id: '2', code: 'fr', name: 'Français', isDefault: false, isActive: true }
           ])
-          setContentTypeId('1')
+          if (!project) {
+            setTranslations([
+              { languageId: '1', title: '', description: { type: 'doc', content: [] }, materials: [] },
+              { languageId: '2', title: '', description: { type: 'doc', content: [] }, materials: [] }
+            ])
+            setContentTypeId('1')
+          }
         }
       } catch (err) {
         setError('Failed to load form data')
+        console.error('Error fetching form data:', err)
       }
     }
 
@@ -147,7 +181,17 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
         translations: validTranslations.map(t => ({
           languageId: t.languageId,
           title: t.title,
-          description: t.description || '',
+          // Ensure description is JSONContent (object), not string
+          description: typeof t.description === 'string' 
+            ? (t.description.trim() ? (() => {
+                try {
+                  return JSON.parse(t.description)
+                } catch {
+                  // If parsing fails, create a simple paragraph with the text
+                  return { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: t.description }] }] }
+                }
+              })() : { type: 'doc', content: [] })
+            : (t.description || { type: 'doc', content: [] }),
           materials: t.materials
         })),
         images: images.map(img => ({
@@ -270,11 +314,23 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       {t('project.description')}
                     </label>
-                    <Textarea
-                      value={translation.description}
-                      onChange={(e) => handleTranslationChange(translation.languageId, 'description', e.target.value)}
+                    <RichTextEditor
+                      content={
+                        typeof translation.description === 'string'
+                          ? (translation.description.trim() ? (() => {
+                              try {
+                                return JSON.parse(translation.description)
+                              } catch {
+                                // If parsing fails, create a simple paragraph with the text
+                                return { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: translation.description }] }] }
+                              }
+                            })() : undefined)
+                          : translation.description
+                      }
+                      onChange={(content) => {
+                        handleTranslationChange(translation.languageId, 'description', content || { type: 'doc', content: [] })
+                      }}
                       placeholder={t('project.descriptionPlaceholder')}
-                      rows={4}
                     />
                   </div>
                   <div>

@@ -5,6 +5,7 @@ import { ProjectWithRelations } from '@/types/project'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { Languages, Loader2 } from 'lucide-react'
 import { useT } from '@/hooks/use-t'
 
 interface ProjectListProps {
@@ -21,6 +22,9 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
   const [search, setSearch] = useState('')
   const [publishedFilter, setPublishedFilter] = useState<string>('all')
   const [featuredFilter, setFeaturedFilter] = useState<string>('all')
+  const [isTranslating, setIsTranslating] = useState(false)
+  const [translationStatus, setTranslationStatus] = useState<string>('')
+  const [apiConfigured, setApiConfigured] = useState(false)
 
   const fetchProjects = async () => {
     try {
@@ -49,6 +53,74 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
   useEffect(() => {
     fetchProjects()
   }, [search, publishedFilter, featuredFilter])
+
+  // Check if translation API is configured
+  useEffect(() => {
+    const checkAPI = async () => {
+      try {
+        const response = await fetch('/api/admin/translations/check-api')
+        if (response.ok) {
+          const data = await response.json()
+          setApiConfigured(data.configured)
+        }
+      } catch (error) {
+        console.error('Error checking API:', error)
+      }
+    }
+    checkAPI()
+  }, [])
+
+  // Bulk translate all projects
+  const handleTranslateAll = async () => {
+    if (!apiConfigured) {
+      alert('Translation API is not configured. Please configure it in Settings.')
+      return
+    }
+
+    if (projects.length === 0) {
+      alert('No projects to translate')
+      return
+    }
+
+    if (!confirm(`Translate all ${projects.length} project(s) to all active languages?`)) {
+      return
+    }
+
+    setIsTranslating(true)
+    setTranslationStatus('Translating projects...')
+
+    try {
+      const projectIds = projects.map(p => p.id)
+      const response = await fetch('/api/admin/projects/translate-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectIds })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to translate projects')
+      }
+
+      const data = await response.json()
+      setTranslationStatus(
+        `Translation complete! ${data.results.success} succeeded, ${data.results.failed} failed.`
+      )
+      
+      // Refresh projects list
+      await fetchProjects()
+      
+      setTimeout(() => setTranslationStatus(''), 5000)
+    } catch (error) {
+      console.error('Error translating projects:', error)
+      setTranslationStatus(
+        `Translation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
+      setTimeout(() => setTranslationStatus(''), 5000)
+    } finally {
+      setIsTranslating(false)
+    }
+  }
 
   const handleToggleFeatured = async (project: ProjectWithRelations) => {
     try {
@@ -119,10 +191,43 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('admin.projects')}</h1>
-        <Button onClick={onCreateProject}>
-          {t('admin.createProject')}
-        </Button>
+        <div className="flex gap-2">
+          {apiConfigured && projects.length > 0 && (
+            <Button
+              onClick={handleTranslateAll}
+              disabled={isTranslating}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              {isTranslating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>{translationStatus || 'Translating...'}</span>
+                </>
+              ) : (
+                <>
+                  <Languages className="h-4 w-4" />
+                  <span>Translate All</span>
+                </>
+              )}
+            </Button>
+          )}
+          <Button onClick={onCreateProject}>
+            {t('admin.createProject')}
+          </Button>
+        </div>
       </div>
+
+      {/* Translation Status */}
+      {translationStatus && !isTranslating && (
+        <div className={`p-4 rounded-md ${
+          translationStatus.includes('failed') || translationStatus.includes('Failed')
+            ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300'
+            : 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300'
+        }`}>
+          {translationStatus}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex gap-4 items-center">
