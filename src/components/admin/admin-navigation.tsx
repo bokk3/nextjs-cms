@@ -77,6 +77,13 @@ export function AdminNavigation() {
     return contentNavLinks.some(link => isActive(link.href))
   }
 
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
+    if (!session) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  }
+
   return (
     <nav className="admin-nav bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-16 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,12 +105,16 @@ export function AdminNavigation() {
             {/* Primary Navigation */}
             {primaryNavLinks.map((link) => {
               const Icon = link.icon
+              const isDisabled = !session
               return (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={isDisabled ? '#' : link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className={`group relative flex items-center p-2.5 rounded-xl transition-all duration-200 ${
-                    isActive(link.href)
+                    isDisabled
+                      ? 'opacity-50 cursor-not-allowed'
+                      : isActive(link.href)
                       ? 'bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 shadow-md'
                       : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 hover:shadow-sm'
                   }`}
@@ -120,9 +131,12 @@ export function AdminNavigation() {
             {/* Content Management Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
-                onClick={toggleContentDropdown}
+                onClick={session ? toggleContentDropdown : undefined}
+                disabled={!session}
                 className={`group relative flex items-center p-2.5 rounded-xl transition-all duration-200 ${
-                  isContentSectionActive()
+                  !session
+                    ? 'opacity-50 cursor-not-allowed'
+                    : isContentSectionActive()
                     ? 'bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 shadow-md'
                     : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 hover:shadow-sm'
                 }`}
@@ -140,16 +154,22 @@ export function AdminNavigation() {
                   <div className="py-2">
                     {contentNavLinks.map((link) => {
                       const Icon = link.icon
+                      const isDisabled = !session
                       return (
                         <Link
                           key={link.href}
-                          href={link.href}
+                          href={isDisabled ? '#' : link.href}
+                          onClick={(e) => {
+                            handleNavClick(e, link.href)
+                            setIsContentDropdownOpen(false)
+                          }}
                           className={`flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                            isActive(link.href)
+                            isDisabled
+                              ? 'opacity-50 cursor-not-allowed'
+                              : isActive(link.href)
                               ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 font-semibold'
                               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-700/80'
                           }`}
-                          onClick={() => setIsContentDropdownOpen(false)}
                         >
                           <Icon className="h-4 w-4 mr-3" />
                           {link.label}
@@ -164,12 +184,16 @@ export function AdminNavigation() {
             {/* Secondary Navigation */}
             {secondaryNavLinks.map((link) => {
               const Icon = link.icon
+              const isDisabled = !session
               return (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={isDisabled ? '#' : link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className={`group relative flex items-center p-2.5 rounded-xl transition-all duration-200 ${
-                    isActive(link.href)
+                    isDisabled
+                      ? 'opacity-50 cursor-not-allowed'
+                      : isActive(link.href)
                       ? 'bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 shadow-md'
                       : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 hover:shadow-sm'
                   }`}
@@ -240,16 +264,22 @@ export function AdminNavigation() {
               {/* Primary Navigation - Mobile */}
               {primaryNavLinks.map((link) => {
                 const Icon = link.icon
+                const isDisabled = !session
                 return (
                   <Link
                     key={link.href}
-                    href={link.href}
+                    href={isDisabled ? '#' : link.href}
+                    onClick={(e) => {
+                      handleNavClick(e, link.href)
+                      setIsMenuOpen(false)
+                    }}
                     className={`flex items-center px-4 py-2 text-sm font-medium transition-colors ${
-                      isActive(link.href)
+                      isDisabled
+                        ? 'opacity-50 cursor-not-allowed'
+                        : isActive(link.href)
                         ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                         : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
-                    onClick={() => setIsMenuOpen(false)}
                   >
                     <Icon className="h-4 w-4 mr-3" />
                     {link.label}
@@ -265,16 +295,22 @@ export function AdminNavigation() {
                 <div className="space-y-1">
                   {contentNavLinks.map((link) => {
                     const Icon = link.icon
+                    const isDisabled = !session
                     return (
                       <Link
                         key={link.href}
-                        href={link.href}
+                        href={isDisabled ? '#' : link.href}
+                        onClick={(e) => {
+                          handleNavClick(e, link.href)
+                          setIsMenuOpen(false)
+                        }}
                         className={`flex items-center px-2 py-2 text-sm font-medium transition-colors rounded ${
-                          isActive(link.href)
+                          isDisabled
+                            ? 'opacity-50 cursor-not-allowed'
+                            : isActive(link.href)
                             ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                             : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
                         }`}
-                        onClick={() => setIsMenuOpen(false)}
                       >
                         <Icon className="h-4 w-4 mr-3" />
                         {link.label}
@@ -288,16 +324,22 @@ export function AdminNavigation() {
               <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
               {secondaryNavLinks.map((link) => {
                 const Icon = link.icon
+                const isDisabled = !session
                 return (
                   <Link
                     key={link.href}
-                    href={link.href}
+                    href={isDisabled ? '#' : link.href}
+                    onClick={(e) => {
+                      handleNavClick(e, link.href)
+                      setIsMenuOpen(false)
+                    }}
                     className={`flex items-center px-4 py-2 text-sm font-medium transition-colors ${
-                      isActive(link.href)
+                      isDisabled
+                        ? 'opacity-50 cursor-not-allowed'
+                        : isActive(link.href)
                         ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
                         : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }`}
-                    onClick={() => setIsMenuOpen(false)}
                   >
                     <Icon className="h-4 w-4 mr-3" />
                     {link.label}

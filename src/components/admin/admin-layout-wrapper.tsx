@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { AuthGuard } from './auth-guard'
 
 export function AdminLayoutWrapper({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -13,5 +14,9 @@ export function AdminLayoutWrapper({ children }: { children: React.ReactNode }) 
     }
   }, [])
 
-  return <>{children}</>
+  return (
+    <AuthGuard requireAuth={false}>
+      {children}
+    </AuthGuard>
+  )
 }
