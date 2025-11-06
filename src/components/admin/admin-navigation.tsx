@@ -22,9 +22,11 @@ import {
 } from 'lucide-react'
 import { useSession, signOut } from '../../lib/auth-client'
 import { useT } from '@/hooks/use-t'
+import { useLanguage } from '@/contexts/language-context'
 
 export function AdminNavigation() {
   const { t } = useT()
+  const { currentLanguage, languages } = useLanguage()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isContentDropdownOpen, setIsContentDropdownOpen] = useState(false)
   const pathname = usePathname()
@@ -79,6 +81,16 @@ export function AdminNavigation() {
     return contentNavLinks.some(link => isActive(link.href))
   }
 
+  // Helper function to add language parameter to URLs
+  const getLocalizedHref = (href: string) => {
+    const defaultLang = languages.find(l => l.isDefault)
+    if (currentLanguage === defaultLang?.code) {
+      return href
+    }
+    const separator = href.includes('?') ? '&' : '?'
+    return `${href}${separator}lang=${currentLanguage}`
+  }
+
   const handleNavClick = (e: React.MouseEvent, href: string) => {
     if (!session) {
       e.preventDefault()
@@ -92,12 +104,12 @@ export function AdminNavigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo and Back to Site */}
           <div className="flex items-center space-x-4">
-            <Link href="/" className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+            <Link href={getLocalizedHref('/')} className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
               <ArrowLeft className="h-4 w-4 mr-2" />
               <span className="text-sm font-medium">{t('nav.backToSite')}</span>
             </Link>
             <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-            <Link href="/admin" className="flex items-center">
+            <Link href={getLocalizedHref('/admin')} className="flex items-center">
               <span className="text-xl font-bold text-black dark:text-white">Admin</span>
             </Link>
           </div>
@@ -111,7 +123,7 @@ export function AdminNavigation() {
               return (
                 <Link
                   key={link.href}
-                  href={isDisabled ? '#' : link.href}
+                  href={isDisabled ? '#' : getLocalizedHref(link.href)}
                   onClick={(e) => handleNavClick(e, link.href)}
                   className={`group relative flex items-center p-2.5 rounded-xl transition-all duration-200 ${
                     isDisabled
@@ -160,7 +172,7 @@ export function AdminNavigation() {
                       return (
                         <Link
                           key={link.href}
-                          href={isDisabled ? '#' : link.href}
+                          href={isDisabled ? '#' : getLocalizedHref(link.href)}
                           onClick={(e) => {
                             handleNavClick(e, link.href)
                             setIsContentDropdownOpen(false)
@@ -190,7 +202,7 @@ export function AdminNavigation() {
               return (
                 <Link
                   key={link.href}
-                  href={isDisabled ? '#' : link.href}
+                  href={isDisabled ? '#' : getLocalizedHref(link.href)}
                   onClick={(e) => handleNavClick(e, link.href)}
                   className={`group relative flex items-center p-2.5 rounded-xl transition-all duration-200 ${
                     isDisabled
@@ -253,7 +265,7 @@ export function AdminNavigation() {
             <div className="py-4 space-y-1">
               {/* Back to Site - Mobile */}
               <Link
-                href="/"
+                href={getLocalizedHref('/')}
                 className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -270,7 +282,7 @@ export function AdminNavigation() {
                 return (
                   <Link
                     key={link.href}
-                    href={isDisabled ? '#' : link.href}
+                    href={isDisabled ? '#' : getLocalizedHref(link.href)}
                     onClick={(e) => {
                       handleNavClick(e, link.href)
                       setIsMenuOpen(false)
@@ -301,7 +313,7 @@ export function AdminNavigation() {
                     return (
                       <Link
                         key={link.href}
-                        href={isDisabled ? '#' : link.href}
+                        href={isDisabled ? '#' : getLocalizedHref(link.href)}
                         onClick={(e) => {
                           handleNavClick(e, link.href)
                           setIsMenuOpen(false)
@@ -330,7 +342,7 @@ export function AdminNavigation() {
                 return (
                   <Link
                     key={link.href}
-                    href={isDisabled ? '#' : link.href}
+                    href={isDisabled ? '#' : getLocalizedHref(link.href)}
                     onClick={(e) => {
                       handleNavClick(e, link.href)
                       setIsMenuOpen(false)

@@ -7,12 +7,13 @@ import { RichTextEditor } from './rich-text-editor'
 import { ContentPageFormData, ContentTranslationFormData, JSONContent } from '@/types/content'
 import { ContentValidator } from '@/lib/content-validation'
 import { ContentService } from '@/lib/content-service'
-import { Save, Eye, Globe, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { Save, Eye, Globe, AlertCircle, CheckCircle, Loader2, Languages } from 'lucide-react'
 import { useT } from '@/hooks/use-t'
 
 interface ContentFormProps {
   initialData?: ContentPageFormData
-  languages: Array<{ id: string; code: string; name: string; isDefault: boolean }>
+  pageId?: string // Page ID for edit mode (to exclude from slug validation)
+  languages: Array<{ id: string; code: string; name: string; isDefault: boolean; isActive?: boolean }>
   onSave: (data: ContentPageFormData) => Promise<void>
   onPreview?: (data: ContentPageFormData, languageCode: string) => void
   isLoading?: boolean
@@ -21,6 +22,7 @@ interface ContentFormProps {
 
 export function ContentForm({
   initialData,
+  pageId,
   languages,
   onSave,
   onPreview,
@@ -45,6 +47,25 @@ export function ContentForm({
     suggestions?: string[]
   } | null>(null)
   const [isValidatingSlug, setIsValidatingSlug] = useState(false)
+  const [isTranslating, setIsTranslating] = useState(false)
+  const [translationStatus, setTranslationStatus] = useState<string>('')
+  const [apiConfigured, setApiConfigured] = useState(false)
+
+  // Check if translation API is configured
+  useEffect(() => {
+    const checkAPI = async () => {
+      try {
+        const response = await fetch('/api/admin/translations/check-api')
+        if (response.ok) {
+          const data = await response.json()
+          setApiConfigured(data.configured)
+        }
+      } catch (error) {
+        console.error('Error checking API:', error)
+      }
+    }
+    checkAPI()
+  }, [])
 
   // Initialize translations when languages are loaded
   useEffect(() => {
@@ -86,7 +107,7 @@ export function ContentForm({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             slug: formData.slug,
-            excludeId: mode === 'edit' ? initialData?.slug : undefined
+            excludeId: mode === 'edit' ? pageId : undefined
           })
         })
 
@@ -103,7 +124,7 @@ export function ContentForm({
 
     const timeoutId = setTimeout(validateSlug, 500)
     return () => clearTimeout(timeoutId)
-  }, [formData.slug, mode, initialData?.slug])
+  }, [formData.slug, mode, pageId])
 
   const updateSlug = (value: string) => {
     setFormData(prev => ({ ...prev, slug: value }))
@@ -143,17 +164,21 @@ export function ContentForm({
       errors.slug = 'Slug is not available'
     }
 
-    // Validate translations
+    // Only require default language to be complete
+    const defaultLang = languages.find(l => l.isDefault)
     formData.translations.forEach((translation, index) => {
       const lang = languages.find(l => l.id === translation.languageId)
       if (!lang) return
 
-      if (!translation.title.trim()) {
-        errors[`translation_${lang.code}_title`] = `Title is required for ${lang.name}`
-      }
+      // Only validate default language as required
+      if (lang.isDefault) {
+        if (!translation.title.trim()) {
+          errors[`translation_${lang.code}_title`] = `Title is required for ${lang.name} (default language)`
+        }
 
-      if (!translation.content || ContentValidator.extractPlainText(translation.content).trim().length === 0) {
-        errors[`translation_${lang.code}_content`] = `Content is required for ${lang.name}`
+        if (!translation.content || ContentValidator.extractPlainText(translation.content).trim().length === 0) {
+          errors[`translation_${lang.code}_content`] = `Content is required for ${lang.name} (default language)`
+        }
       }
     })
 
@@ -176,6 +201,223 @@ export function ContentForm({
   const handlePreview = () => {
     if (onPreview) {
       onPreview(formData, activeLanguage)
+    }
+  }
+
+  const handleTranslateAll = async () => {
+    if (!currentTranslation || !apiConfigured) return
+
+    const sourceLang = languages.find(l => l.code === activeLanguage)
+    if (!sourceLang) return
+
+    const sourceTitle = currentTranslation.title.trim()
+    const sourceContent = currentTranslation.content
+
+    if (!sourceTitle && (!sourceContent || ContentValidator.extractPlainText(sourceContent).trim().length === 0)) {
+      alert('Please enter content in the current language before translating')
+      return
+    }
+
+    setIsTranslating(true)
+    setTranslationStatus('Translating...')
+
+    try {
+      // Filter for active languages (exclude current language)
+      // If isActive is undefined, treat as active (for backwards compatibility)
+      const targetLangs = languages
+        .filter(l => {
+          const isNotCurrent = l.code !== activeLanguage
+          const isActive = l.isActive !== false // true or undefined means active
+          return isNotCurrent && isActive
+        })
+        .map(l => l.code)
+      
+      console.log('Available languages:', languages.map(l => ({ code: l.code, name: l.name, isActive: l.isActive, isDefault: l.isDefault })))
+      console.log('Current active language:', activeLanguage)
+      console.log('Target languages for translation:', targetLangs)
+      
+      if (targetLangs.length === 0) {
+        const availableCodes = languages.map(l => l.code).join(', ')
+        setTranslationStatus(`No other active languages found. Available: ${availableCodes}. Make sure other languages are enabled in Settings.`)
+        setIsTranslating(false)
+        return
+      }
+
+      // Translate title
+      let titleTranslations: Record<string, string> = {}
+      if (sourceTitle) {
+        setTranslationStatus('Translating titles...')
+        const titleResponse = await fetch('/api/admin/translate-content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: sourceTitle,
+            fromLang: activeLanguage,
+            toLangs: targetLangs,
+            contentType: 'text'
+          })
+        })
+
+        if (titleResponse.ok) {
+          const titleData = await titleResponse.json()
+          titleTranslations = titleData.translations || {}
+          console.log('Title translation response:', titleData)
+        } else {
+          const errorData = await titleResponse.json().catch(() => ({}))
+          console.error('Title translation failed:', errorData)
+        }
+      }
+
+      // Translate content (extract plain text, translate, then reconstruct)
+      let contentTranslations: Record<string, any> = {}
+      if (sourceContent && ContentValidator.extractPlainText(sourceContent).trim().length > 0) {
+        setTranslationStatus('Translating content...')
+        const plainText = ContentValidator.extractPlainText(sourceContent)
+        
+        const contentResponse = await fetch('/api/admin/translate-content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: JSON.stringify(sourceContent),
+            fromLang: activeLanguage,
+            toLangs: targetLangs,
+            contentType: 'richText'
+          })
+        })
+
+        if (contentResponse.ok) {
+          const contentData = await contentResponse.json()
+          console.log('Content translation response:', contentData)
+          
+          // For rich text, we'll create simple paragraph structures with translated text
+          for (const [langCode, translatedText] of Object.entries(contentData.translations)) {
+            if (translatedText && typeof translatedText === 'string' && translatedText.trim()) {
+              // Split by newlines and create paragraphs
+              const lines = translatedText.split('\n').filter(line => line.trim())
+              
+              if (lines.length > 0) {
+                // Create a paragraph for each non-empty line, or combine into one
+                const paragraphs = lines.map(line => ({
+                  type: 'paragraph' as const,
+                  content: [{
+                    type: 'text' as const,
+                    text: line.trim()
+                  }]
+                }))
+                
+                contentTranslations[langCode] = {
+                  type: 'doc',
+                  content: paragraphs.length > 0 ? paragraphs : [{
+                    type: 'paragraph',
+                    content: [{
+                      type: 'text',
+                      text: translatedText.trim()
+                    }]
+                  }]
+                }
+                console.log(`Created content translation for ${langCode}:`, contentTranslations[langCode])
+              }
+            }
+          }
+        }
+      }
+
+      // Update form data with translations
+      const translatedLanguages: string[] = []
+      console.log('Title translations:', titleTranslations)
+      console.log('Content translations:', contentTranslations)
+      
+      setFormData(prev => {
+        console.log('Current form translations:', prev.translations.map((t: any) => {
+          const lang = languages.find(l => l.id === t.languageId)
+          return lang?.code
+        }))
+        // Create a map of existing translations by language ID
+        const existingTranslations = new Map(prev.translations.map(t => [t.languageId, t]))
+        
+        // Update or create translations for all target languages
+        const updatedTranslations = languages.map(lang => {
+          // Skip current language
+          if (lang.code === activeLanguage) {
+            const existing = existingTranslations.get(lang.id)
+            return existing || {
+              languageId: lang.id,
+              title: '',
+              content: { type: 'doc', content: [{ type: 'paragraph', content: [] }] }
+            }
+          }
+
+          // Get existing translation or create new one
+          const existing = existingTranslations.get(lang.id) || {
+            languageId: lang.id,
+            title: '',
+            content: { type: 'doc', content: [{ type: 'paragraph', content: [] }] }
+          }
+
+          const updatedTranslation: typeof existing = { ...existing }
+          let hasUpdate = false
+          
+          // Update title if translation exists
+          if (titleTranslations[lang.code] && titleTranslations[lang.code].trim()) {
+            console.log(`Updating title for ${lang.code}: "${titleTranslations[lang.code]}"`)
+            updatedTranslation.title = titleTranslations[lang.code].trim()
+            hasUpdate = true
+          }
+          
+          // Update content if translation exists
+          if (contentTranslations[lang.code]) {
+            const content = contentTranslations[lang.code]
+            // Check if content has actual text
+            const hasText = ContentValidator.extractPlainText(content).trim().length > 0
+            if (hasText) {
+              console.log(`Updating content for ${lang.code}`)
+              updatedTranslation.content = content
+              hasUpdate = true
+            } else {
+              console.log(`Skipping empty content for ${lang.code}`)
+            }
+          }
+
+          if (hasUpdate) {
+            translatedLanguages.push(lang.name)
+            console.log(`✓ Translation updated for ${lang.name} (${lang.code})`)
+          } else if (existingTranslations.has(lang.id)) {
+            // Keep existing translation even if no update
+            console.log(`Keeping existing translation for ${lang.name} (${lang.code})`)
+          } else {
+            console.log(`✗ No translation update for ${lang.name} (${lang.code})`)
+          }
+
+          return updatedTranslation
+        })
+
+        const updated = {
+          ...prev,
+          translations: updatedTranslations
+        }
+        
+        console.log('Updated form data translations:', updated.translations.map(t => {
+          const lang = languages.find(l => l.id === t.languageId)
+          return {
+            lang: lang?.code,
+            hasTitle: !!t.title?.trim(),
+            hasContent: ContentValidator.extractPlainText(t.content).trim().length > 0
+          }
+        }))
+        return updated
+      })
+
+      const langList = translatedLanguages.length > 0 
+        ? ` (${translatedLanguages.join(', ')})`
+        : ''
+      setTranslationStatus(`Translation complete! Translated to ${translatedLanguages.length} language(s)${langList}. Don't forget to save your changes.`)
+      setTimeout(() => setTranslationStatus(''), 7000)
+    } catch (error) {
+      console.error('Error translating:', error)
+      setTranslationStatus('Translation failed. Please try again.')
+      setTimeout(() => setTranslationStatus(''), 5000)
+    } finally {
+      setIsTranslating(false)
     }
   }
 
@@ -319,12 +561,41 @@ export function ContentForm({
         <div className="p-6">
           {currentTranslation && (
             <div className="space-y-6">
-              <div className="flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
-                <Globe className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  {t('content.editLanguage').replace('{language}', languages.find(l => l.code === activeLanguage)?.name || activeLanguage)}
-                </span>
+              <div className="flex items-center justify-between pb-3 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-2">
+                  <Globe className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    {t('content.editLanguage').replace('{language}', languages.find(l => l.code === activeLanguage)?.name || activeLanguage)}
+                  </span>
+                </div>
+                {apiConfigured && languages.filter(l => l.code !== activeLanguage && (l.isActive !== false)).length > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleTranslateAll}
+                    disabled={isTranslating || !currentTranslation?.title?.trim()}
+                    className="flex items-center gap-2"
+                  >
+                    {isTranslating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>{translationStatus || 'Translating...'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Languages className="h-4 w-4" />
+                        <span>{t('content.translateToAll')}</span>
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
+              {translationStatus && !isTranslating && (
+                <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <p className="text-sm text-green-700 dark:text-green-300 font-medium">{translationStatus}</p>
+                </div>
+              )}
               
               <div>
                 <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
@@ -385,6 +656,7 @@ export function ContentForm({
             type="button"
             onClick={handleSave}
             disabled={isLoading}
+            className={translationStatus && !isTranslating ? 'ring-2 ring-green-500 ring-offset-2' : ''}
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />

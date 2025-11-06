@@ -1,6 +1,7 @@
 import { prisma } from './db'
 import { ContentPage, ContentPageTranslation, Language } from '@prisma/client'
 import type { JSONContent } from '@/types/content'
+import { ContentValidator } from './content-validation'
 
 export interface ContentPageWithTranslations extends ContentPage {
   translations: (ContentPageTranslation & {
@@ -130,26 +131,49 @@ export class ContentService {
 
     // If translations are provided, update them
     if (translations) {
+      // Filter out empty translations (only keep those with title or content)
+      const validTranslations = translations.filter(t => {
+        const hasTitle = t.title && t.title.trim().length > 0
+        const hasContent = t.content && 
+          (typeof t.content === 'string' ? t.content.trim().length > 0 :
+           ContentValidator.extractPlainText(t.content as any).trim().length > 0)
+        return hasTitle || hasContent
+      })
+
       // Delete existing translations and create new ones
       await prisma.contentPageTranslation.deleteMany({
         where: { pageId: id }
       })
-    }
 
-    return prisma.contentPage.update({
-      where: { id },
-      data: {
-        ...pageData,
-        ...(translations && {
-          translations: {
-            create: translations.map(t => ({
-              languageId: t.languageId,
-              title: t.title,
-              content: t.content as any // Cast to any for Prisma Json type
-            }))
+      // Only create translations that have content
+      if (validTranslations.length > 0) {
+        return prisma.contentPage.update({
+          where: { id },
+          data: {
+            ...pageData,
+            translations: {
+              create: validTranslations.map(t => ({
+                languageId: t.languageId,
+                title: t.title || '', // Ensure title is never null
+                content: t.content as any // Cast to any for Prisma Json type
+              }))
+            }
+          },
+          include: {
+            translations: {
+              include: {
+                language: true
+              }
+            }
           }
         })
-      },
+      }
+    }
+
+    // If no valid translations or translations not provided, just update page data
+    return prisma.contentPage.update({
+      where: { id },
+      data: pageData,
       include: {
         translations: {
           include: {

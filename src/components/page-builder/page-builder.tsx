@@ -1,19 +1,27 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 // import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core'
 // import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
-import { PageComponent, ComponentData } from '@/types/page-builder'
+import { PageComponent, ComponentData, MultilingualText } from '@/types/page-builder'
 import { SortableComponent } from './sortable-component'
 import { ComponentEditor } from './component-editor'
 import { ComponentToolbar } from './component-toolbar'
 import { Button } from '@/components/ui/button'
-import { Save, Eye, Plus } from 'lucide-react'
+import { Save, Eye, Plus, Languages, Loader2 } from 'lucide-react'
 
 interface PageBuilderProps {
   initialComponents?: PageComponent[]
   onSave?: (components: PageComponent[]) => void
   onPreview?: (components: PageComponent[]) => void
+}
+
+interface Language {
+  id: string
+  code: string
+  name: string
+  isDefault: boolean
+  isActive: boolean
 }
 
 export function PageBuilder({ 
@@ -24,6 +32,42 @@ export function PageBuilder({
   const [components, setComponents] = useState<PageComponent[]>(initialComponents)
   const [selectedComponent, setSelectedComponent] = useState<PageComponent | null>(null)
   const [isEditing, setIsEditing] = useState(false)
+  const [languages, setLanguages] = useState<Language[]>([])
+  const [isTranslating, setIsTranslating] = useState(false)
+  const [translationStatus, setTranslationStatus] = useState<string>('')
+  const [apiConfigured, setApiConfigured] = useState(false)
+
+  // Fetch available languages
+  useEffect(() => {
+    const fetchLanguages = async () => {
+      try {
+        const response = await fetch('/api/languages')
+        if (response.ok) {
+          const langs = await response.json()
+          setLanguages(langs)
+        }
+      } catch (error) {
+        console.error('Error fetching languages:', error)
+      }
+    }
+    fetchLanguages()
+  }, [])
+
+  // Check if translation API is configured
+  useEffect(() => {
+    const checkAPI = async () => {
+      try {
+        const response = await fetch('/api/admin/translations/check-api')
+        if (response.ok) {
+          const data = await response.json()
+          setApiConfigured(data.configured)
+        }
+      } catch (error) {
+        console.error('Error checking API:', error)
+      }
+    }
+    checkAPI()
+  }, [])
 
   const moveComponent = useCallback((fromIndex: number, toIndex: number) => {
     setComponents((items) => {
@@ -86,6 +130,291 @@ export function PageBuilder({
     onPreview?.(components)
   }, [components, onPreview])
 
+  // Get multilingual fields for a component type
+  const getMultilingualFields = (componentType: PageComponent['type']): string[] => {
+    const fields: string[] = []
+    switch (componentType) {
+      case 'hero':
+        fields.push('title', 'subtitle', 'description', 'primaryButton', 'secondaryButton', 'heroButtonText')
+        break
+      case 'text':
+        fields.push('content')
+        break
+      case 'image':
+        fields.push('alt', 'caption')
+        break
+      case 'cta':
+        fields.push('heading', 'description', 'ctaButtonText')
+        break
+      case 'features':
+        // Features are handled separately in the array
+        fields.push('title', 'subtitle')
+        break
+      case 'gallery':
+        fields.push('title', 'subtitle')
+        break
+      case 'testimonials':
+        // Testimonials are handled separately in the array
+        fields.push('title')
+        break
+    }
+    return fields
+  }
+
+  // Translate all components
+  const handleTranslateAll = useCallback(async () => {
+    if (!apiConfigured || languages.length === 0) {
+      alert('Translation API is not configured or no languages available')
+      return
+    }
+
+    const defaultLang = languages.find(l => l.isDefault)
+    if (!defaultLang) {
+      alert('No default language found')
+      return
+    }
+
+    const sourceLanguage = defaultLang.code
+    const targetLangs = languages
+      .filter(l => l.code !== sourceLanguage && (l.isActive !== false))
+      .map(l => l.code)
+
+    if (targetLangs.length === 0) {
+      alert('No other active languages to translate to')
+      return
+    }
+
+    setIsTranslating(true)
+    setTranslationStatus('Translating all components...')
+
+    try {
+      const updatedComponents = await Promise.all(
+        components.map(async (component) => {
+          const fields = getMultilingualFields(component.type)
+          const updatedData = { ...component.data }
+          let hasUpdates = false
+
+          // Translate each multilingual field
+          for (const field of fields) {
+            const value = component.data[field as keyof ComponentData] as MultilingualText | undefined
+            if (!value || typeof value === 'string') continue
+
+            const sourceText = value[sourceLanguage]
+            if (!sourceText || !sourceText.trim()) continue
+
+            try {
+              setTranslationStatus(`Translating ${component.type} - ${field}...`)
+              
+              const response = await fetch('/api/admin/translate-content', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  text: sourceText,
+                  fromLang: sourceLanguage,
+                  toLangs: targetLangs,
+                  contentType: 'text'
+                })
+              })
+
+              if (response.ok) {
+                const data = await response.json()
+                
+                // Create updated multilingual value with all languages
+                const updatedValue: MultilingualText = {
+                  ...(value && typeof value === 'object' ? value : {}),
+                  [sourceLanguage]: sourceText // Keep source
+                }
+
+                // Add translations for all target languages
+                for (const [langCode, translatedText] of Object.entries(data.translations)) {
+                  if (translatedText && typeof translatedText === 'string' && translatedText.trim()) {
+                    updatedValue[langCode] = translatedText
+                  }
+                }
+
+                updatedData[field as keyof ComponentData] = updatedValue as any
+                hasUpdates = true
+              }
+
+              // Add delay to respect rate limits
+              await new Promise(resolve => setTimeout(resolve, 250))
+            } catch (error) {
+              console.error(`Error translating ${component.type}.${field}:`, error)
+            }
+          }
+
+          // Handle features array (special case)
+          if (component.type === 'features' && Array.isArray(component.data.features)) {
+            const updatedFeatures = await Promise.all(
+              component.data.features.map(async (feature: any) => {
+                const updatedFeature = { ...feature }
+                let featureHasUpdates = false
+
+                // Translate feature title
+                if (feature.title && typeof feature.title === 'object' && feature.title[sourceLanguage]) {
+                  const sourceTitle = feature.title[sourceLanguage]
+                  try {
+                    const response = await fetch('/api/admin/translate-content', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        text: sourceTitle,
+                        fromLang: sourceLanguage,
+                        toLangs: targetLangs,
+                        contentType: 'text'
+                      })
+                    })
+
+                    if (response.ok) {
+                      const data = await response.json()
+                      updatedFeature.title = {
+                        ...feature.title,
+                        [sourceLanguage]: sourceTitle,
+                        ...Object.fromEntries(
+                          Object.entries(data.translations).map(([code, text]) => [code, text])
+                        )
+                      }
+                      featureHasUpdates = true
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 250))
+                  } catch (error) {
+                    console.error('Error translating feature title:', error)
+                  }
+                }
+
+                // Translate feature description
+                if (feature.description && typeof feature.description === 'object' && feature.description[sourceLanguage]) {
+                  const sourceDesc = feature.description[sourceLanguage]
+                  try {
+                    const response = await fetch('/api/admin/translate-content', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        text: sourceDesc,
+                        fromLang: sourceLanguage,
+                        toLangs: targetLangs,
+                        contentType: 'text'
+                      })
+                    })
+
+                    if (response.ok) {
+                      const data = await response.json()
+                      updatedFeature.description = {
+                        ...feature.description,
+                        [sourceLanguage]: sourceDesc,
+                        ...Object.fromEntries(
+                          Object.entries(data.translations).map(([code, text]) => [code, text])
+                        )
+                      }
+                      featureHasUpdates = true
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 250))
+                  } catch (error) {
+                    console.error('Error translating feature description:', error)
+                  }
+                }
+
+                return featureHasUpdates ? updatedFeature : feature
+              })
+            )
+            updatedData.features = updatedFeatures
+            hasUpdates = true
+          }
+
+          // Handle testimonials array (special case)
+          if (component.type === 'testimonials' && Array.isArray(component.data.testimonials)) {
+            const updatedTestimonials = await Promise.all(
+              component.data.testimonials.map(async (testimonial: any) => {
+                const updatedTestimonial = { ...testimonial }
+                let testimonialHasUpdates = false
+
+                // Translate testimonial role
+                if (testimonial.role && typeof testimonial.role === 'object' && testimonial.role[sourceLanguage]) {
+                  const sourceRole = testimonial.role[sourceLanguage]
+                  try {
+                    const response = await fetch('/api/admin/translate-content', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        text: sourceRole,
+                        fromLang: sourceLanguage,
+                        toLangs: targetLangs,
+                        contentType: 'text'
+                      })
+                    })
+
+                    if (response.ok) {
+                      const data = await response.json()
+                      updatedTestimonial.role = {
+                        ...testimonial.role,
+                        [sourceLanguage]: sourceRole,
+                        ...Object.fromEntries(
+                          Object.entries(data.translations).map(([code, text]) => [code, text])
+                        )
+                      }
+                      testimonialHasUpdates = true
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 250))
+                  } catch (error) {
+                    console.error('Error translating testimonial role:', error)
+                  }
+                }
+
+                // Translate testimonial content
+                if (testimonial.content && typeof testimonial.content === 'object' && testimonial.content[sourceLanguage]) {
+                  const sourceContent = testimonial.content[sourceLanguage]
+                  try {
+                    const response = await fetch('/api/admin/translate-content', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        text: sourceContent,
+                        fromLang: sourceLanguage,
+                        toLangs: targetLangs,
+                        contentType: 'text'
+                      })
+                    })
+
+                    if (response.ok) {
+                      const data = await response.json()
+                      updatedTestimonial.content = {
+                        ...testimonial.content,
+                        [sourceLanguage]: sourceContent,
+                        ...Object.fromEntries(
+                          Object.entries(data.translations).map(([code, text]) => [code, text])
+                        )
+                      }
+                      testimonialHasUpdates = true
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 250))
+                  } catch (error) {
+                    console.error('Error translating testimonial content:', error)
+                  }
+                }
+
+                return testimonialHasUpdates ? updatedTestimonial : testimonial
+              })
+            )
+            updatedData.testimonials = updatedTestimonials
+            hasUpdates = true
+          }
+
+          return hasUpdates ? { ...component, data: updatedData } : component
+        })
+      )
+
+      setComponents(updatedComponents)
+      setTranslationStatus(`Translation complete! Translated ${updatedComponents.length} component(s).`)
+      setTimeout(() => setTranslationStatus(''), 5000)
+    } catch (error) {
+      console.error('Error translating components:', error)
+      setTranslationStatus('Translation failed. Please try again.')
+      setTimeout(() => setTranslationStatus(''), 5000)
+    } finally {
+      setIsTranslating(false)
+    }
+  }, [components, languages, apiConfigured])
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Main Editor Area */}
@@ -96,6 +425,26 @@ export function PageBuilder({
             <ComponentToolbar onAddComponent={addComponent} />
             
             <div className="flex items-center gap-2">
+              {apiConfigured && components.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  onClick={handleTranslateAll}
+                  disabled={isTranslating}
+                  className="flex items-center gap-2"
+                >
+                  {isTranslating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>{translationStatus || 'Translating...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Languages className="h-4 w-4" />
+                      <span>Translate All</span>
+                    </>
+                  )}
+                </Button>
+              )}
               <Button variant="outline" onClick={handlePreview}>
                 <Eye className="h-4 w-4 mr-2" />
                 Preview
@@ -106,6 +455,11 @@ export function PageBuilder({
               </Button>
             </div>
           </div>
+          {translationStatus && !isTranslating && (
+            <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-sm text-green-700 dark:text-green-300">
+              {translationStatus}
+            </div>
+          )}
         </div>
 
         {/* Canvas */}

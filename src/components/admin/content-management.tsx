@@ -32,10 +32,11 @@ export function ContentManagement() {
   useEffect(() => {
     const fetchLanguages = async () => {
       try {
-        // Fetch languages from the database
+        // Fetch all active languages from the database
         const response = await fetch('/api/languages')
         if (response.ok) {
           const languagesData = await response.json()
+          console.log('Fetched languages for content form:', languagesData)
           setLanguages(languagesData)
         } else {
           // Fallback to hardcoded languages if API fails
@@ -285,6 +286,7 @@ export function ContentManagement() {
       {(viewMode === 'create' || viewMode === 'edit') && (
         <ContentForm
           initialData={getFormInitialData()}
+          pageId={selectedPageId || undefined}
           languages={languages}
           onSave={handleSave}
           onPreview={handleFormPreview}

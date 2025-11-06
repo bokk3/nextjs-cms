@@ -40,7 +40,7 @@ export class ContentValidator {
       data.translations.forEach((translation: any, index: number) => {
         const prefix = `translations[${index}]`
 
-        // Validate language ID
+        // Validate language ID (always required)
         if (!translation.languageId || translation.languageId.trim().length === 0) {
           errors.push({ 
             field: `${prefix}.languageId`, 
@@ -48,26 +48,23 @@ export class ContentValidator {
           })
         }
 
-        // Validate title
-        if (!translation.title || translation.title.trim().length === 0) {
-          errors.push({ 
-            field: `${prefix}.title`, 
-            message: 'Title is required' 
-          })
-        } else if (translation.title.length > 200) {
-          errors.push({ 
-            field: `${prefix}.title`, 
-            message: 'Title must be less than 200 characters' 
-          })
+        // Validate title structure (if provided, must be valid)
+        if (translation.title !== undefined && translation.title !== null) {
+          if (typeof translation.title !== 'string') {
+            errors.push({ 
+              field: `${prefix}.title`, 
+              message: 'Title must be a string' 
+            })
+          } else if (translation.title.length > 200) {
+            errors.push({ 
+              field: `${prefix}.title`, 
+              message: 'Title must be less than 200 characters' 
+            })
+          }
         }
 
-        // Validate content
-        if (!translation.content) {
-          errors.push({ 
-            field: `${prefix}.content`, 
-            message: 'Content is required' 
-          })
-        } else {
+        // Validate content structure (if provided, must be valid)
+        if (translation.content !== undefined && translation.content !== null) {
           const contentErrors = this.validateTipTapContent(translation.content)
           contentErrors.forEach(error => {
             errors.push({ 

@@ -8,7 +8,8 @@ import { MediaLibrary } from '@/components/admin/media-library'
 import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import { Globe, CheckCircle, AlertCircle, Copy, Star } from 'lucide-react'
+import { Globe, CheckCircle, AlertCircle, Copy, Star, Languages, Loader2 } from 'lucide-react'
+import { useT } from '@/hooks/use-t'
 
 interface Language {
   id: string
@@ -24,11 +25,15 @@ interface ComponentEditorProps {
 }
 
 export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
+  const { t } = useT()
   const [showMediaLibrary, setShowMediaLibrary] = useState(false)
   const [mediaSelectionMode, setMediaSelectionMode] = useState<'single' | 'multiple'>('single')
   const [mediaTarget, setMediaTarget] = useState<string>('')
   const [languages, setLanguages] = useState<Language[]>([])
   const [activeLanguage, setActiveLanguage] = useState('nl')
+  const [isTranslating, setIsTranslating] = useState(false)
+  const [translationStatus, setTranslationStatus] = useState<string>('')
+  const [apiConfigured, setApiConfigured] = useState(false)
 
   // Fetch available languages
   useEffect(() => {
@@ -46,6 +51,22 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
       }
     }
     fetchLanguages()
+  }, [])
+
+  // Check if translation API is configured
+  useEffect(() => {
+    const checkAPI = async () => {
+      try {
+        const response = await fetch('/api/admin/translations/check-api')
+        if (response.ok) {
+          const data = await response.json()
+          setApiConfigured(data.configured)
+        }
+      } catch (error) {
+        console.error('Error checking API:', error)
+      }
+    }
+    checkAPI()
   }, [])
 
   const updateData = (key: string, value: any) => {
@@ -139,6 +160,7 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
         // Features array items have title and description
         break
       case 'testimonials':
+        fields.push('title')
         // Testimonials array items have role and content
         break
     }
@@ -183,6 +205,94 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
     onChange(updatedData)
   }
 
+  // Translate all multilingual fields to other languages
+  const handleTranslateAll = async () => {
+    if (!apiConfigured) return
+
+    const fields = getMultilingualFields()
+    const sourceTexts: Record<string, string> = {}
+
+    // Collect source texts from active language
+    fields.forEach(field => {
+      const value = component.data[field as keyof ComponentData] as MultilingualText | undefined
+      if (value && typeof value === 'object') {
+        const sourceText = value[activeLanguage]
+        if (sourceText && sourceText.trim()) {
+          sourceTexts[field] = sourceText
+        }
+      }
+    })
+
+    if (Object.keys(sourceTexts).length === 0) {
+      alert('Please enter content in the current language before translating')
+      return
+    }
+
+    const targetLangs = languages
+      .filter(l => l.code !== activeLanguage && l.isActive)
+      .map(l => l.code)
+
+    if (targetLangs.length === 0) {
+      alert('No other languages to translate to')
+      return
+    }
+
+    setIsTranslating(true)
+    setTranslationStatus('Translating...')
+
+    try {
+      const updatedData = { ...component.data }
+
+      // Translate each field
+      for (const [field, sourceText] of Object.entries(sourceTexts)) {
+        setTranslationStatus(`Translating ${field}...`)
+        
+        const response = await fetch('/api/admin/translate-content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: sourceText,
+            fromLang: activeLanguage,
+            toLangs: targetLangs,
+            contentType: 'text'
+          })
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          const currentValue = component.data[field as keyof ComponentData] as MultilingualText | undefined
+          
+          const updatedValue: MultilingualText = {
+            ...(currentValue && typeof currentValue === 'object' ? currentValue : {}),
+            [activeLanguage]: sourceText // Keep source
+          }
+
+          // Add translations
+          for (const [langCode, translatedText] of Object.entries(data.translations)) {
+            if (translatedText) {
+              updatedValue[langCode] = translatedText as string
+            }
+          }
+
+          updatedData[field as keyof ComponentData] = updatedValue as any
+        }
+
+        // Add delay to respect rate limits
+        await new Promise(resolve => setTimeout(resolve, 250))
+      }
+
+      onChange(updatedData)
+      setTranslationStatus('Translation complete!')
+      setTimeout(() => setTranslationStatus(''), 3000)
+    } catch (error) {
+      console.error('Error translating:', error)
+      setTranslationStatus('Translation failed. Please try again.')
+      setTimeout(() => setTranslationStatus(''), 5000)
+    } finally {
+      setIsTranslating(false)
+    }
+  }
+
   return (
     <div className="p-4 space-y-6">
       <div>
@@ -201,19 +311,48 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
                 Language
               </span>
             </div>
-            {languages.length > 1 && activeLanguage !== languages.find(l => l.isDefault)?.code && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={copyFromDefault}
-                className="h-6 px-2 text-xs"
-                title="Copy from default language"
-              >
-                <Copy className="h-3 w-3 mr-1" />
-                Copy from Default
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {apiConfigured && languages.filter(l => l.code !== activeLanguage && l.isActive).length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleTranslateAll}
+                  disabled={isTranslating}
+                  className="h-6 px-2 text-xs"
+                  title="Translate to all languages"
+                >
+                  {isTranslating ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      <span className="text-xs">{translationStatus || 'Translating...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Languages className="h-3 w-3 mr-1" />
+                      <span>{t('content.translateToAll')}</span>
+                    </>
+                  )}
+                </Button>
+              )}
+              {languages.length > 1 && activeLanguage !== languages.find(l => l.isDefault)?.code && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={copyFromDefault}
+                  className="h-6 px-2 text-xs"
+                  title="Copy from default language"
+                >
+                  <Copy className="h-3 w-3 mr-1" />
+                  Copy from Default
+                </Button>
+              )}
+            </div>
           </div>
+          {translationStatus && !isTranslating && (
+            <div className="mb-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-xs text-green-700 dark:text-green-300">
+              {translationStatus}
+            </div>
+          )}
           <div className="flex gap-1 flex-wrap">
             {languages.map(language => {
               const coverage = getTranslationCoverage(language.code)
@@ -609,6 +748,142 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
               
               {(!component.data.features || component.data.features.length === 0) && (
                 <p className="text-sm text-gray-500 text-center py-4">No features added yet. Click "Add Feature" to get started.</p>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Testimonials Component Fields */}
+      {component.type === 'testimonials' && (
+        <>
+          <div>
+            <Label htmlFor="testimonialsTitle">Title ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+            <Input
+              id="testimonialsTitle"
+              value={getMultilingualText('title', activeLanguage)}
+              onChange={(e) => updateMultilingualText('title', activeLanguage, e.target.value)}
+              placeholder="Enter testimonials section title"
+            />
+          </div>
+          
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h5 className="font-medium text-gray-900">Testimonials</h5>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const currentTestimonials = component.data.testimonials || []
+                  const newTestimonial = {
+                    name: '',
+                    role: { [activeLanguage]: '' },
+                    content: { [activeLanguage]: '' },
+                    rating: 5
+                  }
+                  updateData('testimonials', [...currentTestimonials, newTestimonial])
+                }}
+              >
+                + Add Testimonial
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              {(component.data.testimonials || []).map((testimonial: any, index: number) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h6 className="font-medium text-gray-700">Testimonial {index + 1}</h6>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const currentTestimonials = component.data.testimonials || []
+                        updateData('testimonials', currentTestimonials.filter((_: any, i: number) => i !== index))
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor={`testimonial-name-${index}`}>Name</Label>
+                    <Input
+                      id={`testimonial-name-${index}`}
+                      value={testimonial.name || ''}
+                      onChange={(e) => {
+                        const currentTestimonials = component.data.testimonials || []
+                        const updatedTestimonials = [...currentTestimonials]
+                        updatedTestimonials[index] = { ...updatedTestimonials[index], name: e.target.value }
+                        updateData('testimonials', updatedTestimonials)
+                      }}
+                      placeholder="Enter testimonial author name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor={`testimonial-role-${index}`}>Role ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+                    <Input
+                      id={`testimonial-role-${index}`}
+                      value={typeof testimonial.role === 'string' ? testimonial.role : (testimonial.role?.[activeLanguage] || '')}
+                      onChange={(e) => {
+                        const currentTestimonials = component.data.testimonials || []
+                        const updatedTestimonials = [...currentTestimonials]
+                        const currentRole = updatedTestimonials[index].role || {}
+                        updatedTestimonials[index] = {
+                          ...updatedTestimonials[index],
+                          role: { ...currentRole, [activeLanguage]: e.target.value }
+                        }
+                        updateData('testimonials', updatedTestimonials)
+                      }}
+                      placeholder="Enter role or title"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor={`testimonial-content-${index}`}>Content ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+                    <textarea
+                      id={`testimonial-content-${index}`}
+                      value={typeof testimonial.content === 'string' ? testimonial.content : (testimonial.content?.[activeLanguage] || '')}
+                      onChange={(e) => {
+                        const currentTestimonials = component.data.testimonials || []
+                        const updatedTestimonials = [...currentTestimonials]
+                        const currentContent = updatedTestimonials[index].content || {}
+                        updatedTestimonials[index] = {
+                          ...updatedTestimonials[index],
+                          content: { ...currentContent, [activeLanguage]: e.target.value }
+                        }
+                        updateData('testimonials', updatedTestimonials)
+                      }}
+                      placeholder="Enter testimonial content"
+                      rows={4}
+                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor={`testimonial-rating-${index}`}>Rating</Label>
+                    <Select
+                      id={`testimonial-rating-${index}`}
+                      value={testimonial.rating || 5}
+                      onChange={(e) => {
+                        const currentTestimonials = component.data.testimonials || []
+                        const updatedTestimonials = [...currentTestimonials]
+                        updatedTestimonials[index] = { ...updatedTestimonials[index], rating: parseInt(e.target.value) }
+                        updateData('testimonials', updatedTestimonials)
+                      }}
+                    >
+                      <option value="1">1 Star</option>
+                      <option value="2">2 Stars</option>
+                      <option value="3">3 Stars</option>
+                      <option value="4">4 Stars</option>
+                      <option value="5">5 Stars</option>
+                    </Select>
+                  </div>
+                </div>
+              ))}
+              
+              {(!component.data.testimonials || component.data.testimonials.length === 0) && (
+                <p className="text-sm text-gray-500 text-center py-4">No testimonials added yet. Click "Add Testimonial" to get started.</p>
               )}
             </div>
           </div>

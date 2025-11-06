@@ -1151,6 +1151,16 @@ const commonTranslations = {
       de: 'Bearbeiten auf {language}'
     }
   },
+  'content.translateToAll': {
+    category: 'admin',
+    description: 'Translate to all languages button',
+    translations: {
+      nl: 'Vertaal naar alle talen',
+      fr: 'Traduire vers toutes les langues',
+      en: 'Translate to all languages',
+      de: 'In alle Sprachen übersetzen'
+    }
+  },
   'admin.contentPages': {
     category: 'admin',
     description: 'Content pages heading',

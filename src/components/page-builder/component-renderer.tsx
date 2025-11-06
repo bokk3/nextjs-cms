@@ -411,7 +411,7 @@ export function ComponentRenderer({
                   <div key={index} className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
                     <div className="flex mb-4">
                       {[...Array(testimonial.rating || 5)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                        <Star key={i} className="w-5 h-5 text-gray-700 dark:text-gray-300 fill-current" />
                       ))}
                     </div>
                     <blockquote className="text-gray-700 dark:text-gray-300 mb-6 italic">
