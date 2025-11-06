@@ -38,10 +38,24 @@ class DeepLProvider implements TranslationProvider {
       'ru': 'RU',
       'ja': 'JA',
       'zh': 'ZH',
+      'zh-cn': 'ZH',
+      'zh-hans': 'ZH',
+      'zh-hant': 'ZH',
+      'zh-tw': 'ZH',
     }
 
-    const sourceLang = languageMap[from.toLowerCase()] || from.toUpperCase()
-    const targetLang = languageMap[to.toLowerCase()] || to.toUpperCase()
+    // Normalize language codes (handle variants like zh-CN, zh-Hans, etc.)
+    const normalizeLangCode = (code: string): string => {
+      const lower = code.toLowerCase()
+      // Handle Chinese variants
+      if (lower.startsWith('zh')) {
+        return 'ZH'
+      }
+      return languageMap[lower] || code.toUpperCase()
+    }
+
+    const sourceLang = normalizeLangCode(from)
+    const targetLang = normalizeLangCode(to)
 
     for (let attempt = 0; attempt < retries; attempt++) {
       try {
@@ -108,6 +122,19 @@ class GoogleTranslateProvider implements TranslationProvider {
       throw new Error('Google Translate API key not configured')
     }
 
+    // Normalize Chinese language codes for Google Translate
+    const normalizeLangCode = (code: string): string => {
+      const lower = code.toLowerCase()
+      if (lower.startsWith('zh')) {
+        // Google Translate uses 'zh' or 'zh-CN' for Simplified Chinese
+        return lower.includes('hant') || lower.includes('tw') ? 'zh-TW' : 'zh'
+      }
+      return code
+    }
+
+    const sourceLang = normalizeLangCode(from)
+    const targetLang = normalizeLangCode(to)
+
     const response = await fetch(
       `${this.apiUrl}?key=${this.apiKey}`,
       {
@@ -115,8 +142,8 @@ class GoogleTranslateProvider implements TranslationProvider {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           q: text,
-          source: from,
-          target: to,
+          source: sourceLang,
+          target: targetLang,
         }),
       }
     )
@@ -139,13 +166,26 @@ class LibreTranslateProvider implements TranslationProvider {
   }
 
   async translate(text: string, from: string, to: string): Promise<string> {
+    // Normalize Chinese language codes for LibreTranslate
+    const normalizeLangCode = (code: string): string => {
+      const lower = code.toLowerCase()
+      if (lower.startsWith('zh')) {
+        // LibreTranslate uses 'zh' for Chinese
+        return 'zh'
+      }
+      return code
+    }
+
+    const sourceLang = normalizeLangCode(from)
+    const targetLang = normalizeLangCode(to)
+
     const response = await fetch(this.apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         q: text,
-        source: from,
-        target: to,
+        source: sourceLang,
+        target: targetLang,
         format: 'text',
       }),
     })

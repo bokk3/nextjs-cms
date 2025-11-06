@@ -196,8 +196,18 @@ export function PageBuilder({
 
           // Translate each multilingual field
           for (const field of fields) {
-            const value = component.data[field as keyof ComponentData] as MultilingualText | undefined
-            if (!value || typeof value === 'string') continue
+            // For CTA components, also check 'title' if 'heading' doesn't exist
+            let value = component.data[field as keyof ComponentData] as MultilingualText | undefined
+            if (!value || typeof value === 'string') {
+              // Special case: CTA might use 'title' instead of 'heading'
+              if (component.type === 'cta' && field === 'heading') {
+                const titleValue = component.data.title as MultilingualText | undefined
+                if (titleValue && typeof titleValue === 'object') {
+                  value = titleValue
+                }
+              }
+              if (!value || typeof value === 'string') continue
+            }
 
             const sourceText = value[sourceLanguage]
             if (!sourceText || !sourceText.trim()) continue
@@ -232,7 +242,10 @@ export function PageBuilder({
                   }
                 }
 
-                updatedData[field as keyof ComponentData] = updatedValue as any
+                // For CTA, always save as 'heading' (normalize from 'title' if needed)
+                const targetField = (component.type === 'cta' && field === 'heading') ? 'heading' : field
+                
+                updatedData[targetField as keyof ComponentData] = updatedValue as any
                 hasUpdates = true
               }
 

@@ -30,6 +30,7 @@ export function useT(options: UseTOptions = {}) {
   const { fallbackLanguage, defaultValue = '' } = options
   const [translations, setTranslations] = useState<Record<string, string>>({})
   const [loadingKeys, setLoadingKeys] = useState<Set<string>>(new Set())
+  const [languageVersion, setLanguageVersion] = useState(0) // Force re-render on language change
   const pendingKeysRef = useRef<Set<string>>(new Set())
   const previousLanguageRef = useRef<string>(currentLanguage)
 
@@ -135,9 +136,14 @@ export function useT(options: UseTOptions = {}) {
     
     // Only clear if language actually changed
     if (previousLanguage !== currentLanguage) {
+      // Clear state to force re-render
       setTranslations({})
       pendingKeysRef.current.clear()
       setLoadingKeys(new Set())
+      
+      // Increment version to force t() callback to be recreated
+      // This ensures components using t() will re-render
+      setLanguageVersion(prev => prev + 1)
       
       // Don't delete cache entries immediately - keep them as fallback
       // They'll be cleaned up by TTL naturally
@@ -190,60 +196,49 @@ export function useT(options: UseTOptions = {}) {
         return cached.value
       }
 
-      // Check if we have it in state
+      // Check if we have it in state for current language
       if (translations[key]) {
         return translations[key]
       }
 
-      // Try to get from any available language cache as fallback (prevents flash)
-      // First try default language, then previous language, then any cached version
-      const fallbackLanguages = ['nl', previousLanguageRef.current].filter(
-        (lang, index, arr) => lang && arr.indexOf(lang) === index && lang !== currentLanguage
-      )
-      
-      for (const fallbackLang of fallbackLanguages) {
-        const fallbackCacheKey = `${key}:${fallbackLang}`
-        const fallbackCached = translationCache.get(fallbackCacheKey)
-        if (fallbackCached && Date.now() - fallbackCached.timestamp < CACHE_TTL) {
-          // Use fallback language translation as temporary fallback
-          // Still fetch the correct translation in background
-          if (!loadingKeys.has(key) && !pendingKeysRef.current.has(key) && !languageLoading) {
-            fetchTranslation(key)
-          }
-          return fallbackCached.value
-        }
-      }
-      
-      // Also try any cached version of this key (from any language) as last resort
-      for (const [cacheKey, cached] of translationCache.entries()) {
-        if (cacheKey.startsWith(`${key}:`) && Date.now() - cached.timestamp < CACHE_TTL) {
-          // Use any available translation as temporary fallback
-          if (!loadingKeys.has(key) && !pendingKeysRef.current.has(key) && !languageLoading) {
-            fetchTranslation(key)
-          }
-          return cached.value
-        }
-      }
-
-      // If we have a defaultValue, use it instead of the key to avoid flashing
-      if (defaultValue) {
-        // Still fetch in background
-        if (!loadingKeys.has(key) && !pendingKeysRef.current.has(key) && !languageLoading) {
-          fetchTranslation(key)
-        }
-        return defaultValue
-      }
-
-      // Fetch if not loading and not in cache
+      // Fetch immediately if not loading
       if (!loadingKeys.has(key) && !pendingKeysRef.current.has(key) && !languageLoading) {
         fetchTranslation(key)
       }
+      
+      // If language is loading, use fallback to prevent flash
+      if (languageLoading) {
+        // Try to get from any available language cache as fallback (prevents flash)
+        // First try default language, then previous language, then any cached version
+        const fallbackLanguages = ['nl', previousLanguageRef.current].filter(
+          (lang, index, arr) => lang && arr.indexOf(lang) === index && lang !== currentLanguage
+        )
+        
+        for (const fallbackLang of fallbackLanguages) {
+          const fallbackCacheKey = `${key}:${fallbackLang}`
+          const fallbackCached = translationCache.get(fallbackCacheKey)
+          if (fallbackCached && Date.now() - fallbackCached.timestamp < CACHE_TTL) {
+            return fallbackCached.value
+          }
+        }
+        
+        // Also try any cached version of this key (from any language) as last resort
+        for (const [cacheKey, cached] of translationCache.entries()) {
+          if (cacheKey.startsWith(`${key}:`) && Date.now() - cached.timestamp < CACHE_TTL) {
+            return cached.value
+          }
+        }
+      }
+      
+      // If we just changed languages and don't have the translation yet,
+      // return the key to force a re-render (component will update when translation loads)
+      // This ensures the component shows something different, triggering React to re-render
 
-      // Return key as fallback if no defaultValue provided
-      // This ensures something is always displayed while translation loads
+      // Return key or defaultValue - this will trigger a re-render when language changes
+      // The translation will update once it's fetched
       return defaultValue || key
     },
-    [currentLanguage, translations, loadingKeys, languageLoading, defaultValue, fetchTranslation]
+    [currentLanguage, translations, loadingKeys, languageLoading, defaultValue, fetchTranslation, languageVersion]
   )
 
   return { t, isLoading: languageLoading }
