@@ -100,12 +100,17 @@ export async function POST(request: NextRequest) {
             }
           })
 
-          // Translate each key
+          // Translate each key with rate limiting
           const translationAPI = new TranslationAPIService()
           let translated = 0
           let failed = 0
           
-          for (const key of translationKeys) {
+          // DeepL free tier: max 5 requests/second = 200ms between requests
+          // Using 250ms to be safe
+          const DELAY_BETWEEN_REQUESTS = 250
+          
+          for (let i = 0; i < translationKeys.length; i++) {
+            const key = translationKeys[i]
             const sourceTranslation = key.translations[0]
             if (sourceTranslation && sourceTranslation.value) {
               try {
@@ -133,10 +138,22 @@ export async function POST(request: NextRequest) {
                   }
                 })
                 translated++
-              } catch (error) {
+                
+                // Rate limiting: wait between requests (except for the last one)
+                if (i < translationKeys.length - 1) {
+                  await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_REQUESTS))
+                }
+              } catch (error: any) {
                 console.error(`Failed to translate key ${key.key}:`, error)
                 failed++
-                // Continue with other keys
+                
+                // If rate limited, wait longer before continuing
+                if (error.message?.includes('429')) {
+                  console.log('Rate limited, waiting 5 seconds before continuing...')
+                  await new Promise(resolve => setTimeout(resolve, 5000))
+                } else if (i < translationKeys.length - 1) {
+                  await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_REQUESTS))
+                }
               }
             }
           }

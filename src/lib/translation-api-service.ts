@@ -20,7 +20,7 @@ class DeepLProvider implements TranslationProvider {
       : 'https://api.deepl.com/v2/translate'
   }
 
-  async translate(text: string, from: string, to: string): Promise<string> {
+  async translate(text: string, from: string, to: string, retries = 3): Promise<string> {
     if (!this.apiKey) {
       throw new Error('DeepL API key not configured. Please add DEEPL_API_KEY to your environment variables.')
     }
@@ -43,26 +43,55 @@ class DeepLProvider implements TranslationProvider {
     const sourceLang = languageMap[from.toLowerCase()] || from.toUpperCase()
     const targetLang = languageMap[to.toLowerCase()] || to.toUpperCase()
 
-    const response = await fetch(this.apiUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `DeepL-Auth-Key ${this.apiKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        text,
-        source_lang: sourceLang,
-        target_lang: targetLang,
-      }),
-    })
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        const response = await fetch(this.apiUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `DeepL-Auth-Key ${this.apiKey}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            text,
+            source_lang: sourceLang,
+            target_lang: targetLang,
+          }),
+        })
 
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`DeepL API error: ${response.status} ${error}`)
+        if (response.ok) {
+          const data = await response.json()
+          return data.translations[0].text
+        }
+
+        // Handle rate limiting (429) with exponential backoff
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('Retry-After')
+          const waitTime = retryAfter 
+            ? parseInt(retryAfter) * 1000 
+            : Math.min(1000 * Math.pow(2, attempt), 30000) // Max 30 seconds
+          
+          if (attempt < retries - 1) {
+            console.log(`Rate limited, waiting ${waitTime}ms before retry ${attempt + 1}/${retries}`)
+            await new Promise(resolve => setTimeout(resolve, waitTime))
+            continue
+          }
+        }
+
+        // For other errors, throw immediately
+        const error = await response.text()
+        throw new Error(`DeepL API error: ${response.status} ${error}`)
+      } catch (error: any) {
+        // If it's the last attempt or not a rate limit error, throw
+        if (attempt === retries - 1 || !error.message?.includes('429')) {
+          throw error
+        }
+        // Otherwise, wait and retry
+        const waitTime = Math.min(1000 * Math.pow(2, attempt), 30000)
+        await new Promise(resolve => setTimeout(resolve, waitTime))
+      }
     }
 
-    const data = await response.json()
-    return data.translations[0].text
+    throw new Error('Translation failed after retries')
   }
 }
 

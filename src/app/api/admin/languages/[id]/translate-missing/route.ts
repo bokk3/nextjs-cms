@@ -84,14 +84,20 @@ export async function POST(
       })
     }
 
-    // Translate each missing key
+    // Translate each missing key with rate limiting
     const translationAPI = new TranslationAPIService()
     let translated = 0
     let failed = 0
     const errors: string[] = []
 
-    for (const key of keysToTranslate) {
+    // DeepL free tier: max 5 requests/second = 200ms between requests
+    // Using 250ms to be safe
+    const DELAY_BETWEEN_REQUESTS = 250
+
+    for (let i = 0; i < keysToTranslate.length; i++) {
+      const key = keysToTranslate[i]
       const sourceTranslation = key.translations.find(t => t.languageId === defaultLang.id)
+      
       if (sourceTranslation && sourceTranslation.value) {
         try {
           const translatedText = await translationAPI.translateText(
@@ -109,11 +115,26 @@ export async function POST(
             }
           })
           translated++
+          
+          // Rate limiting: wait between requests (except for the last one)
+          if (i < keysToTranslate.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_REQUESTS))
+          }
         } catch (error: any) {
           console.error(`Failed to translate key ${key.key}:`, error)
           failed++
           errors.push(`${key.key}: ${error.message}`)
-          // Continue with other keys
+          
+          // If it's a rate limit error, wait longer before continuing
+          if (error.message?.includes('429')) {
+            console.log('Rate limited, waiting 5 seconds before continuing...')
+            await new Promise(resolve => setTimeout(resolve, 5000))
+          } else {
+            // For other errors, still wait a bit to avoid hammering the API
+            if (i < keysToTranslate.length - 1) {
+              await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_REQUESTS))
+            }
+          }
         }
       }
     }
