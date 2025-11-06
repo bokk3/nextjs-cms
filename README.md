@@ -55,20 +55,31 @@ Built with modern web technologies:
 ### Admin Features
 - 🎛️ **Admin Dashboard**: Enhanced dashboard with real-time stats, charts, system clock, and visits ticker
 - 🛠️ **Project Management**: Create, edit, delete projects with images
-- 📄 **Content Pages**: Manage About, Services, and custom pages
+- 📄 **Content Pages**: Manage About, Services, and custom pages with multilingual support
 - 🎨 **Page Builder**: Visual editor for building custom homepage layouts with multiple component types
 - 💬 **Contact Messages**: View and manage form submissions with GDPR compliance
 - ⚙️ **Email Settings**: Configure SMTP settings
 - 🎨 **Theme Settings**: Configure site colors, fonts, and grayscale image filter
 - 📊 **Analytics Dashboard**: View page views, popular pages, and export analytics data
 - 👥 **User Management**: Admin authentication and sessions
+- 🌍 **Language & Translation Management**: 
+  - Configure enabled languages and default language
+  - Edit content translations (navigation, footer, pages) in simplified interface
+  - Auto-translate new languages using DeepL API
+  - Translate missing keys for existing languages
+  - System translations accessible on-demand (hidden by default)
 
 ### Public Features
 - 🎨 **Portfolio Gallery**: Responsive 2-column project showcase with larger cards
 - 🔍 **Project Details**: Modal popup with translucent background, project navigation arrows, and image carousel
-- 📖 **Content Pages**: Dynamic About, Services, Contact pages
+- 📖 **Content Pages**: Dynamic About, Services, Contact pages with full multilingual support
 - 📝 **Contact Form**: GDPR-compliant contact submission
-- 🌍 **Multilingual**: Dutch/French/German/English language support
+- 🌍 **Multilingual UI**: 
+  - Language selector in navigation (portal-based dropdown for proper z-index)
+  - All UI text translated (navigation, footer, buttons, forms, etc.)
+  - URL-based language switching (`?lang=fr`)
+  - Language persists across page navigation
+  - Smooth translation loading with fallback prevention
 - 🚀 **SEO Optimization**: Meta tags, sitemaps, structured data
 - 🍪 **Cookie Banner**: Granular cookie consent with category selection
 - 🌓 **Theme Toggle**: Light/dark mode switcher in navigation
@@ -119,14 +130,18 @@ src/
 ├── contexts/              # React contexts
 │   ├── cookie-consent-context.tsx
 │   ├── image-settings-context.tsx
-│   ├── language-context.tsx
+│   ├── language-context.tsx # Language switching and URL parameter management
 │   └── theme-context.tsx
 ├── lib/                   # Utilities and services
 │   ├── analytics-service.ts # Analytics tracking
 │   ├── auth-middleware.ts # Authentication logic
 │   ├── content-service.ts # Content management
 │   ├── project-service.ts # Project operations
-│   └── image-processing.ts # Image handling
+│   ├── image-processing.ts # Image handling
+│   ├── translation-service.ts # Translation management and fallback logic
+│   └── translation-api-service.ts # DeepL/Google Translate API integration
+├── hooks/                 # React hooks
+│   └── use-t.ts          # Translation hook (useT, useTSync)
 └── types/                 # TypeScript definitions
 ```
 
@@ -137,12 +152,23 @@ src/
 - 🎨 **Projects**: Portfolio items with multilingual content
 - 📄 **ContentPages**: Dynamic pages (About, Services, etc.)
 - 💌 **ContactMessages**: Form submissions with GDPR compliance fields
-- 🌐 **Languages**: Configurable language support
+- 🌐 **Languages**: Configurable language support (enabled, default, code, name)
+- 🔑 **TranslationKey**: UI translation keys organized by category
+- 📝 **Translation**: Language-specific translations for UI strings
+- 🧩 **ComponentTranslation**: Page builder component field translations
 - ⚙️ **SiteSettings**: System configuration (includes page builder data)
 - 📊 **AnalyticsEvent**: Page views and visitor tracking (privacy-focused)
 
 ### Multilingual Support
-All content models support multiple languages with fallback handling:
+Comprehensive database-driven internationalization system:
+- 🌍 **Translation System**: All UI text and content stored in database (no hardcoded strings)
+- 🔑 **Translation Keys**: Organized by category (ui, content, admin, forms, errors)
+- 📝 **Component Translations**: Page builder components support multilingual content
+- 🔄 **Automatic Translation**: DeepL API integration for auto-translating new languages
+- ⚙️ **Language Management**: Admin panel for enabling/disabling languages, setting defaults
+- 🎯 **Smart Fallbacks**: Automatic fallback to default language if translation missing
+- 🚀 **React Hooks**: `useT()` hook for easy translation access in components
+- 📊 **Translation Coverage**: Visual indicators showing translation completeness per language
 - 🇳🇱 Dutch (default)
 - 🇫🇷 French
 - 🇩🇪 German
@@ -171,6 +197,9 @@ npx tsx scripts/create-modern-homepage.ts # Create modern homepage with page bui
 
 # 🎨 Page Builder
 npx tsx scripts/create-modern-homepage.ts # Generate modern homepage components
+
+# 🌍 Translations
+npx tsx scripts/seed-translation-keys.ts # Seed database with common UI translation keys
 ```
 
 ## 📊 Progress Status
@@ -192,6 +221,14 @@ npx tsx scripts/create-modern-homepage.ts # Generate modern homepage components
 - 🌓 **Dark Mode**: Full light/dark theme support
 - 🎨 **Theme Settings**: Customizable site colors and image filters
 - 📊 **Enhanced Dashboard**: Real-time stats, charts, system clock
+- 🌍 **Internationalization System**: 
+  - Database-driven translations
+  - Language management interface
+  - Automatic translation API integration (DeepL)
+  - React hooks for translations
+  - Component-based translations for page builder
+  - URL-based language switching with persistence
+  - Translation coverage tracking
 
 ### In Development (50-75%)
 - ⚡ Performance Optimization
@@ -200,6 +237,59 @@ npx tsx scripts/create-modern-homepage.ts # Generate modern homepage components
 ### Planned (0-25%)
 - 📸 Instagram Integration
 - 🔄 Additional Page Builder Components
+
+## 🌍 Internationalization (i18n)
+
+The CMS features a comprehensive database-driven translation system:
+
+### Translation Architecture
+- **Database Storage**: All UI text stored in PostgreSQL (no hardcoded strings)
+- **Translation Keys**: Organized by category (`ui`, `content`, `admin`, `forms`, `errors`)
+- **Component Translations**: Page builder components support multilingual field translations
+- **Fallback Logic**: Automatic fallback to default language if translation missing
+- **Client-Side Caching**: Optimized translation fetching with batch requests
+- **URL-Based Switching**: Language selection persists via `?lang=xx` URL parameter
+
+### Translation Management
+1. **Language Settings** (`/admin/settings`):
+   - Enable/disable languages
+   - Set default language
+   - Add new languages
+   - View translation coverage per language
+   - Auto-translate new languages (DeepL API)
+   - Translate missing keys for existing languages
+
+2. **Content Translations** (`/admin/content` → "Content Translations" tab):
+   - Simplified editor for client-facing translations
+   - Edit navigation, footer, contact page, projects page text
+   - Category-filtered view (only `content` category)
+
+3. **System Translations** (Settings → "Show System Translations"):
+   - Full translation key management
+   - Edit all UI strings across categories
+   - Add new translation keys
+   - Search and filter capabilities
+
+### Using Translations in Components
+```tsx
+import { useT } from '@/hooks/use-t'
+
+export function MyComponent() {
+  const { t } = useT()
+  
+  return (
+    <button>{t('button.submit')}</button>
+  )
+}
+```
+
+### Automatic Translation
+When adding a new language, the system can automatically translate all existing keys using:
+- **DeepL API** (recommended, supports free tier)
+- **Google Translate API** (alternative)
+- **LibreTranslate** (self-hosted option)
+
+Configure `DEEPL_API_KEY` in `.env.local` to enable auto-translation.
 
 ## 🎨 Page Builder
 
@@ -219,14 +309,14 @@ The CMS includes a powerful visual page builder for creating custom homepage lay
 - ✨ Drag-and-drop component reordering
 - 🎨 Custom background colors and gradients
 - 🌓 Dark mode compatible styling
-- 🌍 Multilingual content support
+- 🌍 **Full multilingual support**: Each component field can be translated
 - 📱 Responsive design
 - 🔧 Granular styling controls (padding, colors, etc.)
 
 ### Usage
 1. Navigate to `/admin/page-builder`
 2. Add components using the toolbar
-3. Edit component properties in the sidebar
+3. Edit component properties in the sidebar (with language tabs)
 4. Preview changes in real-time
 5. Save to update the homepage
 
@@ -243,6 +333,10 @@ SMTP_HOST="your-smtp-host"
 SMTP_PORT="587"
 SMTP_USER="your-email"
 SMTP_PASS="your-password"
+
+# Optional: Automatic Translation API
+DEEPL_API_KEY="your-deepl-api-key"  # For auto-translating new languages
+# Alternative: GOOGLE_TRANSLATE_API_KEY or LIBRETRANSLATE_API_URL
 ```
 
 ### GDPR & Privacy
