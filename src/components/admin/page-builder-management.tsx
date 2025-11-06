@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import { PageBuilder } from '@/components/page-builder/page-builder'
 import { PageComponent } from '@/types/page-builder'
-import { Button } from '@/components/ui/button'
-import { ArrowLeft, Save, Eye } from 'lucide-react'
 
 export function PageBuilderManagement() {
   const [components, setComponents] = useState<PageComponent[]>([])
@@ -74,33 +72,6 @@ export function PageBuilderManagement() {
 
   return (
     <div className="h-screen flex flex-col animate-fade-in">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => window.history.back()}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Admin
-            </Button>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Homepage Builder</h1>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={handlePreview}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview Site
-            </Button>
-          </div>
-        </div>
-      </div>
-
       {/* Page Builder */}
       <div className="flex-1">
         <PageBuilder

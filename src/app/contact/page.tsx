@@ -1,104 +1,129 @@
 import { ContactForm } from '@/components/contact-form'
+import { Mail, Phone, MapPin, Clock, MessageCircle } from 'lucide-react'
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 max-w-7xl">
         {/* Breadcrumbs */}
-        <nav className="mb-8 text-sm text-gray-600 dark:text-gray-400">
-          <a href="/" className="hover:text-gray-900 dark:hover:text-gray-100">Home</a>
+        <nav className="mb-8 text-sm text-gray-600 dark:text-gray-400 animate-fade-in">
+          <a href="/" className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">Home</a>
           <span className="mx-2">/</span>
           <span className="text-gray-900 dark:text-gray-100">Contact</span>
         </nav>
 
         {/* Page header */}
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+        <header className="mb-12 animate-fade-in">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent mb-6">
             Contact Us
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl">
             Get in touch with us about your project. We'd love to hear from you!
           </p>
         </header>
 
-        <div className="grid lg:grid-cols-3 gap-12">
+        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 animate-fade-in">
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
-                Send us a message
-              </h2>
+            <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl p-8 sm:p-10">
+              <div className="flex items-center gap-3 mb-8">
+                <MessageCircle className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Send us a message
+                </h2>
+              </div>
               <ContactForm />
             </div>
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-8">
-            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <div className="space-y-6">
+            <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl p-8">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                <Mail className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 Contact Information
               </h3>
-              <div className="space-y-3 text-gray-600 dark:text-gray-300">
-                <div className="flex items-center">
-                  <svg className="h-5 w-5 text-gray-400 dark:text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                  <span>info@example.com</span>
+              <div className="space-y-4 text-gray-700 dark:text-gray-300">
+                <div className="flex items-start gap-4">
+                  <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 shrink-0">
+                    <Mail className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Email</div>
+                    <a href="mailto:info@example.com" className="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                      info@example.com
+                    </a>
+                  </div>
                 </div>
-                <div className="flex items-center">
-                  <svg className="h-5 w-5 text-gray-400 dark:text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  <span>+32 123 456 789</span>
+                <div className="flex items-start gap-4">
+                  <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 shrink-0">
+                    <Phone className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Phone</div>
+                    <a href="tel:+32123456789" className="text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium">
+                      +32 123 456 789
+                    </a>
+                  </div>
                 </div>
-                <div className="flex items-start">
-                  <svg className="h-5 w-5 text-gray-400 dark:text-gray-500 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span>Brussels, Belgium</span>
+                <div className="flex items-start gap-4">
+                  <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 shrink-0">
+                    <MapPin className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Location</div>
+                    <span className="text-gray-900 dark:text-gray-100 font-medium">
+                      Brussels, Belgium
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl p-8">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                <Clock className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 Business Hours
               </h3>
-              <div className="space-y-2 text-gray-600 dark:text-gray-300">
-                <div className="flex justify-between">
-                  <span>Monday - Friday</span>
-                  <span>9:00 AM - 6:00 PM</span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">Monday - Friday</span>
+                  <span className="text-gray-900 dark:text-gray-100 font-semibold">9:00 AM - 6:00 PM</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Saturday</span>
-                  <span>10:00 AM - 4:00 PM</span>
+                <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">Saturday</span>
+                  <span className="text-gray-900 dark:text-gray-100 font-semibold">10:00 AM - 4:00 PM</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Sunday</span>
-                  <span>Closed</span>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">Sunday</span>
+                  <span className="text-gray-500 dark:text-gray-400 font-semibold">Closed</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                Quick Response
-              </h3>
-              <p className="text-blue-800 dark:text-blue-200 text-sm">
-                We typically respond to all inquiries within 24 hours during business days.
-              </p>
+            <div className="glass border border-blue-200/50 dark:border-blue-800/50 rounded-2xl shadow-xl p-8 bg-gradient-to-br from-blue-50/50 to-blue-100/30 dark:from-blue-900/20 dark:to-blue-800/10">
+              <div className="flex items-start gap-3">
+                <MessageCircle className="h-5 w-5 text-gray-600 dark:text-gray-400 shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100 mb-2">
+                    Quick Response
+                  </h3>
+                  <p className="text-blue-800 dark:text-blue-200 text-sm leading-relaxed">
+                    We typically respond to all inquiries within 24 hours during business days.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Back to home */}
-        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+        <div className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-700 animate-fade-in">
           <a 
             href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors font-medium"
           >
-            ← Back to Home
+            <span>←</span> Back to Home
           </a>
         </div>
       </main>

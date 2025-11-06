@@ -178,7 +178,7 @@ export function ContentList({
           <select
             value={selectedLanguage}
             onChange={(e) => setSelectedLanguage(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="all">All Languages</option>
             {getAvailableLanguages().map(lang => (
@@ -192,7 +192,7 @@ export function ContentList({
           <select
             value={publishedFilter}
             onChange={(e) => setPublishedFilter(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="all">All Status</option>
             <option value="published">Published</option>
@@ -207,7 +207,7 @@ export function ContentList({
               setSortBy(by as any)
               setSortOrder(order as any)
             }}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
             <option value="updatedAt-desc">Latest First</option>
             <option value="updatedAt-asc">Oldest First</option>
@@ -219,7 +219,7 @@ export function ContentList({
         </div>
 
         {/* Results count */}
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-gray-600 dark:text-gray-400">
           Showing {filteredPages.length} of {pages.length} pages
         </div>
       </div>
@@ -228,11 +228,11 @@ export function ContentList({
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         {filteredPages.length === 0 ? (
           <div className="p-8 text-center">
-            <div className="text-gray-400 mb-4">
+            <div className="text-gray-400 dark:text-gray-500 mb-4">
               <Globe className="h-12 w-12 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No content pages found</h3>
-            <p className="text-gray-600 mb-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No content pages found</h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               {searchQuery || selectedLanguage !== 'all' || publishedFilter !== 'all'
                 ? 'Try adjusting your filters or search query.'
                 : 'Get started by creating your first content page.'
@@ -247,22 +247,22 @@ export function ContentList({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Page
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Languages
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Updated
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -272,17 +272,17 @@ export function ContentList({
                   const defaultTranslation = page.translations[0]
                   
                   return (
-                    <tr key={page.id} className="hover:bg-gray-50">
+                    <tr key={page.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                       <td className="px-6 py-4">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {defaultTranslation?.title || 'Untitled'}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
                             /{page.slug}
                           </div>
                           {defaultTranslation?.excerpt && (
-                            <div className="text-xs text-gray-400 mt-1 line-clamp-2">
+                            <div className="text-xs text-gray-400 dark:text-gray-500 mt-1 line-clamp-2">
                               {defaultTranslation.excerpt}
                             </div>
                           )}
@@ -322,7 +322,7 @@ export function ContentList({
                           )}
                         </button>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 mr-1" />
                           {formatDate(page.updatedAt)}
