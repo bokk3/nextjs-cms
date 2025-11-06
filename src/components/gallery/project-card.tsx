@@ -89,13 +89,13 @@ export function ProjectCard({ project, onClick, languageId = 'nl' }: ProjectCard
           {translation.title}
         </h3>
         
-        {/* Materials - Enhanced styling */}
+        {/* Materials - Stacked vertically for consistent card height */}
         {translation.materials.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-col gap-2 mb-4">
             {translation.materials.slice(0, 3).map((material, index) => (
               <span 
                 key={index}
-                className="text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-full border border-gray-200/50 dark:border-gray-600/50 shadow-sm"
+                className="text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded-full border border-gray-200/50 dark:border-gray-600/50 shadow-sm w-fit"
               >
                 {material}
               </span>
