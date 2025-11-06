@@ -87,7 +87,7 @@ export function AdminNavigation() {
   }
 
   return (
-    <nav className="admin-nav bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-16 z-50 shadow-lg">
+    <nav className="admin-nav bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-16 z-[70] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Back to Site */}
@@ -123,7 +123,7 @@ export function AdminNavigation() {
                   title={link.label}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 text-xs glass border border-white/20 dark:border-gray-700/30 text-gray-900 dark:text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60] shadow-lg">
+                  <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1.5 text-xs glass border border-white/20 dark:border-gray-700/30 text-gray-900 dark:text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[80] shadow-lg">
                     {link.label}
                   </span>
                 </Link>
@@ -146,7 +146,7 @@ export function AdminNavigation() {
               >
                 <Edit3 className="h-5 w-5" />
                 <ChevronDown className={`h-3 w-3 ml-1 transition-transform duration-200 ${isContentDropdownOpen ? 'rotate-180' : ''}`} />
-                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 text-xs glass border border-white/20 dark:border-gray-700/30 text-gray-900 dark:text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60] shadow-lg">
+                <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1.5 text-xs glass border border-white/20 dark:border-gray-700/30 text-gray-900 dark:text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[80] shadow-lg">
                   Content
                 </span>
               </button>
@@ -202,7 +202,7 @@ export function AdminNavigation() {
                   title={link.label}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 text-xs glass border border-white/20 dark:border-gray-700/30 text-gray-900 dark:text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60] shadow-lg">
+                  <span className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1.5 text-xs glass border border-white/20 dark:border-gray-700/30 text-gray-900 dark:text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[80] shadow-lg">
                     {link.label}
                   </span>
                 </Link>

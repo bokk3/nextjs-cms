@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Menu, X, Globe, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/contexts/language-context'
@@ -14,6 +15,14 @@ export function Navigation() {
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false)
   const [showThemeToggle, setShowThemeToggle] = useState(true)
   const { currentLanguage, languages, setLanguage, isLoading } = useLanguage()
+  const languageButtonRef = useRef<HTMLButtonElement>(null)
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
+  const [mounted, setMounted] = useState(false)
+
+  // Check if component is mounted (for portal)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Check if theme toggle should be shown
   useEffect(() => {
@@ -34,7 +43,17 @@ export function Navigation() {
   }, [])
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
-  const toggleLanguageMenu = () => setIsLanguageMenuOpen(!isLanguageMenuOpen)
+  const toggleLanguageMenu = () => {
+    if (!isLanguageMenuOpen && languageButtonRef.current) {
+      // Calculate position for fixed dropdown
+      const rect = languageButtonRef.current.getBoundingClientRect()
+      setDropdownPosition({
+        top: rect.bottom + 8, // 8px = mt-2 equivalent
+        right: window.innerWidth - rect.right
+      })
+    }
+    setIsLanguageMenuOpen(!isLanguageMenuOpen)
+  }
 
   // Helper function to add language parameter to URLs
   const getLocalizedHref = (href: string) => {
@@ -54,7 +73,7 @@ export function Navigation() {
   ]
 
   return (
-    <nav className="main-nav bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50 transition-all duration-300 shadow-sm">
+    <nav className="main-nav bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-[60] transition-all duration-300 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -85,6 +104,7 @@ export function Navigation() {
               {!isLoading && languages.length > 1 && (
                 <div className="relative">
                   <Button
+                    ref={languageButtonRef}
                     variant="ghost"
                     size="sm"
                     onClick={toggleLanguageMenu}
@@ -97,32 +117,47 @@ export function Navigation() {
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                   
-                  {isLanguageMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 glass border border-white/20 dark:border-gray-700/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-fade-in">
-                      <div className="py-2">
-                        {languages.map((language) => (
-                          <button
-                            key={language.code}
-                            onClick={() => {
-                              setLanguage(language.code)
-                              setIsLanguageMenuOpen(false)
-                            }}
-                            className={`w-full text-left px-4 py-2.5 text-sm transition-all duration-200 ${
-                              currentLanguage === language.code
-                                ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 font-semibold'
-                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <span>{language.name}</span>
-                              <span className="text-xs uppercase text-gray-500 dark:text-gray-400 font-medium">
-                                {language.code}
-                              </span>
-                            </div>
-                          </button>
-                        ))}
+                  {isLanguageMenuOpen && mounted && createPortal(
+                    <>
+                      {/* Backdrop to close on click outside */}
+                      <div 
+                        className="fixed inset-0 z-[85]" 
+                        onClick={() => setIsLanguageMenuOpen(false)}
+                      />
+                      {/* Dropdown with fixed positioning */}
+                      <div 
+                        className="fixed w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-[90] overflow-hidden animate-fade-in"
+                        style={{
+                          top: `${dropdownPosition.top}px`,
+                          right: `${dropdownPosition.right}px`
+                        }}
+                      >
+                        <div className="py-2">
+                          {languages.map((language) => (
+                            <button
+                              key={language.code}
+                              onClick={() => {
+                                setLanguage(language.code)
+                                setIsLanguageMenuOpen(false)
+                              }}
+                              className={`w-full text-left px-4 py-2.5 text-sm transition-all duration-200 ${
+                                currentLanguage === language.code
+                                  ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 font-semibold'
+                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span>{language.name}</span>
+                                <span className="text-xs uppercase text-gray-500 dark:text-gray-400 font-medium">
+                                  {language.code}
+                                </span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    </>,
+                    document.body
                   )}
                 </div>
               )}
