@@ -85,7 +85,7 @@ export function ProjectCard({ project, onClick, languageId = 'nl' }: ProjectCard
       </div>
       
       <div className="p-6 bg-gradient-to-b from-white to-gray-50/50 dark:from-gray-800/90 dark:to-gray-900/50">
-        <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
+        <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-3 line-clamp-2 min-h-[3.5rem] group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
           {translation.title}
         </h3>
         
