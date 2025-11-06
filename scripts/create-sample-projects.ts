@@ -32,10 +32,10 @@ async function createSampleProjects() {
       return
     }
 
-    // Sample projects data
+    // Sample projects data (in Dutch, the default language)
     const sampleProjects = [
       {
-        title: 'Handcrafted Oak Dining Table',
+        title: 'Handgemaakte Eiken Eettafel',
         description: {
           type: 'doc',
           content: [
@@ -44,16 +44,16 @@ async function createSampleProjects() {
               content: [
                 {
                   type: 'text',
-                  text: 'A stunning solid oak dining table crafted from sustainably sourced timber. Features hand-carved details and a natural oil finish that highlights the beautiful grain patterns. Seats 8 comfortably and built to last generations.'
+                  text: 'Een prachtige massief eiken eettafel gemaakt van duurzaam hout. Met handgesneden details en een natuurlijke olie-afwerking die de prachtige nerfpatronen benadrukt. Biedt plaats aan 8 personen en gebouwd om generaties mee te gaan.'
                 }
               ]
             }
           ]
         },
-        materials: ['Solid Oak', 'Natural Oil Finish', 'Hand-forged Hardware']
+        materials: ['Massief Eiken', 'Natuurlijke Olie-afwerking', 'Handgesmeed Hardware']
       },
       {
-        title: 'Custom Kitchen Cabinets',
+        title: 'Op Maat Gemaakte Keukenkasten',
         description: {
           type: 'doc',
           content: [
@@ -62,16 +62,16 @@ async function createSampleProjects() {
               content: [
                 {
                   type: 'text',
-                  text: 'Bespoke kitchen cabinetry designed to maximize space and functionality. Featuring soft-close drawers, hidden storage solutions, and a timeless shaker-style design in painted hardwood.'
+                  text: 'Op maat gemaakte keukenkasten ontworpen om ruimte en functionaliteit te maximaliseren. Met zachte sluitladen, verborgen opslagoplossingen en een tijdloos shaker-stijl ontwerp in geverfd hardhout.'
                 }
               ]
             }
           ]
         },
-        materials: ['Painted Hardwood', 'Soft-close Hardware', 'Quartz Countertops']
+        materials: ['Geverfd Hardhout', 'Zachte Sluit Hardware', 'Kwarts Werkbladen']
       },
       {
-        title: 'Artisan Bookshelf',
+        title: 'Ambachtelijke Boekenkast',
         description: {
           type: 'doc',
           content: [
@@ -80,16 +80,16 @@ async function createSampleProjects() {
               content: [
                 {
                   type: 'text',
-                  text: 'Floor-to-ceiling bookshelf with adjustable shelving and integrated lighting. Crafted from reclaimed walnut with traditional joinery techniques for a piece that\'s both functional and beautiful.'
+                  text: 'Van vloer tot plafond boekenkast met verstelbare planken en geïntegreerde verlichting. Gemaakt van gerecycled walnotenhout met traditionele verbindingstechnieken voor een stuk dat zowel functioneel als mooi is.'
                 }
               ]
             }
           ]
         },
-        materials: ['Reclaimed Walnut', 'LED Strip Lighting', 'Brass Accents']
+        materials: ['Gerecycled Walnotenhout', 'LED Strip Verlichting', 'Messing Accenten']
       },
       {
-        title: 'Live Edge Coffee Table',
+        title: 'Live Edge Salontafel',
         description: {
           type: 'doc',
           content: [
@@ -98,13 +98,13 @@ async function createSampleProjects() {
               content: [
                 {
                   type: 'text',
-                  text: 'Unique live edge coffee table showcasing the natural beauty of the wood. Each piece is one-of-a-kind, featuring the organic edge of the tree and supported by sleek steel legs.'
+                  text: 'Unieke live edge salontafel die de natuurlijke schoonheid van het hout toont. Elk stuk is uniek, met de organische rand van de boom en ondersteund door strakke stalen poten.'
                 }
               ]
             }
           ]
         },
-        materials: ['Live Edge Maple', 'Steel Base', 'Protective Finish']
+        materials: ['Live Edge Esdoorn', 'Stalen Basis', 'Beschermende Afwerking']
       }
     ]
 

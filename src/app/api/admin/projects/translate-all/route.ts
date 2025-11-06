@@ -128,10 +128,33 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        // Translate materials (join, translate, split) - skip this as user said tags don't need translation
-        // Keeping the code but not using it in the updates
+        // Translate materials (join, translate, split)
         let materialsTranslations: Record<string, string[]> = {}
-        // Materials will use the default language version (not translated)
+        if (defaultTranslation.materials && defaultTranslation.materials.length > 0) {
+          const translationAPI = new TranslationAPIService()
+          for (const targetLangCode of targetLangs) {
+            try {
+              // Join materials with commas, translate, then split back
+              const materialsText = defaultTranslation.materials.join(', ')
+              const translatedText = await translationAPI.translateText(
+                materialsText,
+                defaultLang.code,
+                targetLangCode
+              )
+
+              if (translatedText && typeof translatedText === 'string' && translatedText.trim()) {
+                materialsTranslations[targetLangCode] = translatedText
+                  .split(',')
+                  .map(m => m.trim())
+                  .filter(m => m)
+              }
+              // Add delay to respect rate limits
+              await new Promise(resolve => setTimeout(resolve, 250))
+            } catch (error) {
+              console.error(`Error translating materials to ${targetLangCode} for project ${projectId}:`, error)
+            }
+          }
+        }
 
         // Build updates for each target language
         for (const targetLang of languages.filter(l => targetLangs.includes(l.code))) {
@@ -142,6 +165,7 @@ export async function POST(req: NextRequest) {
           // Only use translated values if they exist, otherwise keep existing or use default
           const translatedTitle = titleTranslations[targetLang.code]
           const translatedDescription = descriptionTranslations[targetLang.code]
+          const translatedMaterials = materialsTranslations[targetLang.code]
           
           updates.push({
             languageId: targetLang.id,
@@ -149,8 +173,8 @@ export async function POST(req: NextRequest) {
             title: translatedTitle || existingTranslation?.title || defaultTranslation.title,
             // Use translated description if available, otherwise keep existing, otherwise use default
             description: translatedDescription || existingTranslation?.description || defaultTranslation.description,
-            // Materials stay in default language (not translated)
-            materials: existingTranslation?.materials || defaultTranslation.materials
+            // Use translated materials if available, otherwise keep existing, otherwise use default
+            materials: translatedMaterials || existingTranslation?.materials || defaultTranslation.materials
           })
         }
 
