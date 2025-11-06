@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { useT } from '@/hooks/use-t';
 
 interface ContactFormData {
   name: string;
@@ -23,6 +24,7 @@ interface ContactFormErrors {
 }
 
 export function ContactForm() {
+  const { t } = useT()
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
@@ -144,10 +146,10 @@ export function ContactForm() {
           </div>
           <div className="ml-3">
             <h3 className="text-sm font-medium text-green-800 dark:text-green-200">
-              Message sent successfully!
+              {t('form.messageSent')}
             </h3>
             <div className="mt-2 text-sm text-green-700 dark:text-green-300">
-              <p>Thank you for your message. We'll get back to you as soon as possible.</p>
+              <p>{t('form.thankYou')}</p>
             </div>
             <div className="mt-4">
               <Button
@@ -155,7 +157,7 @@ export function ContactForm() {
                 variant="outline"
                 size="sm"
               >
-                Send another message
+                {t('form.sendAnother')}
               </Button>
             </div>
           </div>
@@ -176,7 +178,7 @@ export function ContactForm() {
             </div>
             <div className="ml-3">
               <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                Error sending message
+                {t('form.errorSending')}
               </h3>
               <div className="mt-2 text-sm text-red-700 dark:text-red-300">
                 <p>{submitError}</p>
@@ -186,7 +188,7 @@ export function ContactForm() {
                   onClick={() => setSubmitStatus('idle')}
                   className="text-sm text-red-800 dark:text-red-200 hover:text-red-900 dark:hover:text-red-100 underline"
                 >
-                  Try again
+                  {t('form.tryAgain')}
                 </button>
               </div>
             </div>
@@ -197,7 +199,7 @@ export function ContactForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Name *
+            {t('form.name')} *
           </label>
           <Input
             id="name"
@@ -205,7 +207,7 @@ export function ContactForm() {
             value={formData.name}
             onChange={(e) => handleChange('name', e.target.value)}
             className={errors.name ? 'border-red-300' : ''}
-            placeholder="Your full name"
+            placeholder={t('form.name')}
           />
           {errors.name && (
             <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -214,7 +216,7 @@ export function ContactForm() {
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Email *
+            {t('form.email')} *
           </label>
           <Input
             id="email"
@@ -222,7 +224,7 @@ export function ContactForm() {
             value={formData.email}
             onChange={(e) => handleChange('email', e.target.value)}
             className={errors.email ? 'border-red-300' : ''}
-            placeholder="your.email@example.com"
+            placeholder={t('form.email')}
           />
           {errors.email && (
             <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -232,7 +234,7 @@ export function ContactForm() {
 
       <div>
         <label htmlFor="projectType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Project Type *
+          {t('form.projectType')} *
         </label>
         <select
           id="projectType"
@@ -240,7 +242,7 @@ export function ContactForm() {
           onChange={(e) => handleChange('projectType', e.target.value)}
           className={`w-full rounded-md border ${errors.projectType ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'} bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500`}
         >
-          <option value="">Select a project type</option>
+          <option value="">{t('form.selectProjectType')}</option>
           <option value="Web Development">Web Development</option>
           <option value="Mobile App">Mobile App</option>
           <option value="E-commerce">E-commerce</option>
@@ -256,7 +258,7 @@ export function ContactForm() {
       <div>
         <div className="flex justify-between items-center mb-2">
           <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Message *
+            {t('form.message')} *
           </label>
           <span className={`text-xs ${formData.message.length > 2000 ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
             {formData.message.length}/2000
@@ -290,11 +292,16 @@ export function ContactForm() {
               className={`mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 ${errors.privacyAccepted ? 'border-red-300' : ''}`}
             />
             <label htmlFor="privacyAccepted" className="ml-3 text-sm text-gray-700 dark:text-gray-300">
-              I accept the{' '}
-              <a href="/privacy" target="_blank" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline">
-                privacy policy
-              </a>{' '}
-              and agree to the processing of my personal data for the purpose of responding to my inquiry. *
+              {t('form.privacyAccept').split('privacy policy').map((part, i, arr) => 
+                i === arr.length - 1 ? part : (
+                  <span key={i}>
+                    {part}
+                    <a href="/privacy" target="_blank" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline">
+                      privacy policy
+                    </a>
+                  </span>
+                )
+              )}
             </label>
           </div>
           {errors.privacyAccepted && (
@@ -310,14 +317,14 @@ export function ContactForm() {
               className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label htmlFor="marketingConsent" className="ml-3 text-sm text-gray-700 dark:text-gray-300">
-              I would like to receive occasional updates about your services and projects (optional).
+              {t('form.marketingConsent')}
             </label>
           </div>
         </div>
 
         <div className="text-xs text-gray-600 dark:text-gray-400">
           <p className="mb-2">
-            <strong>Data Protection Notice:</strong> Your personal data will be processed in accordance with GDPR regulations. 
+            <strong>{t('form.dataProtection')}</strong> Your personal data will be processed in accordance with GDPR regulations. 
             We will only use your information to respond to your inquiry and, if consented, to send you relevant updates.
           </p>
           <p>
@@ -333,12 +340,12 @@ export function ContactForm() {
           disabled={isSubmitting || !formData.privacyAccepted}
           className="w-full md:w-auto"
         >
-          {isSubmitting ? 'Sending...' : 'Send Message'}
+          {isSubmitting ? t('form.sending') : t('form.sendMessage')}
         </Button>
       </div>
 
       <div className="text-xs text-gray-500 dark:text-gray-400">
-        * Required fields
+        * {t('form.required')} fields
       </div>
     </form>
   );

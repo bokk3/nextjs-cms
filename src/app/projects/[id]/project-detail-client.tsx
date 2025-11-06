@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react'
 import { useLanguage } from '@/contexts/language-context'
 import { useImageSettings } from '@/contexts/image-settings-context'
+import { useT } from '@/hooks/use-t'
 
 interface ProjectDetailClientProps {
   project: ProjectWithRelations
@@ -15,9 +16,20 @@ interface ProjectDetailClientProps {
 
 export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const { currentLanguage } = useLanguage()
+  const { currentLanguage, languages } = useLanguage()
   const { grayscaleImages } = useImageSettings()
+  const { t } = useT()
   const languageId = currentLanguage
+
+  // Helper function to add language parameter to URLs
+  const getLocalizedHref = (href: string) => {
+    const defaultLang = languages.find(l => l.isDefault)
+    if (currentLanguage === defaultLang?.code) {
+      return href
+    }
+    const separator = href.includes('?') ? '&' : '?'
+    return `${href}${separator}lang=${currentLanguage}`
+  }
 
   // Get translation for the specified language or fallback to first available
   const translation = project.translations.find(t => t.language.code === languageId) 
@@ -29,10 +41,10 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-black mb-4">Project Not Available</h1>
           <p className="text-gray-600 mb-6">This project is not available in the selected language.</p>
-          <Link href="/projects">
+          <Link href={getLocalizedHref('/projects')}>
             <Button>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Projects
+              {t('projects.backToProjects')}
             </Button>
           </Link>
         </div>
@@ -95,10 +107,10 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
         {/* Navigation */}
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <Link href="/projects">
+            <Link href={getLocalizedHref('/projects')}>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Projects
+                {t('projects.backToProjects')}
               </Button>
             </Link>
           </div>

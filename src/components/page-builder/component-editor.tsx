@@ -8,6 +8,7 @@ import { MediaLibrary } from '@/components/admin/media-library'
 import { RichTextEditor } from '@/components/admin/rich-text-editor'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
+import { Globe, CheckCircle, AlertCircle, Copy, Star } from 'lucide-react'
 
 interface Language {
   id: string
@@ -118,38 +119,143 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
     )
   }
 
+  // Get multilingual fields for this component type
+  const getMultilingualFields = (): string[] => {
+    const fields: string[] = []
+    switch (component.type) {
+      case 'hero':
+        fields.push('title', 'subtitle', 'description', 'primaryButton', 'secondaryButton')
+        break
+      case 'text':
+        fields.push('content')
+        break
+      case 'image':
+        fields.push('alt', 'caption')
+        break
+      case 'cta':
+        fields.push('heading', 'description', 'ctaButtonText')
+        break
+      case 'features':
+        // Features array items have title and description
+        break
+      case 'testimonials':
+        // Testimonials array items have role and content
+        break
+    }
+    return fields
+  }
+
+  // Check if a field has translation for a language
+  const hasTranslation = (field: string, langCode: string): boolean => {
+    const value = component.data[field as keyof ComponentData] as MultilingualText | undefined
+    if (!value || typeof value === 'string') return false
+    return !!(value[langCode] && value[langCode].trim().length > 0)
+  }
+
+  // Get translation coverage for a language
+  const getTranslationCoverage = (langCode: string): { complete: number; total: number } => {
+    const fields = getMultilingualFields()
+    const complete = fields.filter(field => hasTranslation(field, langCode)).length
+    return { complete, total: fields.length }
+  }
+
+  // Copy translations from default language
+  const copyFromDefault = () => {
+    const defaultLang = languages.find(l => l.isDefault)
+    if (!defaultLang || defaultLang.code === activeLanguage) return
+
+    const fields = getMultilingualFields()
+    const updatedData = { ...component.data }
+
+    fields.forEach(field => {
+      const value = component.data[field as keyof ComponentData] as MultilingualText | undefined
+      if (value && typeof value === 'object') {
+        const defaultValue = value[defaultLang.code]
+        if (defaultValue && !value[activeLanguage]) {
+          updatedData[field as keyof ComponentData] = {
+            ...value,
+            [activeLanguage]: defaultValue
+          } as any
+        }
+      }
+    })
+
+    onChange(updatedData)
+  }
+
   return (
     <div className="p-4 space-y-6">
       <div>
-        <h4 className="font-medium text-gray-900 mb-2">
+        <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
           {component.type.charAt(0).toUpperCase() + component.type.slice(1)} Component
         </h4>
       </div>
 
-      {/* Language Tabs */}
-      {languages.length > 1 && (
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-4">
-            {languages.map(language => (
-              <button
-                key={language.code}
-                type="button"
-                onClick={() => setActiveLanguage(language.code)}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeLanguage === language.code
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+      {/* Enhanced Language Tabs */}
+      {languages.length > 0 && (
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                Language
+              </span>
+            </div>
+            {languages.length > 1 && activeLanguage !== languages.find(l => l.isDefault)?.code && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={copyFromDefault}
+                className="h-6 px-2 text-xs"
+                title="Copy from default language"
               >
-                {language.name}
-                {language.isDefault && (
-                  <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-1 py-0.5 rounded">
-                    Default
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
+                <Copy className="h-3 w-3 mr-1" />
+                Copy from Default
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-1 flex-wrap">
+            {languages.map(language => {
+              const coverage = getTranslationCoverage(language.code)
+              const isActive = activeLanguage === language.code
+              const isComplete = coverage.total > 0 && coverage.complete === coverage.total
+              const hasPartial = coverage.complete > 0 && coverage.complete < coverage.total
+
+              return (
+                <button
+                  key={language.code}
+                  type="button"
+                  onClick={() => setActiveLanguage(language.code)}
+                  className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                    isActive
+                      ? 'bg-blue-500 text-white shadow-md'
+                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {language.isDefault && (
+                    <Star className={`h-3 w-3 ${isActive ? 'text-white' : 'text-blue-500'}`} fill="currentColor" />
+                  )}
+                  <span>{language.name}</span>
+                  {coverage.total > 0 && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${
+                      isActive
+                        ? 'bg-white/20 text-white'
+                        : isComplete
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                        : hasPartial
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                        : 'bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-400'
+                    }`}>
+                      {coverage.complete}/{coverage.total}
+                    </span>
+                  )}
+                  {isActive && (
+                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 
@@ -157,45 +263,89 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
       {component.type === 'hero' && (
         <>
           <div>
-            <Label htmlFor="title">Title ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+            <Label htmlFor="title" className="flex items-center gap-2">
+              <span>Title</span>
+              {hasTranslation('title', activeLanguage) ? (
+                <CheckCircle className="h-3 w-3 text-green-500" />
+              ) : (
+                <AlertCircle className="h-3 w-3 text-yellow-500" />
+              )}
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ({languages.find(l => l.code === activeLanguage)?.name})
+              </span>
+            </Label>
             <Input
               id="title"
               value={getMultilingualText('title', activeLanguage)}
               onChange={(e) => updateMultilingualText('title', activeLanguage, e.target.value)}
               placeholder="Enter hero title"
+              className={!hasTranslation('title', activeLanguage) ? 'border-yellow-300 dark:border-yellow-600' : ''}
             />
           </div>
           
           <div>
-            <Label htmlFor="subtitle">Subtitle ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+            <Label htmlFor="subtitle" className="flex items-center gap-2">
+              <span>Subtitle</span>
+              {hasTranslation('subtitle', activeLanguage) ? (
+                <CheckCircle className="h-3 w-3 text-green-500" />
+              ) : (
+                <AlertCircle className="h-3 w-3 text-yellow-500" />
+              )}
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ({languages.find(l => l.code === activeLanguage)?.name})
+              </span>
+            </Label>
             <Input
               id="subtitle"
               value={getMultilingualText('subtitle', activeLanguage)}
               onChange={(e) => updateMultilingualText('subtitle', activeLanguage, e.target.value)}
               placeholder="Enter hero subtitle"
+              className={!hasTranslation('subtitle', activeLanguage) ? 'border-yellow-300 dark:border-yellow-600' : ''}
             />
           </div>
           
           <div>
-            <Label htmlFor="description">Description ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+            <Label htmlFor="description" className="flex items-center gap-2">
+              <span>Description</span>
+              {hasTranslation('description', activeLanguage) ? (
+                <CheckCircle className="h-3 w-3 text-green-500" />
+              ) : (
+                <AlertCircle className="h-3 w-3 text-yellow-500" />
+              )}
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ({languages.find(l => l.code === activeLanguage)?.name})
+              </span>
+            </Label>
             <Input
               id="description"
               value={getMultilingualText('description', activeLanguage)}
               onChange={(e) => updateMultilingualText('description', activeLanguage, e.target.value)}
               placeholder="Enter hero description"
+              className={!hasTranslation('description', activeLanguage) ? 'border-yellow-300 dark:border-yellow-600' : ''}
             />
           </div>
           
           <div className="border-t pt-4">
-            <h5 className="font-medium text-gray-900 mb-3">Primary Button</h5>
+            <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Primary Button</h5>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="primaryButton">Button Text ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+                <Label htmlFor="primaryButton" className="flex items-center gap-2">
+                  <span>Button Text</span>
+                  {hasTranslation('primaryButton', activeLanguage) ? (
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <AlertCircle className="h-3 w-3 text-yellow-500" />
+                  )}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    ({languages.find(l => l.code === activeLanguage)?.name})
+                  </span>
+                </Label>
                 <Input
                   id="primaryButton"
                   value={getMultilingualText('primaryButton', activeLanguage)}
                   onChange={(e) => updateMultilingualText('primaryButton', activeLanguage, e.target.value)}
                   placeholder="Enter button text"
+                  className={!hasTranslation('primaryButton', activeLanguage) ? 'border-yellow-300 dark:border-yellow-600' : ''}
                 />
               </div>
               <div>
@@ -211,15 +361,26 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
           </div>
           
           <div className="border-t pt-4">
-            <h5 className="font-medium text-gray-900 mb-3">Secondary Button</h5>
+            <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Secondary Button</h5>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="secondaryButton">Button Text ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+                <Label htmlFor="secondaryButton" className="flex items-center gap-2">
+                  <span>Button Text</span>
+                  {hasTranslation('secondaryButton', activeLanguage) ? (
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <AlertCircle className="h-3 w-3 text-yellow-500" />
+                  )}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    ({languages.find(l => l.code === activeLanguage)?.name})
+                  </span>
+                </Label>
                 <Input
                   id="secondaryButton"
                   value={getMultilingualText('secondaryButton', activeLanguage)}
                   onChange={(e) => updateMultilingualText('secondaryButton', activeLanguage, e.target.value)}
                   placeholder="Enter button text"
+                  className={!hasTranslation('secondaryButton', activeLanguage) ? 'border-yellow-300 dark:border-yellow-600' : ''}
                 />
               </div>
               <div>
@@ -235,7 +396,7 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
           </div>
           
           <div className="border-t pt-4">
-            <h5 className="font-medium text-gray-900 mb-3">Background</h5>
+            <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Background</h5>
             <div className="space-y-3">
               <div>
                 <Label htmlFor="backgroundType">Background Type</Label>
@@ -458,8 +619,18 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
       {component.type === 'text' && (
         <>
           <div>
-            <Label>Content</Label>
-            <div className="mt-2">
+            <Label className="flex items-center gap-2 mb-2">
+              <span>Content</span>
+              {hasTranslation('content', activeLanguage) ? (
+                <CheckCircle className="h-3 w-3 text-green-500" />
+              ) : (
+                <AlertCircle className="h-3 w-3 text-yellow-500" />
+              )}
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ({languages.find(l => l.code === activeLanguage)?.name})
+              </span>
+            </Label>
+            <div className={`mt-2 ${!hasTranslation('content', activeLanguage) ? 'ring-1 ring-yellow-300 dark:ring-yellow-600 rounded' : ''}`}>
               <RichTextEditor
                 content={component.data.content?.[activeLanguage] ? { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: component.data.content[activeLanguage] }] }] } : undefined}
                 onChange={(content) => {
@@ -693,7 +864,17 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
       {component.type === 'cta' && (
         <>
           <div>
-            <Label htmlFor="heading">Heading ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+            <Label htmlFor="heading" className="flex items-center gap-2">
+              <span>Heading</span>
+              {hasTranslation('heading', activeLanguage) ? (
+                <CheckCircle className="h-3 w-3 text-green-500" />
+              ) : (
+                <AlertCircle className="h-3 w-3 text-yellow-500" />
+              )}
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ({languages.find(l => l.code === activeLanguage)?.name})
+              </span>
+            </Label>
             <Input
               id="heading"
               value={component.data.heading?.[activeLanguage] || component.data.title?.[activeLanguage] || ''}
@@ -702,11 +883,22 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
                 updateData('heading', updatedHeading)
               }}
               placeholder="Enter CTA heading"
+              className={!hasTranslation('heading', activeLanguage) ? 'border-yellow-300 dark:border-yellow-600' : ''}
             />
           </div>
           
           <div>
-            <Label htmlFor="description">Description ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+            <Label htmlFor="description" className="flex items-center gap-2">
+              <span>Description</span>
+              {hasTranslation('description', activeLanguage) ? (
+                <CheckCircle className="h-3 w-3 text-green-500" />
+              ) : (
+                <AlertCircle className="h-3 w-3 text-yellow-500" />
+              )}
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                ({languages.find(l => l.code === activeLanguage)?.name})
+              </span>
+            </Label>
             <Input
               id="description"
               value={component.data.description?.[activeLanguage] || ''}
@@ -715,14 +907,25 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
                 updateData('description', updatedDescription)
               }}
               placeholder="Enter CTA description"
+              className={!hasTranslation('description', activeLanguage) ? 'border-yellow-300 dark:border-yellow-600' : ''}
             />
           </div>
           
           <div className="border-t pt-4">
-            <h5 className="font-medium text-gray-900 mb-3">Primary Button</h5>
+            <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Primary Button</h5>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="ctaButtonText">Button Text ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+                <Label htmlFor="ctaButtonText" className="flex items-center gap-2">
+                  <span>Button Text</span>
+                  {hasTranslation('ctaButtonText', activeLanguage) ? (
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <AlertCircle className="h-3 w-3 text-yellow-500" />
+                  )}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    ({languages.find(l => l.code === activeLanguage)?.name})
+                  </span>
+                </Label>
                 <Input
                   id="ctaButtonText"
                   value={component.data.ctaButtonText?.[activeLanguage] || component.data.primaryButton?.[activeLanguage] || ''}
@@ -731,6 +934,7 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
                     updateData('ctaButtonText', updatedButtonText)
                   }}
                   placeholder="Enter button text"
+                  className={!hasTranslation('ctaButtonText', activeLanguage) ? 'border-yellow-300 dark:border-yellow-600' : ''}
                 />
               </div>
               <div>
@@ -746,15 +950,26 @@ export function ComponentEditor({ component, onChange }: ComponentEditorProps) {
           </div>
           
           <div className="border-t pt-4">
-            <h5 className="font-medium text-gray-900 mb-3">Secondary Button</h5>
+            <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Secondary Button</h5>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="secondaryButton">Button Text ({languages.find(l => l.code === activeLanguage)?.name})</Label>
+                <Label htmlFor="secondaryButton" className="flex items-center gap-2">
+                  <span>Button Text</span>
+                  {hasTranslation('secondaryButton', activeLanguage) ? (
+                    <CheckCircle className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <AlertCircle className="h-3 w-3 text-yellow-500" />
+                  )}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    ({languages.find(l => l.code === activeLanguage)?.name})
+                  </span>
+                </Label>
                 <Input
                   id="secondaryButton"
                   value={getMultilingualText('secondaryButton', activeLanguage)}
                   onChange={(e) => updateMultilingualText('secondaryButton', activeLanguage, e.target.value)}
                   placeholder="Enter button text"
+                  className={!hasTranslation('secondaryButton', activeLanguage) ? 'border-yellow-300 dark:border-yellow-600' : ''}
                 />
               </div>
               <div>

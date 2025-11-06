@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Menu, X, Globe, ChevronDown } from 'lucide-react'
 import { useLanguage } from '@/contexts/language-context'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { useT } from '@/hooks/use-t'
 
 export function Navigation() {
+  const { t } = useT()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false)
   const [showThemeToggle, setShowThemeToggle] = useState(true)
@@ -34,11 +36,21 @@ export function Navigation() {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const toggleLanguageMenu = () => setIsLanguageMenuOpen(!isLanguageMenuOpen)
 
+  // Helper function to add language parameter to URLs
+  const getLocalizedHref = (href: string) => {
+    const defaultLang = languages.find(l => l.isDefault)
+    if (currentLanguage === defaultLang?.code) {
+      return href
+    }
+    const separator = href.includes('?') ? '&' : '?'
+    return `${href}${separator}lang=${currentLanguage}`
+  }
+
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/projects', label: 'Projects' },
-    { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
+    { href: '/', label: t('nav.home') },
+    { href: '/projects', label: t('nav.projects') },
+    { href: '/about', label: t('nav.about') },
+    { href: '/contact', label: t('nav.contact') },
   ]
 
   return (
@@ -46,7 +58,7 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center group">
+          <Link href={getLocalizedHref('/')} className="flex items-center group">
             <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent group-hover:from-gray-700 group-hover:to-gray-900 dark:group-hover:from-gray-200 dark:group-hover:to-white transition-all duration-300">
               Portfolio
             </span>
@@ -57,7 +69,7 @@ export function Navigation() {
             {navLinks.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={getLocalizedHref(link.href)}
                 className="relative px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200 font-medium rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 group"
               >
                 {link.label}
@@ -141,7 +153,7 @@ export function Navigation() {
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
-                  href={link.href}
+                  href={getLocalizedHref(link.href)}
                   className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -153,7 +165,7 @@ export function Navigation() {
               {showThemeToggle && (
                 <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 mt-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Theme</span>
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('nav.theme')}</span>
                     <ThemeToggle />
                   </div>
                 </div>
@@ -162,7 +174,7 @@ export function Navigation() {
               {/* Mobile Language Selector */}
               {!isLoading && languages.length > 1 && (
                 <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700 mt-2">
-                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Language</div>
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">{t('nav.language')}</div>
                   <div className="space-y-1">
                     {languages.map((language) => (
                       <button

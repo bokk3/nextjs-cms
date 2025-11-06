@@ -55,6 +55,26 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     fetchLanguages()
   }, [searchParams])
 
+  // Update language when URL parameter changes (e.g., browser back/forward)
+  useEffect(() => {
+    if (languages.length === 0) return
+    
+    const langParam = searchParams.get('lang')
+    if (langParam && languages.some((l: Language) => l.code === langParam)) {
+      if (currentLanguage !== langParam) {
+        setCurrentLanguage(langParam)
+      }
+    } else {
+      const defaultLang = languages.find((l: Language) => l.isDefault)
+      if (defaultLang && currentLanguage !== defaultLang.code) {
+        // Only reset to default if there's no lang param
+        if (!langParam) {
+          setCurrentLanguage(defaultLang.code)
+        }
+      }
+    }
+  }, [searchParams, languages, currentLanguage])
+
   const setLanguage = (code: string) => {
     setCurrentLanguage(code)
     
@@ -73,6 +93,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     // Navigate to the new URL
     router.push(url.pathname + url.search)
   }
+
 
   return (
     <LanguageContext.Provider value={{

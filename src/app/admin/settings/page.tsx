@@ -1,5 +1,6 @@
 import { EmailSettings } from '@/components/admin/email-settings';
 import { ThemeSettings } from '@/components/admin/theme-settings';
+import { LanguageSettings } from '@/components/admin/language-settings';
 import { Breadcrumb } from '@/components/admin/breadcrumb';
 import { AuthGuard } from '@/components/admin/auth-guard';
 
@@ -22,6 +23,13 @@ export default function AdminSettingsPage() {
         </div>
 
         <div className="space-y-8">
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+              Languages & Localization
+            </h2>
+            <LanguageSettings />
+          </section>
+
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Appearance & Theme

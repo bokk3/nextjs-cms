@@ -21,8 +21,10 @@ import {
   BarChart3
 } from 'lucide-react'
 import { useSession, signOut } from '../../lib/auth-client'
+import { useT } from '@/hooks/use-t'
 
 export function AdminNavigation() {
+  const { t } = useT()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isContentDropdownOpen, setIsContentDropdownOpen] = useState(false)
   const pathname = usePathname()
@@ -48,22 +50,22 @@ export function AdminNavigation() {
 
   // Primary navigation items (always visible)
   const primaryNavLinks = [
-    { href: '/admin', label: 'Dashboard', icon: Home },
-    { href: '/admin/projects', label: 'Projects', icon: FolderOpen },
+    { href: '/admin', label: t('admin.dashboard'), icon: Home },
+    { href: '/admin/projects', label: t('admin.projects'), icon: FolderOpen },
   ]
 
   // Content management dropdown items
   const contentNavLinks = [
-    { href: '/admin/page-builder', label: 'Page Builder', icon: Layout },
-    { href: '/admin/gallery', label: 'Gallery', icon: Image },
-    { href: '/admin/content', label: 'Content', icon: FileText },
+    { href: '/admin/page-builder', label: t('admin.pageBuilder'), icon: Layout },
+    { href: '/admin/gallery', label: t('admin.gallery'), icon: Image },
+    { href: '/admin/content', label: t('admin.content'), icon: FileText },
   ]
 
   // Secondary navigation items
   const secondaryNavLinks = [
-    { href: '/admin/messages', label: 'Messages', icon: MessageSquare },
-    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-    { href: '/admin/settings', label: 'Settings', icon: Settings },
+    { href: '/admin/messages', label: t('admin.messages'), icon: MessageSquare },
+    { href: '/admin/analytics', label: t('admin.analytics'), icon: BarChart3 },
+    { href: '/admin/settings', label: t('admin.settings'), icon: Settings },
   ]
 
   const isActive = (href: string) => {
@@ -92,7 +94,7 @@ export function AdminNavigation() {
           <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              <span className="text-sm font-medium">Back to Site</span>
+              <span className="text-sm font-medium">{t('nav.backToSite')}</span>
             </Link>
             <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
             <Link href="/admin" className="flex items-center">
@@ -222,7 +224,7 @@ export function AdminNavigation() {
                   className="flex items-center"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
+                  {t('auth.signOut')}
                 </Button>
               </>
             )}
@@ -256,7 +258,7 @@ export function AdminNavigation() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 <ArrowLeft className="h-4 w-4 mr-3" />
-                <span className="font-medium">Back to Site</span>
+                <span className="font-medium">{t('nav.backToSite')}</span>
               </Link>
               
               <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
@@ -362,7 +364,7 @@ export function AdminNavigation() {
                     className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   >
                     <LogOut className="h-4 w-4 mr-3" />
-                    Sign Out
+                    {t('auth.signOut')}
                   </button>
                 </>
               )}

@@ -2,8 +2,12 @@
 
 import Link from 'next/link'
 import { useCookieConsent } from '@/contexts/cookie-consent-context'
+import { useT } from '@/hooks/use-t'
+import { useLanguage } from '@/contexts/language-context'
 
 export function Footer() {
+  const { t } = useT()
+  const { currentLanguage, languages } = useLanguage()
   let setShowBanner: ((show: boolean) => void) | null = null
   try {
     const cookieConsent = useCookieConsent()
@@ -14,40 +18,50 @@ export function Footer() {
   
   const currentYear = new Date().getFullYear()
 
+  // Helper function to add language parameter to URLs
+  const getLocalizedHref = (href: string) => {
+    const defaultLang = languages.find(l => l.isDefault)
+    if (currentLanguage === defaultLang?.code) {
+      return href
+    }
+    const separator = href.includes('?') ? '&' : '?'
+    return `${href}${separator}lang=${currentLanguage}`
+  }
+
   return (
     <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 transition-colors relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <h3 className="text-lg font-bold text-black dark:text-white mb-4">Portfolio</h3>
+            <h3 className="text-lg font-bold text-black dark:text-white mb-4">{t('footer.brand')}</h3>
             <p className="text-gray-600 dark:text-gray-300">
-              Custom artisan work crafted with quality materials and attention to detail.
+              {t('footer.tagline')}
             </p>
           </div>
 
           {/* Navigation */}
           <div>
-            <h4 className="font-semibold text-black dark:text-white mb-4">Navigation</h4>
+            <h4 className="font-semibold text-black dark:text-white mb-4">{t('footer.navigation')}</h4>
             <ul className="space-y-2">
               <li>
-                <Link href="/" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
-                  Home
+                <Link href={getLocalizedHref('/')} className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
+                  {t('nav.home')}
                 </Link>
               </li>
               <li>
-                <Link href="/projects" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
-                  Projects
+                <Link href={getLocalizedHref('/projects')} className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
+                  {t('nav.projects')}
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
-                  About
+                <Link href={getLocalizedHref('/about')} className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
+                  {t('nav.about')}
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
-                  Contact
+                <Link href={getLocalizedHref('/contact')} className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
+                  {t('nav.contact')}
                 </Link>
               </li>
             </ul>
@@ -55,16 +69,16 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-semibold text-black dark:text-white mb-4">Legal</h4>
+            <h4 className="font-semibold text-black dark:text-white mb-4">{t('footer.legal')}</h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/privacy" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
-                  Privacy Policy
+                  {t('footer.privacyPolicy')}
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors">
-                  Terms of Service
+                  {t('footer.termsOfService')}
                 </Link>
               </li>
               {setShowBanner && (
@@ -73,7 +87,7 @@ export function Footer() {
                     onClick={() => setShowBanner(true)}
                     className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors text-left"
                   >
-                    Cookie Preferences
+                    {t('footer.cookiePreferences')}
                   </button>
                 </li>
               )}
@@ -83,7 +97,7 @@ export function Footer() {
 
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 text-center">
           <p className="text-gray-600 dark:text-gray-300">
-            © {currentYear} Portfolio. All rights reserved.
+            © {currentYear} {t('footer.brand')}. {t('footer.allRightsReserved')}
           </p>
         </div>
       </div>

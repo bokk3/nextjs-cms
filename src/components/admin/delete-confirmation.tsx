@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { useT } from '@/hooks/use-t'
 
 interface DeleteConfirmationProps {
   isOpen: boolean
@@ -19,6 +20,8 @@ export function DeleteConfirmation({
   onCancel, 
   loading = false 
 }: DeleteConfirmationProps) {
+  const { t } = useT()
+
   if (!isOpen) return null
 
   return (
@@ -32,14 +35,14 @@ export function DeleteConfirmation({
             onClick={onCancel}
             disabled={loading}
           >
-            Cancel
+            {t('button.cancel')}
           </Button>
           <Button
             variant="destructive"
             onClick={onConfirm}
             disabled={loading}
           >
-            {loading ? 'Deleting...' : 'Delete'}
+            {loading ? t('button.deleting') : t('button.delete')}
           </Button>
         </div>
       </div>

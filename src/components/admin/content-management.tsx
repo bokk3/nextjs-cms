@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import { ContentList } from './content-list'
 import { ContentForm } from './content-form'
+import { ContentTranslations } from './content-translations'
 import { Button } from '@/components/ui/button'
 import { ContentPageFormData, ContentPageWithTranslations } from '@/types/content'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2, FileText, Globe } from 'lucide-react'
 
 interface Language {
   id: string
@@ -16,9 +17,11 @@ interface Language {
 }
 
 type ViewMode = 'list' | 'create' | 'edit' | 'preview'
+type TabMode = 'pages' | 'translations'
 
 export function ContentManagement() {
   const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [tabMode, setTabMode] = useState<TabMode>('pages')
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null)
   const [selectedPage, setSelectedPage] = useState<ContentPageWithTranslations | null>(null)
   const [languages, setLanguages] = useState<Language[]>([])
@@ -234,8 +237,38 @@ export function ContentManagement() {
         </div>
       )}
 
-      {/* Content based on view mode */}
+      {/* Tabs for list view */}
       {viewMode === 'list' && (
+        <div className="border-b border-gray-200 dark:border-gray-700">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setTabMode('pages')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                tabMode === 'pages'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
+            >
+              <FileText className="h-4 w-4" />
+              Content Pages
+            </button>
+            <button
+              onClick={() => setTabMode('translations')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                tabMode === 'translations'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
+            >
+              <Globe className="h-4 w-4" />
+              Content Translations
+            </button>
+          </nav>
+        </div>
+      )}
+
+      {/* Content based on view mode */}
+      {viewMode === 'list' && tabMode === 'pages' && (
         <ContentList
           onCreateNew={handleCreateNew}
           onEdit={handleEdit}
@@ -243,6 +276,10 @@ export function ContentManagement() {
           onPreview={handlePreview}
           onTogglePublished={handleTogglePublished}
         />
+      )}
+
+      {viewMode === 'list' && tabMode === 'translations' && (
+        <ContentTranslations />
       )}
 
       {(viewMode === 'create' || viewMode === 'edit') && (

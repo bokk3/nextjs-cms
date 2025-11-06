@@ -5,6 +5,7 @@ import { ProjectWithRelations } from '@/types/project'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
+import { useT } from '@/hooks/use-t'
 
 interface ProjectListProps {
   onCreateProject: () => void
@@ -13,6 +14,7 @@ interface ProjectListProps {
 }
 
 export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }: ProjectListProps) {
+  const { t } = useT()
   const [projects, setProjects] = useState<ProjectWithRelations[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -91,7 +93,7 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-gray-500">Loading projects...</div>
+        <div className="text-gray-500">{t('admin.loadingProjects')}</div>
       </div>
     )
   }
@@ -99,14 +101,14 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
   if (error) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-        <div className="text-red-800">Error: {error}</div>
+        <div className="text-red-800">{t('admin.error')}: {error}</div>
         <Button 
           onClick={fetchProjects} 
           variant="outline" 
           size="sm" 
           className="mt-2"
         >
-          Retry
+          {t('admin.retry')}
         </Button>
       </div>
     )
@@ -116,16 +118,16 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Projects</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('admin.projects')}</h1>
         <Button onClick={onCreateProject}>
-          Create Project
+          {t('admin.createProject')}
         </Button>
       </div>
 
       {/* Filters */}
       <div className="flex gap-4 items-center">
         <Input
-          placeholder="Search projects..."
+          placeholder={t('admin.searchProjects')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-sm"
@@ -134,17 +136,17 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
           value={publishedFilter}
           onChange={(e) => setPublishedFilter(e.target.value)}
         >
-          <option value="all">All Status</option>
-          <option value="true">Published</option>
-          <option value="false">Draft</option>
+          <option value="all">{t('admin.allStatus')}</option>
+          <option value="true">{t('admin.published')}</option>
+          <option value="false">{t('admin.draft')}</option>
         </Select>
         <Select
           value={featuredFilter}
           onChange={(e) => setFeaturedFilter(e.target.value)}
         >
-          <option value="all">All Projects</option>
-          <option value="true">Featured</option>
-          <option value="false">Not Featured</option>
+          <option value="all">{t('admin.allProjects')}</option>
+          <option value="true">{t('admin.featured')}</option>
+          <option value="false">{t('admin.notFeatured')}</option>
         </Select>
       </div>
 
@@ -154,19 +156,19 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Project
+                {t('admin.project')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Status
+                {t('admin.status')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Images
+                {t('admin.images')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Created
+                {t('admin.created')}
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Actions
+                {t('admin.actions')}
               </th>
             </tr>
           </thead>
@@ -174,7 +176,7 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
             {projects.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                  No projects found. Create your first project to get started.
+                  {t('admin.noProjectsFound')}
                 </td>
               </tr>
             ) : (
@@ -186,7 +188,7 @@ export function ProjectList({ onCreateProject, onEditProject, onDeleteProject }:
                         {getProjectTitle(project)}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {project.translations.length} translation(s)
+                        {project.translations.length} {t('admin.translationsCount')}
                       </div>
                     </div>
                   </td>

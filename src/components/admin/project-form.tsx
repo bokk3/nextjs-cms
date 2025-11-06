@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select } from '@/components/ui/select'
 import { ImageUploader } from './image-uploader'
+import { useT } from '@/hooks/use-t'
 
 interface ProjectFormProps {
   project?: ProjectWithRelations
@@ -44,6 +45,7 @@ interface ProjectImage {
 }
 
 export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
+  const { t } = useT()
   const [contentTypes, setContentTypes] = useState<ContentType[]>([])
   const [languages, setLanguages] = useState<Language[]>([])
   const [loading, setLoading] = useState(false)
@@ -182,14 +184,14 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
 
   const getLanguageName = (languageId: string) => {
     const language = languages.find(l => l.id === languageId)
-    return language?.name || 'Unknown Language'
+    return language?.name || t('project.unknownLanguage')
   }
 
   return (
     <div className="max-w-4xl mx-auto p-6 animate-fade-in">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          {project ? 'Edit Project' : 'Create Project'}
+          {project ? t('project.edit') : t('project.create')}
         </h1>
       </div>
 
@@ -202,18 +204,18 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Settings */}
         <div className="bg-white p-6 border border-gray-200 rounded-lg">
-          <h2 className="text-lg font-semibold mb-4">Basic Settings</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('project.basicSettings')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Content Type
+                {t('project.contentType')}
               </label>
               <Select
                 value={contentTypeId}
                 onChange={(e) => setContentTypeId(e.target.value)}
                 required
               >
-                <option value="">Select content type</option>
+                <option value="">{t('project.selectContentType')}</option>
                 {contentTypes.map(type => (
                   <option key={type.id} value={type.id}>
                     {type.displayName}
@@ -229,7 +231,7 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                   onChange={(e) => setFeatured(e.target.checked)}
                   className="mr-2"
                 />
-                Featured
+                {t('project.featured')}
               </label>
               <label className="flex items-center">
                 <input
@@ -238,7 +240,7 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                   onChange={(e) => setPublished(e.target.checked)}
                   className="mr-2"
                 />
-                Published
+                {t('project.published')}
               </label>
             </div>
           </div>
@@ -246,7 +248,7 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
 
         {/* Translations */}
         <div className="bg-white p-6 border border-gray-200 rounded-lg">
-          <h2 className="text-lg font-semibold mb-4">Translations</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('project.translations')}</h2>
           <div className="space-y-6">
             {translations.map((translation, index) => (
               <div key={translation.languageId} className="border border-gray-200 rounded-lg p-4">
@@ -256,33 +258,33 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Title
+                      {t('project.title')}
                     </label>
                     <Input
                       value={translation.title}
                       onChange={(e) => handleTranslationChange(translation.languageId, 'title', e.target.value)}
-                      placeholder="Project title"
+                      placeholder={t('project.titlePlaceholder')}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description
+                      {t('project.description')}
                     </label>
                     <Textarea
                       value={translation.description}
                       onChange={(e) => handleTranslationChange(translation.languageId, 'description', e.target.value)}
-                      placeholder="Project description"
+                      placeholder={t('project.descriptionPlaceholder')}
                       rows={4}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Materials (comma-separated)
+                      {t('project.materials')}
                     </label>
                     <Input
                       value={translation.materials.join(', ')}
                       onChange={(e) => handleMaterialsChange(translation.languageId, e.target.value)}
-                      placeholder="Wood, Metal, Glass"
+                      placeholder={t('project.materialsPlaceholder')}
                     />
                   </div>
                 </div>
@@ -293,7 +295,7 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
 
         {/* Images */}
         <div className="bg-white p-6 border border-gray-200 rounded-lg">
-          <h2 className="text-lg font-semibold mb-4">Images</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('project.images')}</h2>
           <ImageUploader
             images={images}
             onImagesChange={setImages}
@@ -308,13 +310,13 @@ export function ProjectForm({ project, onSave, onCancel }: ProjectFormProps) {
             onClick={onCancel}
             disabled={loading}
           >
-            Cancel
+            {t('button.cancel')}
           </Button>
           <Button
             type="submit"
             disabled={loading}
           >
-            {loading ? 'Saving...' : (project ? 'Update Project' : 'Create Project')}
+            {loading ? t('project.saving') : (project ? t('project.update') : t('project.create'))}
           </Button>
         </div>
       </form>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ContentPageListItem } from '@/types/content'
+import { useT } from '@/hooks/use-t'
 import { 
   Search, 
   Plus, 
@@ -34,6 +35,7 @@ export function ContentList({
   onPreview,
   onTogglePublished
 }: ContentListProps) {
+  const { t } = useT()
   const [pages, setPages] = useState<ContentPageListItem[]>([])
   const [filteredPages, setFilteredPages] = useState<ContentPageListItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -149,12 +151,12 @@ export function ContentList({
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Content Pages</h2>
-          <p className="text-gray-600 dark:text-gray-400">Manage your website content pages</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{t('admin.contentPages')}</h2>
+          <p className="text-gray-600 dark:text-gray-400">{t('admin.manageContentPages')}</p>
         </div>
         <Button onClick={onCreateNew}>
           <Plus className="h-4 w-4 mr-2" />
-          New Page
+          {t('admin.newPage')}
         </Button>
       </div>
 
@@ -166,7 +168,7 @@ export function ContentList({
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search pages..."
+                placeholder={t('admin.searchPages')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -180,7 +182,7 @@ export function ContentList({
             onChange={(e) => setSelectedLanguage(e.target.value)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
-            <option value="all">All Languages</option>
+            <option value="all">{t('admin.allLanguages')}</option>
             {getAvailableLanguages().map(lang => (
               <option key={lang} value={lang}>
                 {lang.toUpperCase()}
@@ -194,9 +196,9 @@ export function ContentList({
             onChange={(e) => setPublishedFilter(e.target.value as any)}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
           >
-            <option value="all">All Status</option>
-            <option value="published">Published</option>
-            <option value="unpublished">Unpublished</option>
+            <option value="all">{t('admin.allStatus')}</option>
+            <option value="published">{t('admin.published')}</option>
+            <option value="unpublished">{t('admin.unpublished')}</option>
           </select>
 
           {/* Sort */}

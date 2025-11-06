@@ -8,6 +8,7 @@ import { ContentPageFormData, ContentTranslationFormData, JSONContent } from '@/
 import { ContentValidator } from '@/lib/content-validation'
 import { ContentService } from '@/lib/content-service'
 import { Save, Eye, Globe, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { useT } from '@/hooks/use-t'
 
 interface ContentFormProps {
   initialData?: ContentPageFormData
@@ -26,6 +27,7 @@ export function ContentForm({
   isLoading = false,
   mode = 'create'
 }: ContentFormProps) {
+  const { t } = useT()
   const [formData, setFormData] = useState<ContentPageFormData>(() => ({
     slug: initialData?.slug || '',
     published: initialData?.published || false,
@@ -197,12 +199,12 @@ export function ContentForm({
     <div className="space-y-6 animate-fade-in">
       {/* Page Settings */}
       <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl p-6">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Page Settings</h3>
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">{t('content.pageSettings')}</h3>
         
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-              Slug
+              {t('content.slug')}
             </label>
             <div className="flex gap-2">
               <div className="flex-1 relative">
@@ -222,7 +224,7 @@ export function ContentForm({
                 onClick={generateSlugFromTitle}
                 disabled={!currentTranslation?.title}
               >
-                Generate from Title
+                {t('content.generateFromTitle')}
               </Button>
             </div>
             {validationErrors.slug && (
@@ -260,7 +262,7 @@ export function ContentForm({
               className="rounded border-gray-300"
             />
             <label htmlFor="published" className="text-sm font-medium text-gray-700">
-              Published
+              {t('content.published')}
             </label>
           </div>
         </div>
@@ -269,7 +271,12 @@ export function ContentForm({
       {/* Language Tabs */}
       <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl overflow-hidden">
         <div className="border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-800/50">
-          <nav className="flex space-x-2 px-6">
+          <div className="px-6 pt-4 pb-2">
+            <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">
+              {t('project.translations')}
+            </h4>
+          </div>
+          <nav className="flex space-x-2 px-6 pb-2">
             {languages.map(language => {
               const translation = formData.translations.find(t => t.languageId === language.id)
               const hasContent = translation?.title || (translation?.content && 
@@ -280,21 +287,27 @@ export function ContentForm({
                   key={language.code}
                   type="button"
                   onClick={() => setActiveLanguage(language.code)}
-                  className={`py-4 px-4 border-b-2 font-semibold text-sm flex items-center gap-2 transition-all duration-200 rounded-t-xl ${
+                  className={`py-3 px-4 border-b-2 font-semibold text-sm flex items-center gap-2 transition-all duration-200 rounded-t-xl ${
                     activeLanguage === language.code
-                      ? 'border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                      ? 'border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20 shadow-sm'
                       : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100/50 dark:hover:bg-gray-700/50'
                   }`}
                 >
                   <Globe className="h-4 w-4" />
-                  {language.name}
+                  <span className="uppercase font-bold">{language.code}</span>
+                  <span>{language.name}</span>
                   {language.isDefault && (
                     <span className="text-xs font-bold bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2.5 py-1 rounded-full shadow-sm">
-                      Default
+                      {t('content.default')}
                     </span>
                   )}
                   {hasContent && (
-                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <span title="Has content">
+                      <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    </span>
+                  )}
+                  {!hasContent && activeLanguage === language.code && (
+                    <span className="text-xs text-orange-600 dark:text-orange-400 font-medium">(Empty)</span>
                   )}
                 </button>
               )
@@ -305,15 +318,22 @@ export function ContentForm({
         {/* Translation Content */}
         <div className="p-6">
           {currentTranslation && (
-            <div className="space-y-4">
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
+                <Globe className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  {t('content.editLanguage').replace('{language}', languages.find(l => l.code === activeLanguage)?.name || activeLanguage)}
+                </span>
+              </div>
+              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title ({languages.find(l => l.code === activeLanguage)?.name})
+                <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                  {t('content.title')} <span className="text-xs font-normal text-gray-500">({languages.find(l => l.code === activeLanguage)?.name})</span>
                 </label>
                 <Input
                   value={currentTranslation.title}
                   onChange={(e) => updateTranslation('title', e.target.value)}
-                  placeholder="Enter page title..."
+                  placeholder={t('content.titlePlaceholder')}
                   className={validationErrors[`translation_${activeLanguage}_title`] ? 'border-red-500' : ''}
                 />
                 {validationErrors[`translation_${activeLanguage}_title`] && (
@@ -324,13 +344,13 @@ export function ContentForm({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Content ({languages.find(l => l.code === activeLanguage)?.name})
+                <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                  {t('content.content')} <span className="text-xs font-normal text-gray-500">({languages.find(l => l.code === activeLanguage)?.name})</span>
                 </label>
                 <RichTextEditor
                   content={currentTranslation.content}
                   onChange={(content) => updateTranslation('content', content)}
-                  placeholder={`Write content in ${languages.find(l => l.code === activeLanguage)?.name}...`}
+                  placeholder={t('content.contentPlaceholder').replace('{language}', languages.find(l => l.code === activeLanguage)?.name || activeLanguage)}
                   className={validationErrors[`translation_${activeLanguage}_content`] ? 'border-red-500' : ''}
                 />
                 {validationErrors[`translation_${activeLanguage}_content`] && (
@@ -355,7 +375,7 @@ export function ContentForm({
               disabled={isLoading}
             >
               <Eye className="h-4 w-4 mr-2" />
-              Preview
+              {t('content.preview')}
             </Button>
           )}
         </div>
@@ -371,7 +391,7 @@ export function ContentForm({
             ) : (
               <Save className="h-4 w-4 mr-2" />
             )}
-            {mode === 'create' ? 'Create Page' : 'Save Changes'}
+            {mode === 'create' ? t('content.createPage') : t('content.saveChanges')}
           </Button>
         </div>
       </div>
