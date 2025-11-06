@@ -71,13 +71,19 @@ export function AdminDashboard() {
       }
     }
 
-    if (session) {
-      fetchStats()
-      // Refresh stats every 30 seconds
-      const interval = setInterval(fetchStats, 30000)
-      return () => clearInterval(interval)
+    // Only fetch if session check is complete and we have a session
+    if (!isPending) {
+      if (session) {
+        fetchStats()
+        // Refresh stats every 30 seconds
+        const interval = setInterval(fetchStats, 30000)
+        return () => clearInterval(interval)
+      } else {
+        // If no session and not pending, stop loading
+        setLoading(false)
+      }
     }
-  }, [session])
+  }, [session, isPending])
 
   if (isPending || loading) {
     return (
@@ -119,11 +125,14 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent mb-2">
           Admin Dashboard
         </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Welcome back! Here's an overview of your system.
+        </p>
       </div>
 
       {/* Visits Ticker with Clock */}
@@ -132,7 +141,7 @@ export function AdminDashboard() {
       )}
 
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
         {stats && (
           <>
             <StatsCard
@@ -202,25 +211,31 @@ export function AdminDashboard() {
 
       {/* Popular Pages */}
       {stats && stats.analytics.popularPages.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl overflow-hidden animate-fade-in">
+          <div className="px-6 py-5 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-800/50">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
               Popular Pages (30 days)
             </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Most visited pages on your site
+            </p>
           </div>
           <div className="p-6">
             <div className="space-y-3">
               {stats.analytics.popularPages.map((page, index) => (
-                <div key={page.path} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 w-6">
-                      #{index + 1}
-                    </span>
-                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium">
+                <div 
+                  key={page.path} 
+                  className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-800/30 dark:to-transparent hover:from-gray-100/50 hover:to-gray-50/50 dark:hover:from-gray-700/50 dark:hover:to-gray-800/50 transition-all duration-200 border border-gray-200/30 dark:border-gray-700/30"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white font-bold text-sm shadow-lg shadow-blue-500/30">
+                      {index + 1}
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {page.path}
                     </span>
                   </div>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <span className="text-sm font-bold text-gray-900 dark:text-white bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-700 px-4 py-2 rounded-full border border-gray-200/50 dark:border-gray-600/50">
                     {page.views.toLocaleString()} views
                   </span>
                 </div>
@@ -231,39 +246,44 @@ export function AdminDashboard() {
       )}
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100 mb-4">
+      <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl overflow-hidden animate-fade-in">
+        <div className="px-6 py-5 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-800/50">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
             Quick Actions
           </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Jump to common management tasks
+          </p>
+        </div>
+        <div className="p-6">
           <div className="flex flex-wrap gap-3">
             <Link
               href="/admin/projects"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="inline-flex items-center px-5 py-3 border-2 border-gray-200 dark:border-gray-700 shadow-sm text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-gray-700/80 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
               Manage Projects
             </Link>
             <Link
               href="/admin/content"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="inline-flex items-center px-5 py-3 border-2 border-gray-200 dark:border-gray-700 shadow-sm text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-gray-700/80 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
               Manage Content
             </Link>
             <Link
               href="/admin/messages"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="inline-flex items-center px-5 py-3 border-2 border-gray-200 dark:border-gray-700 shadow-sm text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-gray-700/80 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
               Contact Messages
             </Link>
             <Link
               href="/admin/analytics"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="inline-flex items-center px-5 py-3 border-2 border-gray-200 dark:border-gray-700 shadow-sm text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-gray-700/80 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
               Analytics
             </Link>
             <Link
               href="/admin/settings"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="inline-flex items-center px-5 py-3 border-2 border-gray-200 dark:border-gray-700 shadow-sm text-sm font-semibold rounded-xl text-gray-700 dark:text-gray-300 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-gray-50 dark:hover:bg-gray-700/80 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
               Settings
             </Link>

@@ -42,23 +42,26 @@ export function Navigation() {
   ]
 
   return (
-    <nav className="main-nav bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors">
+    <nav className="main-nav bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50 transition-all duration-300 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <span className="text-xl font-bold text-black dark:text-white">Portfolio</span>
+          <Link href="/" className="flex items-center group">
+            <span className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent group-hover:from-gray-700 group-hover:to-gray-900 dark:group-hover:from-gray-200 dark:group-hover:to-white transition-all duration-300">
+              Portfolio
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors font-medium"
+                className="relative px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200 font-medium rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 group"
               >
                 {link.label}
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
               </Link>
             ))}
             
@@ -83,8 +86,8 @@ export function Navigation() {
                   </Button>
                   
                   {isLanguageMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
-                      <div className="py-1">
+                    <div className="absolute right-0 mt-2 w-48 glass border border-white/20 dark:border-gray-700/30 rounded-xl shadow-2xl z-50 overflow-hidden animate-scale-in">
+                      <div className="py-2">
                         {languages.map((language) => (
                           <button
                             key={language.code}
@@ -92,15 +95,15 @@ export function Navigation() {
                               setLanguage(language.code)
                               setIsLanguageMenuOpen(false)
                             }}
-                            className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                            className={`w-full text-left px-4 py-2.5 text-sm transition-all duration-200 ${
                               currentLanguage === language.code
-                                ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium'
-                                : 'text-gray-700 dark:text-gray-300'
+                                ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 font-semibold'
+                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50'
                             }`}
                           >
                             <div className="flex items-center justify-between">
                               <span>{language.name}</span>
-                              <span className="text-xs uppercase text-gray-500 dark:text-gray-400">
+                              <span className="text-xs uppercase text-gray-500 dark:text-gray-400 font-medium">
                                 {language.code}
                               </span>
                             </div>

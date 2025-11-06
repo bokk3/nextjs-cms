@@ -78,7 +78,7 @@ export function AdminNavigation() {
   }
 
   return (
-    <nav className="admin-nav bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-16 z-50 shadow-sm">
+    <nav className="admin-nav bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-16 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Back to Site */}
@@ -102,15 +102,15 @@ export function AdminNavigation() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`group relative flex items-center p-2 rounded-md transition-colors ${
+                  className={`group relative flex items-center p-2.5 rounded-xl transition-all duration-200 ${
                     isActive(link.href)
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                      : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 shadow-md'
+                      : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 hover:shadow-sm'
                   }`}
                   title={link.label}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60]">
+                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 text-xs glass border border-white/20 dark:border-gray-700/30 text-gray-900 dark:text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60] shadow-lg">
                     {link.label}
                   </span>
                 </Link>
@@ -121,33 +121,33 @@ export function AdminNavigation() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={toggleContentDropdown}
-                className={`group relative flex items-center p-2 rounded-md transition-colors ${
+                className={`group relative flex items-center p-2.5 rounded-xl transition-all duration-200 ${
                   isContentSectionActive()
-                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    ? 'bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 shadow-md'
+                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 hover:shadow-sm'
                 }`}
                 title="Content Management"
               >
                 <Edit3 className="h-5 w-5" />
-                <ChevronDown className="h-3 w-3 ml-1" />
-                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                <ChevronDown className={`h-3 w-3 ml-1 transition-transform duration-200 ${isContentDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 text-xs glass border border-white/20 dark:border-gray-700/30 text-gray-900 dark:text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60] shadow-lg">
                   Content
                 </span>
               </button>
               
               {isContentDropdownOpen && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-[60] animate-in fade-in-0 zoom-in-95 duration-100">
-                  <div className="py-1">
+                <div className="absolute top-full left-0 mt-2 w-56 glass border border-white/20 dark:border-gray-700/30 rounded-xl shadow-2xl z-[60] overflow-hidden animate-scale-in">
+                  <div className="py-2">
                     {contentNavLinks.map((link) => {
                       const Icon = link.icon
                       return (
                         <Link
                           key={link.href}
                           href={link.href}
-                          className={`flex items-center px-4 py-2 text-sm transition-colors ${
+                          className={`flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 ${
                             isActive(link.href)
-                              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                              ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 font-semibold'
+                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-700/80'
                           }`}
                           onClick={() => setIsContentDropdownOpen(false)}
                         >
@@ -168,15 +168,15 @@ export function AdminNavigation() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`group relative flex items-center p-2 rounded-md transition-colors ${
+                  className={`group relative flex items-center p-2.5 rounded-xl transition-all duration-200 ${
                     isActive(link.href)
-                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-                      : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      ? 'bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 shadow-md'
+                      : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100/80 dark:hover:bg-gray-700/80 hover:shadow-sm'
                   }`}
                   title={link.label}
                 >
                   <Icon className="h-5 w-5" />
-                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60]">
+                  <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 text-xs glass border border-white/20 dark:border-gray-700/30 text-gray-900 dark:text-white rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[60] shadow-lg">
                     {link.label}
                   </span>
                 </Link>

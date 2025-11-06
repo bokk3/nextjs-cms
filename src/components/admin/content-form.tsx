@@ -196,12 +196,12 @@ export function ContentForm({
   return (
     <div className="space-y-6">
       {/* Page Settings */}
-      <div className="bg-white p-6 rounded-lg border">
-        <h3 className="text-lg font-semibold mb-4">Page Settings</h3>
+      <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl p-6">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Page Settings</h3>
         
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
               Slug
             </label>
             <div className="flex gap-2">
@@ -267,9 +267,9 @@ export function ContentForm({
       </div>
 
       {/* Language Tabs */}
-      <div className="bg-white rounded-lg border">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
+      <div className="glass border border-white/20 dark:border-gray-700/30 rounded-2xl shadow-xl overflow-hidden">
+        <div className="border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-800/50">
+          <nav className="flex space-x-2 px-6">
             {languages.map(language => {
               const translation = formData.translations.find(t => t.languageId === language.id)
               const hasContent = translation?.title || (translation?.content && 
@@ -280,21 +280,21 @@ export function ContentForm({
                   key={language.code}
                   type="button"
                   onClick={() => setActiveLanguage(language.code)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                  className={`py-4 px-4 border-b-2 font-semibold text-sm flex items-center gap-2 transition-all duration-200 rounded-t-xl ${
                     activeLanguage === language.code
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-blue-500 text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
+                      : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100/50 dark:hover:bg-gray-700/50'
                   }`}
                 >
                   <Globe className="h-4 w-4" />
                   {language.name}
                   {language.isDefault && (
-                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                    <span className="text-xs font-bold bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2.5 py-1 rounded-full shadow-sm">
                       Default
                     </span>
                   )}
                   {hasContent && (
-                    <CheckCircle className="h-3 w-3 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
                   )}
                 </button>
               )
