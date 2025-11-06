@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Globe, Plus, Trash2, Check, X, Star, Settings2 } from 'lucide-react'
+import { Globe, Plus, Trash2, Check, X, Star, Settings2, Languages, Loader2 } from 'lucide-react'
 import { TranslationManagement } from './translation-management'
+import { useT } from '@/hooks/use-t'
 
 interface Language {
   id: string
@@ -22,16 +23,35 @@ interface Language {
 }
 
 export function LanguageSettings() {
+  const { t } = useT()
   const [languages, setLanguages] = useState<Language[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
   const [showTranslations, setShowTranslations] = useState(false)
   const [newLanguage, setNewLanguage] = useState({ code: '', name: '' })
+  const [autoTranslate, setAutoTranslate] = useState(true)
+  const [translating, setTranslating] = useState<string | null>(null)
+  const [translationStatus, setTranslationStatus] = useState<Record<string, { status: 'idle' | 'translating' | 'success' | 'error', message?: string }>>({})
+  const [apiConfigured, setApiConfigured] = useState<boolean | null>(null)
 
   useEffect(() => {
     loadLanguages()
+    checkAPIConfiguration()
   }, [])
+
+  const checkAPIConfiguration = async () => {
+    try {
+      const response = await fetch('/api/admin/translations/check-api')
+      if (response.ok) {
+        const data = await response.json()
+        setApiConfigured(data.configured)
+      }
+    } catch (error) {
+      console.error('Error checking API configuration:', error)
+      setApiConfigured(false)
+    }
+  }
 
   const loadLanguages = async () => {
     try {
@@ -90,14 +110,23 @@ export function LanguageSettings() {
           code: newLanguage.code.toLowerCase(),
           name: newLanguage.name,
           isActive: true,
-          isDefault: languages.length === 0 // Set as default if first language
+          isDefault: languages.length === 0, // Set as default if first language
+          autoTranslate: autoTranslate && apiConfigured
         })
       })
 
       if (response.ok) {
+        const newLang = await response.json()
         setNewLanguage({ code: '', name: '' })
         setShowAddForm(false)
         await loadLanguages()
+        
+        if (autoTranslate && apiConfigured) {
+          setTranslationStatus(prev => ({
+            ...prev,
+            [newLang.id]: { status: 'success', message: 'Auto-translated on creation' }
+          }))
+        }
       } else {
         const error = await response.json()
         alert(error.error || 'Failed to create language')
@@ -107,6 +136,46 @@ export function LanguageSettings() {
       alert('Error creating language')
     } finally {
       setSaving(null)
+    }
+  }
+
+  const translateMissing = async (languageId: string) => {
+    try {
+      setTranslating(languageId)
+      setTranslationStatus(prev => ({
+        ...prev,
+        [languageId]: { status: 'translating', message: 'Translating missing keys...' }
+      }))
+
+      const response = await fetch(`/api/admin/languages/${languageId}/translate-missing`, {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setTranslationStatus(prev => ({
+          ...prev,
+          [languageId]: { 
+            status: 'success', 
+            message: `${data.translated} translations added${data.failed > 0 ? `, ${data.failed} failed` : ''}` 
+          }
+        }))
+        await loadLanguages() // Reload to update coverage
+      } else {
+        const error = await response.json()
+        setTranslationStatus(prev => ({
+          ...prev,
+          [languageId]: { status: 'error', message: error.error || 'Translation failed' }
+        }))
+      }
+    } catch (error) {
+      console.error('Error translating missing:', error)
+      setTranslationStatus(prev => ({
+        ...prev,
+        [languageId]: { status: 'error', message: 'Translation failed' }
+      }))
+    } finally {
+      setTranslating(null)
     }
   }
 
@@ -232,6 +301,35 @@ export function LanguageSettings() {
               />
             </div>
           </div>
+          
+          {/* Auto-translate option */}
+          {apiConfigured && (
+            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={autoTranslate}
+                  onChange={(e) => setAutoTranslate(e.target.checked)}
+                  className="rounded"
+                />
+                <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  Automatically translate all existing keys using DeepL
+                </span>
+              </label>
+              <p className="text-xs text-blue-700 dark:text-blue-300 mt-1 ml-6">
+                This will translate all existing translation keys from the default language to the new language.
+              </p>
+            </div>
+          )}
+
+          {apiConfigured === false && (
+            <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>Note:</strong> Translation API not configured. Add DEEPL_API_KEY to your environment variables to enable auto-translation.
+              </p>
+            </div>
+          )}
+
           <div className="flex gap-2 mt-4">
             <Button
               onClick={createLanguage}
@@ -295,11 +393,45 @@ export function LanguageSettings() {
 
                     {/* Translation Coverage */}
                     {language.coverage && (
-                      <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                        <span className="font-medium">
-                          {language.coverage.translatedKeys} / {language.coverage.totalKeys}
-                        </span>
-                        {' '}translations ({Math.round(language.coverage.coverage)}%)
+                      <div className="mt-1 space-y-1">
+                        <div className="text-xs text-gray-600 dark:text-gray-400">
+                          <span className="font-medium">
+                            {language.coverage.translatedKeys} / {language.coverage.totalKeys}
+                          </span>
+                          {' '}translations ({Math.round(language.coverage.coverage)}%)
+                        </div>
+                        {language.coverage.coverage < 100 && apiConfigured && (
+                          <Button
+                            onClick={() => translateMissing(language.id)}
+                            disabled={translating === language.id}
+                            variant="outline"
+                            size="sm"
+                            className="h-6 text-xs mt-1"
+                          >
+                            {translating === language.id ? (
+                              <>
+                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                Translating...
+                              </>
+                            ) : (
+                              <>
+                                <Languages className="h-3 w-3 mr-1" />
+                                Translate Missing
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        {translationStatus[language.id] && (
+                          <div className={`text-xs mt-1 ${
+                            translationStatus[language.id].status === 'success' 
+                              ? 'text-green-600 dark:text-green-400' 
+                              : translationStatus[language.id].status === 'error'
+                              ? 'text-red-600 dark:text-red-400'
+                              : 'text-blue-600 dark:text-blue-400'
+                          }`}>
+                            {translationStatus[language.id].message}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
